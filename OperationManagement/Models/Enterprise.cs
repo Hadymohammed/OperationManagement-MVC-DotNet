@@ -11,7 +11,7 @@ namespace OperationManagement.Models
         public string Name { get; set; }
         [AllowNull]
         public string? LogoURL { get; set; }
-        public List<Staff>? Staff { get; set; }
+        public List<ApplicationUser>? Staff { get; set; }
         public List<Category>? Categories { get; set; }
         public List<Component>? Components { get; set; }
         public List<Measurement>? Measurements { get; set; }

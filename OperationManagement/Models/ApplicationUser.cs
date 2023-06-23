@@ -1,26 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class Staff
+    public class ApplicationUser:IdentityUser
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public string FirstName { get; set; }
         [Required]
         public string LastName { get; set; }
-        [Required,EmailAddress]
-        public string Email { get; set; }
-        [Required,Phone]
-        public string Phone { get; set; }
-        [Required]
-        public string Password { get; set; }
         [AllowNull]
         public string? ProfilePictureURL { get; set; }
-        [Required,ForeignKey("EnterpriseId")]
+        [Required, ForeignKey("EnterpriseId")]
         public int EnterpriseId { get; set; }
         public Enterprise? Enterprise { get; set; }
     }
