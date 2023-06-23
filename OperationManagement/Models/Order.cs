@@ -36,5 +36,6 @@ namespace OperationManagement.Models
         public int DeliveryLocationId { get; set; }
         public DeliveryLocation? DeliveryLocation { get; set; }
         public List<Product>? Products { get; set; }
+        public List<Attachment>? Attachments { get; set; }
     }
 }

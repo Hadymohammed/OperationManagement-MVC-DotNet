@@ -47,6 +47,8 @@ namespace OperationManagement.Data
             modelBuilder.Entity<Order>().HasOne(s => s.DeliveryLocation).WithMany(e => e.Orders).HasForeignKey(s => s.DeliveryLocationId);
             //Order Has Products
             modelBuilder.Entity<Product>().HasOne(s => s.Order).WithMany(e => e.Products).HasForeignKey(s => s.OrderId);
+            //Order Has Attachments
+            modelBuilder.Entity<Attachment>().HasOne(s => s.Order).WithMany(e => e.Attachments).HasForeignKey(s => s.OrderId);
             //Product Has Category
             modelBuilder.Entity<Product>().HasOne(s => s.Category).WithMany(e => e.Products).HasForeignKey(s => s.CategoryId);
             //Product Has Components
@@ -87,5 +89,6 @@ namespace OperationManagement.Data
         public DbSet<ProductMeasurement> ProductMeasurements { get; set; }
         public DbSet<ProductProcess> ProductProcesses { get; set; }
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
     }
 }
