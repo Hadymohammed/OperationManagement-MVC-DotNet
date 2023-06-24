@@ -8,7 +8,7 @@ namespace OperationManagement.Models
     {
         [Key]
         public int Id { get; set; }
-        [Required]
+        [Required, RegularExpression("^[\\w'\\-,.][^0-9_!¡?÷?¿/\\\\+=@#$%ˆ&*(){}|~<>;:[\\]]{2,}$"), Display(Name = "Full name")]
         public string Name { get; set; }
         [AllowNull,EmailAddress]
         public string Email { get; set; }
@@ -18,7 +18,7 @@ namespace OperationManagement.Models
         public Nationality? Nationality { get; set; }
         [AllowNull]
         public Gender? Gender { get; set; }
-        [AllowNull]
+        [AllowNull,DataType(DataType.Date)]
         public DateTime? BirthDate { get; set; }
         [Required]
         public int EnterpriseId { get; set; }
