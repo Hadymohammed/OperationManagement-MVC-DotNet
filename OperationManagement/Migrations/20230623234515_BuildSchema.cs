@@ -264,7 +264,7 @@ namespace OperationManagement.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProfilePictureURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EnterpriseId = table.Column<int>(type: "int", nullable: false),
+                    EnterpriseId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -287,8 +287,7 @@ namespace OperationManagement.Migrations
                         name: "FK_Users_Enterprises_EnterpriseId",
                         column: x => x.EnterpriseId,
                         principalTable: "Enterprises",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

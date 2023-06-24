@@ -13,8 +13,8 @@ namespace OperationManagement.Models
         public string LastName { get; set; }
         [AllowNull]
         public string? ProfilePictureURL { get; set; }
-        [Required, ForeignKey("EnterpriseId")]
-        public int EnterpriseId { get; set; }
+        [AllowNull, ForeignKey("EnterpriseId")]
+        public int? EnterpriseId { get; set; }
         public Enterprise? Enterprise { get; set; }
     }
 }

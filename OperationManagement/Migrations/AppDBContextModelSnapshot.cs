@@ -153,7 +153,7 @@ namespace OperationManagement.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("EnterpriseId")
+                    b.Property<int?>("EnterpriseId")
                         .HasColumnType("int");
 
                     b.Property<string>("FirstName")
@@ -773,9 +773,7 @@ namespace OperationManagement.Migrations
                 {
                     b.HasOne("OperationManagement.Models.Enterprise", "Enterprise")
                         .WithMany("Staff")
-                        .HasForeignKey("EnterpriseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EnterpriseId");
 
                     b.Navigation("Enterprise");
                 });

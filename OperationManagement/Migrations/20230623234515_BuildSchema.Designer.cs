@@ -12,7 +12,7 @@ using OperationManagement.Data;
 namespace OperationManagement.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20230623023856_BuildSchema")]
+    [Migration("20230623234515_BuildSchema")]
     partial class BuildSchema
     {
         /// <inheritdoc />
@@ -156,7 +156,7 @@ namespace OperationManagement.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("EnterpriseId")
+                    b.Property<int?>("EnterpriseId")
                         .HasColumnType("int");
 
                     b.Property<string>("FirstName")
@@ -776,9 +776,7 @@ namespace OperationManagement.Migrations
                 {
                     b.HasOne("OperationManagement.Models.Enterprise", "Enterprise")
                         .WithMany("Staff")
-                        .HasForeignKey("EnterpriseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("EnterpriseId");
 
                     b.Navigation("Enterprise");
                 });
