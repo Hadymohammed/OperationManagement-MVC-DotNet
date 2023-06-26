@@ -10,5 +10,10 @@ namespace OperationManagement.Data.Services
         {
             _context = context;
         }
+
+        public List<CustomerContact> getByCustomerId(int customerId)
+        {
+            return _context.CustomerContacts.Where(c => c.CustomerId == customerId).ToList();
+        }
     }
 }
