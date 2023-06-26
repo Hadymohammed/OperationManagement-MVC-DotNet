@@ -7,53 +7,80 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Customer</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.NationalId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.NationalId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nationality)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nationality)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Gender)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Gender)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BirthDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BirthDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Enterprise)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Enterprise.Name)
-        </dd>
-    </dl>
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Customer</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Email)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Email)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.NationalId)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.NationalId)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Nationality)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Nationality)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Gender)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Gender)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.BirthDate)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.BirthDate)
+                </dd>
+                <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Enterprise)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Enterprise.Name)
+                </dd>
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <h4>Contacts</h4>
+            <hr />
+            @if (Model.Contacts != null && Model.Contacts.Count > 0)
+            {
+                <dl class="row">
+                    @foreach (var contact in Model.Contacts)
+                    {
+                        <dt class="col-sm-4">
+                            @Html.DisplayFor(model => contact.Type)
+                        </dt>
+                        <dd class="col-sm-8">
+                            @Html.DisplayFor(model => contact.Value)
+                        </dd>
+                    }
+                </dl>
+            }
+            else
+            {
+                <p>No contacts found.</p>
+            }
+        </div>
+    </div>
 </div>
+
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>

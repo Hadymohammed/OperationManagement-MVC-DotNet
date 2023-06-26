@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Our Customers</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -46,16 +46,42 @@
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NationalId)
+                @if(item.NationalId!=null){
+                    @Html.DisplayFor(modelItem => item.NationalId)
+                }
+                else{
+                    <span>none</span>
+                }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Nationality)
+                @if (item.Nationality != null)
+                {
+                    @Html.DisplayFor(modelItem => item.Nationality)
+                }
+                else
+                {
+                    <span>none</span>
+                }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Gender)
+                @if (item.Gender != null)
+                {
+                    @Html.DisplayFor(modelItem => item.Gender)
+                }
+                else
+                {
+                    <span>none</span>
+                }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.BirthDate)
+                @if (item.BirthDate != null)
+                {
+                    @Html.DisplayFor(modelItem => item.BirthDate)
+                }
+                else
+                {
+                    <span>none</span>
+                }
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Enterprise.Name)

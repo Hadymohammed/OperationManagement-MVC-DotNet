@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data;
+using OperationManagement.Data.Services;
+using OperationManagement.Data.Static;
 using OperationManagement.Models;
 
 namespace OperationManagement.Controllers
@@ -13,17 +17,24 @@ namespace OperationManagement.Controllers
     public class CustomersController : Controller
     {
         private readonly AppDBContext _context;
-
-        public CustomersController(AppDBContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ICustomerService _customerService;
+        private readonly ICustomerContactService _customerContactService;
+        public CustomersController(AppDBContext context,
+            UserManager<ApplicationUser> userManager,
+            ICustomerService customerService,
+            ICustomerContactService customerContactService)
         {
             _context = context;
+            _userManager = userManager;
+            _customerService = customerService;
+            _customerContactService = customerContactService;
         }
 
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            var appDBContext = _context.Customers.Include(c => c.Enterprise);
-            return View(await appDBContext.ToListAsync());
+            return View(await _customerService.GetAllAsync(c=>c.Enterprise));
         }
 
         // GET: Customers/Details/5
@@ -34,9 +45,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .Include(c => c.Enterprise)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var customer = await _customerService.GetByIdAsync((int)id, c => c.Enterprise,c=>c.Contacts);
             if (customer == null)
             {
                 return NotFound();
@@ -46,12 +55,14 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Customers/Create
-        public IActionResult Create()
+        //[Authorize(Roles =UserRoles.User)]
+        public async Task<IActionResult> CreateAsync()
         {
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name");
+            //var user = await _userManager.GetUserAsync(User);
             var customer = new Customer
             {
-                Contacts = new List<CustomerContact>()
+                Contacts = new List<CustomerContact>(),
+                EnterpriseId = 1//(int)user.EnterpriseId
             };
             return View(customer);
         }
@@ -65,11 +76,19 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
+                
+                await _customerService.AddAsync(customer);
+                foreach(var contact in Contacts)
+                {
+                    await _customerContactService.AddAsync(new CustomerContact()
+                    {
+                        CustomerId = customer.Id,
+                        Type = contact.Type,
+                        Value = contact.Value
+                    });
+                }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name", customer.EnterpriseId);
             return View(customer);
         }
 
@@ -81,12 +100,11 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _customerService.GetByIdAsync((int)id,c=>c.Enterprise,c=>c.Contacts);
             if (customer == null)
             {
                 return NotFound();
             }
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name", customer.EnterpriseId);
             return View(customer);
         }
 
@@ -95,7 +113,7 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,NationalId,Nationality,Gender,BirthDate,EnterpriseId")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,NationalId,Nationality,Gender,BirthDate,EnterpriseId,Contacts")] Customer customer, CustomerContact[] Contacts)
         {
             if (id != customer.Id)
             {
@@ -106,8 +124,18 @@ namespace OperationManagement.Controllers
             {
                 try
                 {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
+                    await _customerService.UpdateAsync(customer.Id,customer);
+                    customer.Contacts = _customerContactService.getByCustomerId(customer.Id);
+                    customer.Contacts.Clear();
+                    foreach (var contact in Contacts)
+                    {
+                        await _customerContactService.AddAsync(new CustomerContact()
+                        {
+                            CustomerId = customer.Id,
+                            Type = contact.Type,
+                            Value = contact.Value
+                        });
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -122,7 +150,6 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name", customer.EnterpriseId);
             return View(customer);
         }
 
@@ -134,9 +161,8 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
-                .Include(c => c.Enterprise)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var customer = await _customerService.GetByIdAsync((int)id, c => c.Enterprise,c=>c.Contacts);
+
             if (customer == null)
             {
                 return NotFound();

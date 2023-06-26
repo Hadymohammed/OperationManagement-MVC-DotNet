@@ -8,6 +8,7 @@
 <div class="text-center">
     <h1>Create</h1>
     <form asp-action="Create">
+        <input type="hidden" asp-for="@Model.EnterpriseId" />
     <div class="row">
         <div class="col-md-12">
             <!-- Customer Information Section -->
@@ -116,40 +117,71 @@
     }
     <script>
         function addContact() {
-            var container = document.getElementById('contact-container');
-            var index = container.getElementsByClassName('contact-row').length;
+            var container = $('#contact-container');
+            var index = container.find('.contact-row').length;
             var html = `
-                        <div class="row contact-row">
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <label asp-for="Contacts[${index}].Type" class="control-label"></label>
-                                    <select asp-for="Contacts[${index}].Type" class="form-control">
-                                        <option value="">Select Contact Type</option>
+                <div class="row contact-row">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label asp-for="Contacts[${index}].Type" class="control-label"></label>
+                            <select asp-for="Contacts[${index}].Type" class="form-control">
+                                <option value="">Select Contact Type</option>
         @foreach (var contactType in Enum.GetValues(typeof(ContactType)))
         {
-                                                <option value="@contactType">@contactType</option>
+                                        <option value="@contactType">@contactType</option>
         }
-                                    </select>
-                                    <span asp-validation-for="Contacts[${index}].Type" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="form-group">
-                                    <label asp-for="Contacts[${index}].Value" class="control-label"></label>
-                                    <input asp-for="Contacts[${index}].Value" class="form-control" />
-                                    <span asp-validation-for="Contacts[${index}].Value" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-2">
-                                <button type="button" class="btn btn-danger btn-sm" onclick="removeContact(this)">Remove</button>
-                            </div>
-                        </div>`;
-            container.innerHTML += html;
+                            </select>
+                            <span asp-validation-for="Contacts[${index}].Type" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label asp-for="Contacts[${index}].Value" class="control-label"></label>
+                            <input asp-for="Contacts[${index}].Value" class="form-control" />
+                            <span asp-validation-for="Contacts[${index}].Value" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeContact(this)">Remove</button>
+                    </div>
+                </div>`;
+            container.append(html);
+
+            // Update contact indices
+            updateContactIndices();
         }
 
         function removeContact(button) {
-            var contactRow = button.closest('.contact-row');
+            var contactRow = $(button).closest('.contact-row');
             contactRow.remove();
+
+            // Update contact indices
+            updateContactIndices();
         }
+
+        function updateContactIndices() {
+            var contacts = $('.contact-row');
+            contacts.each(function (index) {
+                var row = $(this);
+                var contactTypeSelect = row.find('select');
+                var contactValueInput = row.find('input');
+                var typeLabel = row.find('label[for]');
+                var typeValidationMsg = row.find('span[data-valmsg-for]');
+
+                var newIndex = `[${index}]`;
+                contactTypeSelect.attr('name', `Contacts${newIndex}.Type`);
+                contactTypeSelect.attr('data-val-for', `Contacts${newIndex}.Type`);
+                contactValueInput.attr('name', `Contacts${newIndex}.Value`);
+                contactValueInput.attr('data-val-for', `Contacts${newIndex}.Value`);
+                typeLabel.attr('for', `Contacts${newIndex}.Type`);
+                typeValidationMsg.attr('data-valmsg-for', `Contacts${newIndex}.Type`);
+
+                // Update the asp-for attribute
+                contactTypeSelect.attr('asp-for', `Contacts${newIndex}.Type`);
+                contactValueInput.attr('asp-for', `Contacts${newIndex}.Value`);
+            });
+        }
+
+
     </script>
 }
