@@ -1,10 +1,11 @@
-﻿using OperationManagement.Data.Enums;
+﻿using OperationManagement.Data.Base;
+using OperationManagement.Data.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OperationManagement.Models
 {
-    public class CustomerContact
+    public class CustomerContact:IEntityBase
     {
         [Key]
         public int Id { get; set; }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data;
+using OperationManagement.Data.Services;
 using OperationManagement.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,10 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 });
+/*Repo Services*/
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ICustomerContactService, CustomerContactService>();
+
 var app = builder.Build();
 
 AppDbInitializer.Seed(app);

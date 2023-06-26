@@ -1,10 +1,11 @@
-﻿using OperationManagement.Data.Enums;
+﻿using OperationManagement.Data.Base;
+using OperationManagement.Data.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class Customer
+    public class Customer:IEntityBase
     {
         [Key]
         public int Id { get; set; }
