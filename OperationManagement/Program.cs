@@ -22,6 +22,7 @@ builder.Services.AddAuthentication(options =>
 /*Repo Services*/
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ICustomerContactService, CustomerContactService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 

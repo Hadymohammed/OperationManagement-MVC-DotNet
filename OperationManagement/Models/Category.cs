@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OperationManagement.Models
 {
-    public class Category
+    public class Category:IEntityBase
     {
         [Key]
         public int Id { get; set; }
