@@ -25,6 +25,8 @@ builder.Services.AddScoped<ICustomerContactService, CustomerContactService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IMeasurementService, MeasurementService>();
 builder.Services.AddScoped<IDeliveryLocationService, DeliveryLocationService>();
+builder.Services.AddScoped<IProcessService, ProcessService>();
+builder.Services.AddScoped<IProcessStatusService, ProcessStatusService>();
 
 var app = builder.Build();
 

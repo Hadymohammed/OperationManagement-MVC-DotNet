@@ -1,0 +1,127 @@
+﻿@model OperationManagement.Models.Process
+
+@{
+    ViewData["Title"] = "Create Process";
+}
+
+<div class="text-center">
+    <h1>Edit Process</h1>
+    <form asp-action="Edit">
+        <input type="hidden" asp-for="@Model.EnterpriseId" />
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Process</h4>
+                <hr />
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Process Status Section -->
+                        <h4>Process Status</h4>
+                        <hr />
+                        <div id="status-container">
+                            @foreach (var status in Model.Statuses)
+                            {
+                                <div class="row status-row">
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label asp-for="@status.Name" class="control-label"></label>
+                                            <input asp-for="@status.Name" class="form-control" />
+                                            <span asp-validation-for="@status.Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeStatus(this)">Remove</button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" class="btn btn-primary mt-3" onclick="addStatus()">Add Status</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Update" class="btn btn-primary mt-3" />
+                </div>
+                <div>
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function addStatus() {
+            var container = $('#status-container');
+            var index = container.find('.status-row').length;
+            var html = `
+                            <div class="row status-row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label asp-for="statuses[${index}].Name" class="control-label"></label>
+                                        <input type="text" asp-for="statuses[${index}].Name" class="form-control" />
+                                                        <span asp-validation-for="statuses[${index}].Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeStatus(this)">Remove</button>
+                                </div>
+                            </div>`;
+            container.append(html);
+
+            // Update status indices
+            updateStatusIndices();
+        }
+
+        function removeStatus(button) {
+
+            var statusRow = $(button).closest('.status-row');
+            if (confirm(`Are you sure you want to remove the status?`)) {
+                statusRow.remove();
+                // Update status indices
+                updateStatusIndices();
+            }
+
+        }
+
+        function updateStatusIndices() {
+            var statuses = $('.status-row');
+            statuses.each(function (index) {
+                var row = $(this);
+                var statusSelect = row.find('input');
+                var statusLabel = row.find('label[asp-for]');
+                var statusValidationMsg = row.find('span[data-valmsg-for]');
+
+                var newIndex = `[${index}]`;
+                statusSelect.attr('name', `statuses${newIndex}.Name`);
+                statusSelect.attr('data-val-for', `statuses${newIndex}.Name`);
+                statusLabel.attr('asp-for', `statuses${newIndex}.Name`);
+                statusValidationMsg.attr('data-valmsg-for', `statuses${newIndex}.Name`);
+
+                // Update the asp-for attribute
+                statusSelect.attr('asp-for', `statuses${newIndex}.Name`);
+            });
+        }
+        function confirmFormSubmission() {
+            // Display a confirmation dialog
+            if (confirm("Are you sure you want to update this user?")) {
+                // Proceed with form submission
+                $("form").submit();
+            }
+        }
+    </script>
+}
