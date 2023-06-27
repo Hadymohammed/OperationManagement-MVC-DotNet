@@ -1,0 +1,39 @@
+﻿@model IEnumerable<OperationManagement.Models.Enterprise>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<style>
+    .button-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .button {
+        @*flex: 0 0 calc(33.33% - 20px);*@
+        margin: 10px;
+        font-size: 24px;
+        text-align: center;
+        @*line-height: 200px;*@
+        text-decoration: none;
+        width:200px;
+        height:150px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-radius : 30px;
+        font-weight: 700;
+    }
+</style>
+<h1>Our Enterprise</h1>
+
+<div class="button-container col-md-12">
+    <a asp-controller="Categories" class="button btn-success"><span>Categories</span></a>
+    <a asp-controller="Components" class="button btn-success"><span>Components</span></a>
+    <a asp-controller="Measurements" class="button btn-success"><span>Measurements</span></a>
+    <a asp-controller="Specifications" class="button btn-success"><span>Specification</span></a>
+    <a asp-controller="Processes" class="button btn-success"><span>Process</span></a>
+    <a asp-controller="DeliveryLocations" class="button btn-success"><span>Delivery Locations</span></a>
+</div>
