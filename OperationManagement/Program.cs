@@ -23,6 +23,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ICustomerContactService, CustomerContactService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IMeasurementService, MeasurementService>();
+builder.Services.AddScoped<IDeliveryLocationService, DeliveryLocationService>();
 
 var app = builder.Build();
 
