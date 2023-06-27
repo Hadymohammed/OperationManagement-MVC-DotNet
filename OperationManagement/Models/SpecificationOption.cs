@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using OperationManagement.Data.Base;
 
 namespace OperationManagement.Models
 {
-    public class SpecificationOption
+    public class SpecificationOption: IEntityBase
     {
         [Key]
         public int Id { get; set; }

@@ -1,0 +1,163 @@
+﻿@model OperationManagement.Models.Specification
+
+@{
+    ViewData["Title"] = "Create Specification";
+}
+
+<div class="text-center">
+    <h1>Create Specification</h1>
+    <form asp-action="Create">
+        <input type="hidden" asp-for="@Model.EnterpriseId" />
+        <div class="row">
+            <div class="col-md-12">
+                <h4>Specification</h4>
+                <hr />
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label"></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <!-- Specification Status Section -->
+                        <div class="Specifications">
+                            <h4>Process Status</h4>
+                            <hr />
+                            <div id="status-container">
+                            </div>
+
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary mt-3" onclick="addStatus()">Add Status</button>
+                            </div>
+                        </div>
+                        <div class="Options">
+                            <h4>Options</h4>
+                            <hr />
+                            <div id="options-container">
+                            </div>
+
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary mt-3" onclick="addOption()">Add Option</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary mt-3" />
+                </div>
+                <div>
+                    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function addStatus() {
+            var container = $('#status-container');
+            var index = container.find('.status-row').length;
+            var html = `
+                            <div class="row status-row">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                                <label asp-for="statuses[${index}].Name" class="control-label"></label>
+                                        <input type="text" asp-for="statuses[${index}].Name" class="form-control" />
+                                                        <span asp-validation-for="statuses[${index}].Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeStatus(this)">Remove</button>
+                                </div>
+                            </div>`;
+            container.append(html);
+
+            // Update status indices
+            updateStatusIndices();
+        }
+
+        function removeStatus(button) {
+            var statusRow = $(button).closest('.status-row');
+            statusRow.remove();
+
+            // Update status indices
+            updateStatusIndices();
+        }
+
+        function updateStatusIndices() {
+            var statuses = $('.status-row');
+            statuses.each(function (index) {
+                var row = $(this);
+                var statusSelect = row.find('input');
+                var statusLabel = row.find('label[asp-for]');
+                var statusValidationMsg = row.find('span[data-valmsg-for]');
+
+                var newIndex = `[${index}]`;
+                statusSelect.attr('name', `statuses${newIndex}.Name`);
+                statusSelect.attr('data-val-for', `statuses${newIndex}.Name`);
+                statusLabel.attr('asp-for', `statuses${newIndex}.Name`);
+                statusValidationMsg.attr('data-valmsg-for', `statuses${newIndex}.Name`);
+
+                // Update the asp-for attribute
+                statusSelect.attr('asp-for', `statuses${newIndex}.Name`);
+            });
+        }
+
+        function addOption() {
+            var container = $('#options-container');
+            var index = container.find('.option-row').length;
+            var html = `
+                        <div class="row option-row">
+                            <div class="col-md-10">
+                                <div class="form-group">
+                                    <label asp-for="Options[${index}].Name" class="control-label"></label>
+                                    <input type="text" asp-for="Options[${index}].Name" class="form-control" />
+                                    <span asp-validation-for="Options[${index}].Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">Remove</button>
+                            </div>
+                        </div>`;
+            container.append(html);
+
+            // Update option indices
+            updateOptionIndices();
+        }
+
+        function removeOption(button) {
+            var optionRow = $(button).closest('.option-row');
+            optionRow.remove();
+
+            // Update option indices
+            updateOptionIndices();
+        }
+
+        function updateOptionIndices() {
+            var options = $('.option-row');
+            options.each(function (index) {
+                var row = $(this);
+                var optionInput = row.find('input');
+                var optionLabel = row.find('label[asp-for]');
+                var optionValidationMsg = row.find('span[data-valmsg-for]');
+
+                var newIndex = `[${index}]`;
+                optionInput.attr('name', `Options${newIndex}.Name`);
+                optionInput.attr('data-val-for', `Options${newIndex}.Name`);
+                optionLabel.attr('asp-for', `Options${newIndex}.Name`);
+                optionValidationMsg.attr('data-valmsg-for', `Options${newIndex}.Name`);
+
+                // Update the asp-for attribute
+                optionInput.attr('asp-for', `Options${newIndex}.Name`);
+            });
+        }
+    </script>
+}
