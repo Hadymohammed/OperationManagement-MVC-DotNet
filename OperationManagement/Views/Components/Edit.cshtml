@@ -1,0 +1,160 @@
+﻿@model OperationManagement.Models.Component
+
+@{
+    ViewData["Title"] = "Details";
+}
+<style>
+    .slider-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-grow: 1;
+        margin: 20px 0px;
+    }
+
+    .slider-card {
+        width: 60%;
+    }
+
+    .slider-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    .carousel-item a {
+        position: absolute;
+        font-size: 1.5rem;
+        color: white;
+        top: 10px;
+        right: 50%;
+        z-index:10;
+    }
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+
+<h1>Edit</h1>
+
+<div class="text-center">
+    <div class="slider-container">
+        <div class="slider-card">
+            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                <ol class="carousel-indicators">
+                    @for (int i = 0; i < Model.Photos.Count(); i++)
+                    {
+                        @if (i == 0)
+                        {
+                            <li data-target="#carouselExampleIndicators" data-slide-to="@i" class="active"></li>
+                        }
+                        else
+                        {
+                            <li data-target="#carouselExampleIndicators" data-slide-to="@i"></li>
+                        }
+                    }
+                </ol>
+                <div class="carousel-inner">
+                    @{
+                        var j = 0;
+
+                        @foreach (var photo in Model.Photos)
+                        {
+                            if (j++ == 0)
+                            {
+                                <div class="carousel-item active">
+                                    <a asp-action="DeletePhoto" asp-route-PhotoId="@photo.Id" onclick="return confirmDelete();">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                    <img class="slider-image" src="../../@photo.PhotoURL" alt="@j slide">
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="carousel-item">
+                                    <a asp-action="DeletePhoto" asp-route-PhotoId="@photo.Id" onclick="return confirmDelete();">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                    <img class="slider-image" src="../../@photo.PhotoURL" alt="@j slide">
+                                </div>
+                            }
+                        }
+
+                    }
+                </div>
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <h4>Component</h4>
+        <div class="row">
+        <div class="col-md-12">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <input type="hidden" asp-for="EnterpriseId" />
+            <div class="row justify-content-center">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Suppler" class="control-label"></label>
+                        <input asp-for="Suppler" class="form-control" />
+                        <span asp-validation-for="Suppler" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Component Photos Section -->
+                    <h4>Component Photos</h4>
+                    <hr />
+                    <div id="photos-container">
+                    </div>
+
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary mt-3" onclick="addFileInput()">Add Photo</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Update" class="btn btn-primary" />
+            </div>
+        </form>
+        </div>
+    </div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+</div>
+@section Scripts{
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+    <script>
+        function addFileInput() {
+            var fileInputsContainer = document.getElementById('photos-container');
+            var newFileInput = document.createElement('div');
+            newFileInput.classList.add('input-group', 'mt-2');
+            newFileInput.innerHTML = `
+                                <input type="file" name="Photos" class="form-control" accept="image/png, image/png, image/jpeg"/>
+                                <button type="button" class="btn btn-danger" onclick="removeFileInput(this)">Remove</button>
+                            `;
+            fileInputsContainer.appendChild(newFileInput);
+        }
+
+        function removeFileInput(button) {
+            var fileInputContainer = button.parentNode;
+            fileInputContainer.parentNode.removeChild(fileInputContainer);
+        }
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this photo?');
+        }
+    </script>
+}

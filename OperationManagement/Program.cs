@@ -30,6 +30,8 @@ builder.Services.AddScoped<IProcessStatusService, ProcessStatusService>();
 builder.Services.AddScoped<ISpecificationService, SpecificationService>();
 builder.Services.AddScoped<ISpecificationStatusService, SpecificationStatusService>();
 builder.Services.AddScoped<ISpecificationOptionService, SpecificationOptionService>();
+builder.Services.AddScoped<IComponentService, ComponentService>();
+builder.Services.AddScoped<IComponentPhotoService, ComponentPhotoService>();
 
 var app = builder.Build();
 

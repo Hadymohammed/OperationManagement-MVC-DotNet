@@ -1,0 +1,73 @@
+﻿@model OperationManagement.Models.Component
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="text-center">
+    <h1>Create Component</h1>
+
+    <h4>Component</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Create" enctype="multipart/form-data">
+                <input type="hidden" asp-for="EnterpriseId"/>
+                    <div class="row justify-content-center">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label asp-for="Name" class="control-label"></label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                            <label asp-for="Suppler" class="control-label"></label>
+                            <input asp-for="Suppler" class="form-control" />
+                            <span asp-validation-for="Suppler" class="text-danger"></span>
+                        </div>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- Component Photos Section -->
+                            <h4>Component Photos</h4>
+                            <hr />
+                            <div id="photos-container">
+                            </div>
+
+                            <div class="form-group">
+                            <button type="button" class="btn btn-primary mt-3" onclick="addFileInput()">Add Photo</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Create" class="btn btn-primary" />
+                    </div>
+            </form>
+        </div>
+    </div>
+
+    <div>
+        <a asp-action="Index">Back to List</a>
+</div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function addFileInput() {
+            var fileInputsContainer = document.getElementById('photos-container');
+            var newFileInput = document.createElement('div');
+            newFileInput.classList.add('input-group', 'mt-2');
+            newFileInput.innerHTML = `
+                                <input type="file" name="Photos" class="form-control" accept="image/png, image/png, image/jpeg"/>
+                                <button type="button" class="btn btn-danger" onclick="removeFileInput(this)">Remove</button>
+                            `;
+            fileInputsContainer.appendChild(newFileInput);
+        }
+
+        function removeFileInput(button) {
+            var fileInputContainer = button.parentNode;
+            fileInputContainer.parentNode.removeChild(fileInputContainer);
+        }
+    </script>
+}
