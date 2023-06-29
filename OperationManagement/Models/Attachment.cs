@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel.DataAnnotations;
 
 namespace OperationManagement.Models
 {
-    public class Attachment
+    public class Attachment:IEntityBase
     {
         [Key]
         public int Id { get; set; }

@@ -33,6 +33,7 @@ builder.Services.AddScoped<ISpecificationOptionService, SpecificationOptionServi
 builder.Services.AddScoped<IComponentService, ComponentService>();
 builder.Services.AddScoped<IComponentPhotoService, ComponentPhotoService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IAttachmentService, AttachmentService>();
 
 var app = builder.Build();
 
