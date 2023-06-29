@@ -6,95 +6,110 @@
 
 <h1>Details</h1>
 
-<div>
+<div class="row">
     <h4>Order</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.EnterpriseOrderNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.EnterpriseOrderNumber)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Customer)
-        </dt>
-        <dd class = "col-sm-10">
-            <a asp-action="Details" asp-controller="Customers" asp-route-Id="@Model.CustomerId">@Html.DisplayFor(model => model.Customer.Name)</a>
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ContractDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ContractDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeliveryLocation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeliveryLocation.Name)
-        </dd>
-        <div class="row col-md-12">
-            <div class="col-md-6">
-                <dt>
-                    @Html.DisplayNameFor(model => model.Address)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Address)
-                </dd>
+    <div class="col-md-8">
+        <dl class="row">
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.EnterpriseOrderNumber)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.EnterpriseOrderNumber)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.Customer)
+            </dt>
+            <dd class = "col-sm-10">
+                <a asp-action="Details" asp-controller="Customers" asp-route-Id="@Model.CustomerId">@Html.DisplayFor(model => model.Customer.Name)</a>
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.ContractDate)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.ContractDate)
+            </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.DeliveryLocation)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.DeliveryLocation.Name)
+            </dd>
+            <div class="row col-md-12">
+                <div class="col-md-6">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.Address)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.Address)
+                    </dd>
+                </div>
+                <div class="col-md-6">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.GPS_URL)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.GPS_URL)
+                    </dd>
+                </div>
             </div>
-            <div class="col-md-6">
-                <dt>
-                    @Html.DisplayNameFor(model => model.GPS_URL)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.GPS_URL)
-                </dd>
+            <div class="row col-md-12">
+                <div class="col-md-6">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.PlannedStartDate)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.PlannedStartDate)
+                    </dd>
+                </div>
+                <div class="col-md-6">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.PlannedEndDate)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.PlannedEndDate)
+                    </dd>
+                </div>
             </div>
-        </div>
-        <div class="row col-md-12">
-            <div class="col-md-6">
-                <dt>
-                    @Html.DisplayNameFor(model => model.PlannedStartDate)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.PlannedStartDate)
-                </dd>
+            <div class="row col-md-12">
+                <div class="col-md-6">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.ActualStartDate)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.ActualStartDate)
+                    </dd>
+                </div>
+                <div class="col-md-6">
+                    <dt>
+                        @Html.DisplayNameFor(model => model.ActualEndDate)
+                    </dt>
+                    <dd>
+                        @Html.DisplayFor(model => model.ActualEndDate)
+                    </dd>
+                </div>
             </div>
-            <div class="col-md-6">
-                <dt>
-                    @Html.DisplayNameFor(model => model.PlannedEndDate)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.PlannedEndDate)
-                </dd>
-            </div>
-        </div>
-        <div class="row col-md-12">
-            <div class="col-md-6">
-                <dt>
-                    @Html.DisplayNameFor(model => model.ActualStartDate)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.ActualStartDate)
-                </dd>
-            </div>
-            <div class="col-md-6">
-                <dt>
-                    @Html.DisplayNameFor(model => model.ActualEndDate)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.ActualEndDate)
-                </dd>
-            </div>
-        </div>
 
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.HandOverDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.HandOverDate)
-        </dd>
+            <dt class = "col-sm-2">
+                @Html.DisplayNameFor(model => model.HandOverDate)
+            </dt>
+            <dd class = "col-sm-10">
+                @Html.DisplayFor(model => model.HandOverDate)
+            </dd>
+        </dl>
+    </div>
+    <dl class="col-md-4">
+        <h4>Attachments</h4>
+        <hr />
+        <div>
+            @foreach(var attachment in Model.Attachments){
+                <div>
+                <a asp-action="Download" asp-controller="Orders" asp-route-Id="@attachment.Id" class="col-sm-4">
+                    @attachment.Title
+                </a>
+                </div>
+            }
+        </div>
     </dl>
 </div>
 <div class="text-center">

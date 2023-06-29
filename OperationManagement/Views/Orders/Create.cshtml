@@ -9,75 +9,88 @@
 <h4>Order</h4>
 <hr />
 <div class="row justify-content-center text-center">
-    <div class="col-md-8">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Order.EnterpriseOrderNumber" class="control-label">Enterprise Order Number</label>
-                <input asp-for="Order.EnterpriseOrderNumber" class="form-control" />
-                <span asp-validation-for="Order.EnterpriseOrderNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Order.Address" class="control-label"></label>
-                <input asp-for="Order.Address" class="form-control" />
-                <span asp-validation-for="Order.Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Order.GPS_URL" class="control-label"></label>
-                <input asp-for="Order.GPS_URL" class="form-control" />
-                <span asp-validation-for="Order.GPS_URL" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Order.ContractDate" class="control-label"></label>
-                <input asp-for="Order.ContractDate" class="form-control" />
-                <span asp-validation-for="Order.ContractDate" class="text-danger"></span>
-            </div>
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label asp-for="Order.PlannedStartDate" class="control-label"></label>
-                    <input asp-for="Order.PlannedStartDate" class="form-control" />
-                    <span asp-validation-for="Order.PlannedStartDate" class="text-danger"></span>
+        <form asp-action="Create" enctype="multipart/form-data">
+        <div class="justify-content-center row">
+            <div class="col-md-6">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Order.EnterpriseOrderNumber" class="control-label">Enterprise Order Number</label>
+                    <input asp-for="Order.EnterpriseOrderNumber" class="form-control" />
+                    <span asp-validation-for="Order.EnterpriseOrderNumber" class="text-danger"></span>
                 </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="Order.PlannedEndDate" class="control-label"></label>
-                    <input asp-for="Order.PlannedEndDate" class="form-control" />
-                    <span asp-validation-for="Order.PlannedEndDate" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="Order.Address" class="control-label"></label>
+                    <input asp-for="Order.Address" class="form-control" />
+                    <span asp-validation-for="Order.Address" class="text-danger"></span>
                 </div>
-            </div>
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label asp-for="Order.ActualStartDate" class="control-label"></label>
-                    <input asp-for="Order.ActualStartDate" class="form-control" />
-                    <span asp-validation-for="Order.ActualStartDate" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="Order.GPS_URL" class="control-label"></label>
+                    <input asp-for="Order.GPS_URL" class="form-control" />
+                    <span asp-validation-for="Order.GPS_URL" class="text-danger"></span>
                 </div>
-                <div class="form-group col-md-6">
-                    <label asp-for="Order.ActualEndDate" class="control-label"></label>
-                    <input asp-for="Order.ActualEndDate" class="form-control" />
-                    <span asp-validation-for="Order.ActualEndDate" class="text-danger"></span>
+                <div class="form-group">
+                    <label asp-for="Order.ContractDate" class="control-label"></label>
+                    <input asp-for="Order.ContractDate" class="form-control" />
+                    <span asp-validation-for="Order.ContractDate" class="text-danger"></span>
                 </div>
-            </div>
-            <div class="form-group">
-                <label asp-for="Order.HandOverDate" class="control-label"></label>
-                <input asp-for="Order.HandOverDate" class="form-control" />
-                <span asp-validation-for="Order.HandOverDate" class="text-danger"></span>
-            </div>
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label asp-for="Order.DeliveryLocationId" class="control-label">Delivery Location</label>
-                    <select asp-for="Order.DeliveryLocationId" class="form-control">
-                         @foreach(var location in Model.DeliveryLocations){
-                            <option value="@location.Id">@location.Name</option>
-                    }
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="Order.PlannedStartDate" class="control-label"></label>
+                        <input asp-for="Order.PlannedStartDate" class="form-control" />
+                        <span asp-validation-for="Order.PlannedStartDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label asp-for="Order.PlannedEndDate" class="control-label"></label>
+                        <input asp-for="Order.PlannedEndDate" class="form-control" />
+                        <span asp-validation-for="Order.PlannedEndDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="Order.ActualStartDate" class="control-label"></label>
+                        <input asp-for="Order.ActualStartDate" class="form-control" />
+                        <span asp-validation-for="Order.ActualStartDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label asp-for="Order.ActualEndDate" class="control-label"></label>
+                        <input asp-for="Order.ActualEndDate" class="form-control" />
+                        <span asp-validation-for="Order.ActualEndDate" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Order.HandOverDate" class="control-label"></label>
+                    <input asp-for="Order.HandOverDate" class="form-control" />
+                    <span asp-validation-for="Order.HandOverDate" class="text-danger"></span>
+                </div>
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label asp-for="Order.DeliveryLocationId" class="control-label">Delivery Location</label>
+                        <select asp-for="Order.DeliveryLocationId" class="form-control">
+                             @foreach(var location in Model.DeliveryLocations){
+                                <option value="@location.Id">@location.Name</option>
+                        }
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                    <label asp-for="Order.CustomerId" class="control-label">Customer</label>
+                    <select asp-for="Order.CustomerId" class="form-control">
+                        @foreach(var customer in Model.Customers){
+                            <option value="@customer.Id">@customer.Name</option>
+                        }
                     </select>
                 </div>
-                <div class="form-group col-md-6">
-                <label asp-for="Order.CustomerId" class="control-label">Customer</label>
-                <select asp-for="Order.CustomerId" class="form-control">
-                    @foreach(var customer in Model.Customers){
-                        <option value="@customer.Id">@customer.Name</option>
-                    }
-                </select>
+                </div>
             </div>
+            <div class="col-md-6">
+                <!-- Order Attachments Section -->
+                <h4>Attachments</h4>
+                <hr />
+                <div id="attachment-container">
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary mt-3" onclick="addFileInput()">Add Attachment</button>
+                </div>
             </div>
             <div class="form-group mt-3">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -86,11 +99,29 @@
                 <a asp-action="Index">Back to List</a>
             </div>
 
-        </form>
     </div>
+        </form>
 </div>
 
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function addFileInput() {
+            var fileInputsContainer = document.getElementById('attachment-container');
+            var newFileInput = document.createElement('div');
+            newFileInput.classList.add('input-group', 'mt-2');
+            newFileInput.innerHTML = `
+                                                        <input type="string" name="Titles" class="form-control" placeholder="Title"/>
+                                        <input type="file" name="Attachments" class="form-control"/>
+                                        <button type="button" class="btn btn-danger" onclick="removeFileInput(this)">Remove</button>
+                                    `;
+            fileInputsContainer.appendChild(newFileInput);
+        }
+
+        function removeFileInput(button) {
+            var fileInputContainer = button.parentNode;
+            fileInputContainer.parentNode.removeChild(fileInputContainer);
+        }
+    </script>
 }

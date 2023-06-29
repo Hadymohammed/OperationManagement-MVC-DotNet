@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data;
+using OperationManagement.Data.Common;
 using OperationManagement.Data.Services;
 using OperationManagement.Data.ViewModels;
 using OperationManagement.Models;
@@ -18,15 +22,21 @@ namespace OperationManagement.Controllers
         private readonly IOrderService _orderService;
         private readonly ICustomerService _customerService;
         private readonly IDeliveryLocationService _deliveryLocationService;
+        private readonly IAttachmentService _attachmentService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
         public OrdersController(AppDBContext context,
             IOrderService orderService,
             ICustomerService customerService,
-            IDeliveryLocationService deliveryLocationService)
+            IDeliveryLocationService deliveryLocationService,
+            IAttachmentService attachmentService,
+            IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _orderService = orderService;
             _customerService = customerService;
             _deliveryLocationService = deliveryLocationService;
+            _attachmentService = attachmentService;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Orders
@@ -44,10 +54,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
-                .Include(o => o.Customer)
-                .Include(o => o.DeliveryLocation)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var order = await _orderService.GetByIdAsync((int)id, o => o.Customer, o => o.DeliveryLocation, o => o.Attachments);
             if (order == null)
             {
                 return NotFound();
@@ -61,7 +68,6 @@ namespace OperationManagement.Controllers
         {
             var vm = new CreateOrderVM()
             {
-                Order = new Order(),
                 Customers = await _customerService.GetAllAsync(),
                 DeliveryLocations = await _deliveryLocationService.GetAllAsync()
             };
@@ -78,6 +84,19 @@ namespace OperationManagement.Controllers
             if (ModelState.IsValid)
             {
                 await _orderService.AddAsync(OrderVM.Order);
+                for(int i = 0;OrderVM.Attachments!=null&&OrderVM.Titles!=null&& i < OrderVM.Attachments.Count; i++)
+                {
+                    var filePath = await FilesManagement.SaveOrderAttachement(OrderVM.Attachments[i], OrderVM.Order.EnterpriseOrderNumber, OrderVM.Titles[i]);
+                    if (filePath != null)
+                    {
+                        await _attachmentService.AddAsync(new Attachment()
+                        {
+                            OrderId=OrderVM.Order.Id,
+                            FileURL=filePath,
+                            Title = OrderVM.Titles[i]
+                        });
+                    }
+                }
                 return RedirectToAction(nameof(Index));
             }
             OrderVM.Customers = await _customerService.GetAllAsync();
@@ -93,7 +112,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _orderService.GetByIdAsync((int)id, o => o.DeliveryLocation, o => o.Customer, o => o.Attachments);
             if (order == null)
             {
                 return NotFound();
@@ -112,9 +131,9 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,EnterpriseOrderNumber,Address,GPS_URL,ContractDate,PlannedStartDate,PlannedEndDate,ActualStartDate,ActualEndDate,HandOverDate,IsHandOver,CustomerId,DeliveryLocationId")] Order order)
+        public async Task<IActionResult> Edit(int id, CreateOrderVM OrderVM)
         {
-            if (id != order.Id)
+            if (id != OrderVM.Order.Id)
             {
                 return NotFound();
             }
@@ -123,13 +142,26 @@ namespace OperationManagement.Controllers
             {
                 try
                 {
-                    if (order.HandOverDate != null)
-                        order.IsHandOver = true;
-                    await _orderService.UpdateAsync(order.Id, order);
+                    if (OrderVM.Order.HandOverDate != null)
+                        OrderVM.Order.IsHandOver = true;
+                    await _orderService.UpdateAsync(OrderVM.Order.Id, OrderVM.Order);
+                    for (int i = 0; OrderVM.Attachments != null && OrderVM.Titles != null && i < OrderVM.Attachments.Count; i++)
+                    {
+                        var filePath = await FilesManagement.SaveOrderAttachement(OrderVM.Attachments[i], OrderVM.Order.EnterpriseOrderNumber, OrderVM.Titles[i]);
+                        if (filePath != null)
+                        {
+                            await _attachmentService.AddAsync(new Attachment()
+                            {
+                                OrderId = OrderVM.Order.Id,
+                                FileURL = filePath,
+                                Title = OrderVM.Titles[i]
+                            });
+                        }
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrderExists(order.Id))
+                    if (!OrderExists(OrderVM.Order.Id))
                     {
                         return NotFound();
                     }
@@ -143,7 +175,7 @@ namespace OperationManagement.Controllers
 
             var VM = new CreateOrderVM()
             {
-                Order = order,
+                Order = await _orderService.GetByIdAsync(id,o=>o.Customer,o=>o.Attachments,o=>o.DeliveryLocation),
                 Customers = await _customerService.GetAllAsync(),
                 DeliveryLocations = await _deliveryLocationService.GetAllAsync()
             };
@@ -183,10 +215,74 @@ namespace OperationManagement.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+        [HttpGet]
+        public async Task<IActionResult> Download(int id)
+        {
+            var attachment = await _attachmentService.GetByIdAsync(id);
+            if (attachment == null)
+                return NotFound();
 
+            var filePath = Path.Combine(_webHostEnvironment.ContentRootPath,"wwwroot/" ,attachment.FileURL);
+
+            if (System.IO.File.Exists(filePath))
+            {
+                // Read the file contents
+                var fileContent = System.IO.File.ReadAllBytes(filePath);
+
+                // Determine the file's MIME type
+                var mimeType = "application/octet-stream";
+                var fileExtension = Path.GetExtension(filePath);
+                if (!string.IsNullOrEmpty(fileExtension))
+                {
+                    mimeType = GetMimeType(fileExtension);
+                }
+                // Return the file as a download
+                return File(fileContent, mimeType, attachment.Title+fileExtension);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> DeleteFile(int id)
+        {
+            var attachment = await _attachmentService.GetByIdAsync(id);
+            if (attachment == null)
+                return NotFound();
+            if (FilesManagement.DeleteFile(attachment.FileURL))
+            {
+                await _attachmentService.DeleteAsync(attachment.Id);
+            }
+            else
+            {
+                return NotFound();
+            }
+            return RedirectToAction("Details", new { id = attachment.OrderId });
+        }
         private bool OrderExists(int id)
         {
           return (_context.Orders?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private string GetMimeType(string fileExtension)
+        {
+            // You can customize this method to provide MIME types for specific file extensions
+            // Here, a simple mapping is used for some common file extensions
+
+            switch (fileExtension.ToLower())
+            {
+                case ".txt":
+                    return "text/plain";
+                case ".pdf":
+                    return "application/pdf";
+                case ".jpg":
+                case ".jpeg":
+                    return "image/jpeg";
+                case ".png":
+                    return "image/png";
+                default:
+                    return "application/octet-stream";
+            }
         }
     }
 }
