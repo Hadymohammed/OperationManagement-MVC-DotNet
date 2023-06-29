@@ -1,31 +1,32 @@
-﻿using System.ComponentModel;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class Order
+    public class Order:IEntityBase
     {
         [Key]
         public int Id { get; set; }
-        [Required]
+        [Required,DisplayName("Enterprise Order Number")]
         public string EnterpriseOrderNumber { get; set; }
         [AllowNull]
         public string? Address { get; set; }
         [AllowNull]
         public string? GPS_URL { get; set; }
-        [Required]
+        [Required, DataType(DataType.Date),DisplayName("Contract Date")]
         public DateTime ContractDate { get; set; }
-        [AllowNull]
+        [AllowNull, DataType(DataType.Date), DisplayName("Planned Start Date")]
         public DateTime? PlannedStartDate { get; set; }
-        [AllowNull]
+        [AllowNull, DataType(DataType.Date), DisplayName("Planned End Date")]
         public DateTime? PlannedEndDate { get; set; }
-        [AllowNull]
+        [AllowNull, DataType(DataType.Date), DisplayName("Actual Start Date")]
         public DateTime? ActualStartDate { get; set; }
-        [AllowNull]
+        [AllowNull, DataType(DataType.Date), DisplayName("Actual End Date")]
         public DateTime? ActualEndDate { get; set; }
-        [AllowNull]
+        [AllowNull, DataType(DataType.Date), DisplayName("Hand Over Date")]
         public DateTime? HandOverDate { get; set; }
         [AllowNull,DefaultValue(false)]
         public bool? IsHandOver { get; set; }
