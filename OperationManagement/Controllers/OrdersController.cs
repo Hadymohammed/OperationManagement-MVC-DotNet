@@ -24,11 +24,13 @@ namespace OperationManagement.Controllers
         private readonly IDeliveryLocationService _deliveryLocationService;
         private readonly IAttachmentService _attachmentService;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IProductService _productService;
         public OrdersController(AppDBContext context,
             IOrderService orderService,
             ICustomerService customerService,
             IDeliveryLocationService deliveryLocationService,
             IAttachmentService attachmentService,
+            IProductService productService,
             IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
@@ -37,13 +39,13 @@ namespace OperationManagement.Controllers
             _deliveryLocationService = deliveryLocationService;
             _attachmentService = attachmentService;
             _webHostEnvironment = webHostEnvironment;
+            _productService=productService;
         }
 
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            var appDBContext = _context.Orders.Include(o => o.Customer).Include(o => o.DeliveryLocation);
-            return View(await appDBContext.ToListAsync());
+            return View(await _orderService.GetAllAsync(o=>o.Customer,o=>o.DeliveryLocation));
         }
 
         // GET: Orders/Details/5
@@ -59,7 +61,29 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            order = _context.Orders
+                .Where(o => o.Id == order.Id)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Category)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Components)
+                            .ThenInclude(c => c.Component)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Measurements)
+                            .ThenInclude(m => m.Measurement)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Processes)
+                            .ThenInclude(pr => pr.Process)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Specifications)
+                            .ThenInclude(s => s.Specification)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Specifications)
+                            .ThenInclude(s => s.Option)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Specifications)
+                            .ThenInclude(s => s.Status)
+                    .FirstOrDefault();
             return View(order);
         }
 

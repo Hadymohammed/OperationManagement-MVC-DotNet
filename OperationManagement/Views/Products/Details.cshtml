@@ -1,0 +1,124 @@
+﻿@model OperationManagement.Models.Product
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Product</h4>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.EnterpriseCode)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.EnterpriseCode)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.Description)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.Description)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.Price)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.Price)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.Quantity)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.Quantity)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.Category)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.Category.Name)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.Order)
+                </dt>
+                <dd class="col-sm-9">
+                    <a asp-action="Details" asp-controller="Orders" asp-route-Id="@Model.OrderId"> @Html.DisplayFor(model => model.Order.EnterpriseOrderNumber) </a>
+                </dd>
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <dl class="row">
+                <h5>Measurements</h5>
+                @foreach (var m in Model.Measurements)
+                {
+                    <dt class="col-sm-3">
+                        @m.Measurement.Name
+                    </dt>
+                    <dd class="col-sm-9">
+                        @m.Value <span>@m.Unit</span>
+                    </dd>
+                }
+            </dl>
+        </div>
+    </div>
+</div>
+
+<dl class="row">
+    <hr />
+    <h5>Components</h5>
+    @foreach (var m in Model.Components)
+    {
+        <dt class="col-sm-3">
+            <a asp-action="Details" asp-controller="Components" asp-route-id="@m.ComponentId"> @m.Component.Name </a>
+        </dt>
+        <dd class="col-sm-9">
+            <strong>Qty : </strong>@m.Quantity
+        </dd>
+    }
+</dl>
+
+<dl class="row">
+    <hr />
+    <h5>Specifications</h5>
+    @foreach (var m in Model.Specifications)
+    {
+        <dt class="col-sm-3">
+            @m.Specification.Name
+        </dt>
+        <dd class="col-sm-9">
+            <strong>Option : </strong>@m.Option.Name <span> | <strong>Status : </strong>@m.Status.Name</span> <span> | <strong>Date : </strong>@m.Date.ToShortDateString()</span> | <strong>Remark : </strong>@m.Remark
+        </dd>
+        <dd class="col-sm-9">
+
+        </dd>
+    }
+</dl>
+
+<dl class="row">
+    <hr />
+    <h5>Processes</h5>
+    @foreach (var m in Model.Processes)
+    {
+        <dt class="col-sm-3">
+            @m.Process.Name
+        </dt>
+        <dd class="col-sm-9">
+            <strong>Status : </strong>@m.Status.Name | <strong>StartDate : </strong>@m.StartDate?.ToShortDateString() | <strong>EndDate : </strong>@m.EndDate?.ToShortDateString() | <strong>Estimated Duration : </strong>@m.EstimatedDuration | <strong>Comment : </strong>@m.Comment
+        </dd>
+    }
+</dl>
+
+<div class="text-center">
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

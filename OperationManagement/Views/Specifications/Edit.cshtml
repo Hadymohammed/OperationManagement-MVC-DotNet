@@ -28,20 +28,23 @@
                             <h4>Specification Status</h4>
                             <hr />
                             <div id="status-container">
+                                @{
+                                    int i = 0;
+                                }
                                 @foreach (var status in Model.Statuses)
                                 {
                                     <div class="row status-row">
                                         <div class="col-md-10">
                                             <div class="form-group">
-                                                <label asp-for="@status.Name" class="control-label"></label>
-                                                <input asp-for="@status.Name" class="form-control" />
-                                                <span asp-validation-for="@status.Name" class="text-danger"></span>
+                                                <input type="text" Name="statuses[@i].Name" value="@status.Name" class="form-control" />
+                                                <span asp-validation-for="statuses[@i].Name" class="text-danger"></span>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <button type="button" class="btn btn-danger btn-sm" onclick="removeStatus(this)">Remove</button>
                                         </div>
                                     </div>
+                                    i++;
                                 }
                             </div>
 
@@ -53,20 +56,23 @@
                             <h4>Options</h4>
                             <hr />
                             <div id="options-container">
+                                @{
+                                    i = 0;
+                                }
                                 @foreach (var option in Model.Options)
                                 {
                                     <div class="row option-row">
                                         <div class="col-md-10">
                                             <div class="form-group">
-                                                <label asp-for="@option.Name" class="control-label"></label>
-                                                <input asp-for="@option.Name" class="form-control" />
-                                                <span asp-validation-for="@option.Name" class="text-danger"></span>
+                                                <input type="text" Name="Options[@i].Name" value="@option.Name" class="form-control" />
+                                                <span asp-validation-for="Options[@i].Name" class="text-danger"></span>
                                             </div>
                                         </div>
                                         <div class="col-md-2">
                                             <button type="button" class="btn btn-danger btn-sm" onclick="removeOption(this)">Remove</button>
                                         </div>
                                     </div>
+                                    i++;
                                 }
                             </div>
 

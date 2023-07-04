@@ -57,7 +57,7 @@ namespace OperationManagement.Data
             //Product Has Category
             modelBuilder.Entity<Product>().HasOne(s => s.Category).WithMany(e => e.Products).HasForeignKey(s => s.CategoryId);
             //Product Has Components
-            modelBuilder.Entity<ProductComponent>().HasOne(s => s.Product).WithMany(e => e.Components).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict); ;
+            modelBuilder.Entity<ProductComponent>().HasOne(s => s.Product).WithMany(e => e.Components).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<ProductComponent>().HasOne(s => s.Component).WithMany(e => e.Products).HasForeignKey(s => s.ComponentId).OnDelete(DeleteBehavior.Restrict); ;
             //Product Has Measurements
             modelBuilder.Entity<ProductMeasurement>().HasOne(s => s.Product).WithMany(e => e.Measurements).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict); ;
