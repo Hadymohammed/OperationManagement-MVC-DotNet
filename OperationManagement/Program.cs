@@ -34,6 +34,11 @@ builder.Services.AddScoped<IComponentService, ComponentService>();
 builder.Services.AddScoped<IComponentPhotoService, ComponentPhotoService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IAttachmentService, AttachmentService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductMeasurementService, ProductMeasurementService>();
+builder.Services.AddScoped<IProductComponentService, ProductComponentService>();
+builder.Services.AddScoped<IProductProcessService, ProductProcessService>();
+builder.Services.AddScoped<IProductSpecificationService, ProductSpecificationService>();
 
 var app = builder.Build();
 
