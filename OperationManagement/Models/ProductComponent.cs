@@ -1,13 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class ProductComponent
+    public class ProductComponent: IEntityBase
     {
         [Key]
         public int Id { get; set; }
-        [Required]
+        [AllowNull,DefaultValue(0)]
         public int Quantity { get; set; }
         [Required, ForeignKey("ProductId")]
         public int ProductId { get; set; }

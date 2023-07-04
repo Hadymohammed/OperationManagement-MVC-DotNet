@@ -1,19 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class ProductProcess
+    public class ProductProcess: IEntityBase
     {
         [Key]
         public int Id { get; set; }
         [AllowNull]
         public string? Comment { get; set; }
-        [AllowNull]
-        public DateTime? StartTime { get; set; }
-        [AllowNull]
-        public DateTime? EndTime { get; set; }
+        [AllowNull,DataType(DataType.Date)]
+        public DateTime? StartDate { get; set; }
+        [AllowNull, DataType(DataType.Date)]
+        public DateTime? EndDate { get; set; }
         [AllowNull]
         public int? EstimatedDuration { get; set; }
         [Required,ForeignKey("ProcessId")]

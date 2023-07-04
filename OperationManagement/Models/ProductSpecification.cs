@@ -1,17 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class ProductSpecification
+    public class ProductSpecification: IEntityBase
     {
         [Key]
         public int Id { get; set; }
-        [Required]
+        [AllowNull, DataType(DataType.Date)]
         public DateTime Date { get; set; }
         [AllowNull]
-        public string Remark { get; set; }
+        public string? Remark { get; set; }
         [Required,ForeignKey("ProductId")]
         public int ProductId { get; set; }
         public Product? Product { get; set; }

@@ -1,17 +1,19 @@
-﻿using OperationManagement.Data.Enums;
+﻿using OperationManagement.Data.Base;
+using OperationManagement.Data.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class ProductMeasurement
+    public class ProductMeasurement: IEntityBase
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        public float Value { get; set; }
-        [Required]
-        public MeasurementUnit Unit { get; set; }
+        [AllowNull]
+        public float? Value { get; set; }
+        [AllowNull]
+        public MeasurementUnit? Unit { get; set; }
         [Required, ForeignKey("MeasurementId")]
         public int MeasurementId { get; set; }
         public Measurement? Measurement { get; set; }

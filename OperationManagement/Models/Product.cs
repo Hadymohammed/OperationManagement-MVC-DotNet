@@ -1,15 +1,16 @@
-﻿using System.ComponentModel;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class Product
+    public class Product:IEntityBase
     {
         [Key]
         public int Id { get; set; }
-        [Required]
-        public string EmterpriseCode { get; set; }
+        [Required,DisplayName("Emterprise Code")]
+        public string EnterpriseCode { get; set; }
         [Required]
         public string Name { get; set; }
         [AllowNull]
