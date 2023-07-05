@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32;
@@ -109,9 +110,79 @@ namespace OperationManagement.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult ForgetPassword(string email)
+        public async Task<IActionResult> ForgetPassword(ForgetPasswordVM vm)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+            var user = await _userManager.FindByEmailAsync(vm.Email);
+            if(user == null)
+            {
+                ModelState.AddModelError("Email", "This email not registered on our system.");
+                return View(vm.Email);
+            }
+            SessionHelper.saveObject(HttpContext, SessionHelper.ForgetPasswordKey, vm.Email);
+            return RedirectToAction("ForgetPasswordOTP", new OTPVM()
+            {
+                Email = vm.Email
+            });
             return View();
+        }
+        [HttpGet]
+        public IActionResult ForgetPasswordOTP(OTPVM vm)
+        {
+            if (!OTPServices.HaveOTP(HttpContext))
+            {
+                OTPServices.SendEmailOTP(HttpContext, vm.Email);
+            }
+            return View(vm);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgetPasswordOTPAsync(OTPVM vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+            if (OTPServices.VerifyOTP(HttpContext, vm) == false)
+            {
+                ModelState.AddModelError("OTP", "InValid Code");
+                return View(vm);
+            }
+            var email = SessionHelper.getObject<string>(HttpContext, SessionHelper.ForgetPasswordKey);
+            if (email == null)
+                return NotFound();
+            var staff = await _userManager.FindByEmailAsync(email);
+
+            return RedirectToAction("AddPassword",new AddPasswordVM()
+            {
+                FirstName=staff.FirstName,
+                StaffId=staff.Id
+            });
+
+        }
+        [HttpGet]
+        public IActionResult AddPassword(AddPasswordVM vm)
+        {
+            return View(vm);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddPasswordAsync(AddPasswordVM vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(vm);
+            }
+            var email = SessionHelper.getObject<string>(HttpContext, SessionHelper.ForgetPasswordKey);
+            if (email == null)
+                return NotFound();
+            var staff = await _userManager.FindByEmailAsync(email);
+            staff.PasswordHash = _userManager.PasswordHasher.HashPassword(staff, vm.Password);
+            await _userManager.UpdateAsync(staff);
+            return RedirectToAction("Login");
         }
         [HttpGet]
         public IActionResult EmailOTP(OTPVM vm)
@@ -205,7 +276,31 @@ namespace OperationManagement.Controllers
             await _userManager.UpdateAsync(staff);
             return RedirectToAction("Login");
         }
+        [HttpGet]
+        public async Task<IActionResult> ResendForgetPasswordOTP()
+        {
+            var email = SessionHelper.getObject<string>(HttpContext, SessionHelper.ForgetPasswordKey);
+            if (email == null)
+                return NotFound();
+            OTPServices.SendEmailOTP(HttpContext, email);
+            return RedirectToAction("ForgetPasswordOTP", new OTPVM()
+            {
+                Email = email
+            });
+        }
+        [HttpGet]
+        public async Task<IActionResult> ResendEmailOTP()
+        {
+            var request = SessionHelper.getObject<JoinRequestVM>(HttpContext, SessionHelper.JoinKey);
+            if (request == null)
+                return NotFound();
 
+            OTPServices.SendEmailOTP(HttpContext, request.Email);
+            return RedirectToAction("EmailOTP", new OTPVM()
+            {
+                Email = request.Email
+            });
+        }
         private async Task<bool> PresirvedEmail(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
