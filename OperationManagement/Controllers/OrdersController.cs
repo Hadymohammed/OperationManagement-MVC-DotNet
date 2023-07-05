@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
@@ -28,13 +30,16 @@ namespace OperationManagement.Controllers
         private readonly IAttachmentService _attachmentService;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IProductService _productService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
         public OrdersController(AppDBContext context,
             IOrderService orderService,
             ICustomerService customerService,
             IDeliveryLocationService deliveryLocationService,
             IAttachmentService attachmentService,
             IProductService productService,
-            IWebHostEnvironment webHostEnvironment)
+            IWebHostEnvironment webHostEnvironment,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _orderService = orderService;
@@ -43,12 +48,15 @@ namespace OperationManagement.Controllers
             _attachmentService = attachmentService;
             _webHostEnvironment = webHostEnvironment;
             _productService=productService;
+            _userManager=userManager;
         }
 
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            return View(await _orderService.GetAllAsync(o=>o.Customer,o=>o.DeliveryLocation));
+            var all = await _orderService.GetAllAsync(o => o.Customer, o => o.DeliveryLocation);
+            var user = await _userManager.GetUserAsync(User);
+            return View(all.Where(o=>o.Customer.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Orders/Details/5
@@ -64,39 +72,27 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-            order = _context.Orders
-                .Where(o => o.Id == order.Id)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Category)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Components)
-                            .ThenInclude(c => c.Component)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Measurements)
-                            .ThenInclude(m => m.Measurement)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Processes)
-                            .ThenInclude(pr => pr.Process)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Specifications)
-                            .ThenInclude(s => s.Specification)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Specifications)
-                            .ThenInclude(s => s.Option)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Specifications)
-                            .ThenInclude(s => s.Status)
-                    .FirstOrDefault();
+            var user = await _userManager.GetUserAsync(User);
+            if (order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            order = _orderService.GetCompleteOrder(order.Id);
             return View(order);
         }
 
         // GET: Orders/Create
         public async Task<IActionResult> Create()
         {
+            var allCustomers = await _customerService.GetAllAsync();
+            var allLocations = await _deliveryLocationService.GetAllAsync();
+            var user = await _userManager.GetUserAsync(User);
+
+            
             var vm = new CreateOrderVM()
             {
-                Customers = await _customerService.GetAllAsync(),
-                DeliveryLocations = await _deliveryLocationService.GetAllAsync()
+                Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId)
             };
             return View(vm);
         }
@@ -108,8 +104,14 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateOrderVM OrderVM)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (ModelState.IsValid)
             {
+                var customer = await _customerService.GetByIdAsync(OrderVM.Order.CustomerId);
+                if (customer.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _orderService.AddAsync(OrderVM.Order);
                 for(int i = 0;OrderVM.Attachments!=null&&OrderVM.Titles!=null&& i < OrderVM.Attachments.Count; i++)
                 {
@@ -126,8 +128,10 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            OrderVM.Customers = await _customerService.GetAllAsync();
-            OrderVM.DeliveryLocations = await _deliveryLocationService.GetAllAsync();
+            var allCustomers = await _customerService.GetAllAsync();
+            var allLocations = await _deliveryLocationService.GetAllAsync();
+            OrderVM.Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId);
+            OrderVM.DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId);
             return View(OrderVM);
         }
 
@@ -144,11 +148,19 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var allLocations = await _deliveryLocationService.GetAllAsync();
+            var allCustomers = await _customerService.GetAllAsync();
+
+            var user = await _userManager.GetUserAsync(User);
+            if (order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var VM = new CreateOrderVM()
             {
                 Order = order,
-                Customers = await _customerService.GetAllAsync(),
-                DeliveryLocations = await _deliveryLocationService.GetAllAsync()
+                Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId)
             };
            return View(VM);
         }
@@ -164,11 +176,17 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var customer = await _customerService.GetByIdAsync(OrderVM.Order.CustomerId);
+                    if (customer.EnterpriseId != user.EnterpriseId)
+                    {
+                        return RedirectToAction("AccessDenied", "Account");
+                    }
                     if (OrderVM.Order.HandOverDate != null)
                         OrderVM.Order.IsHandOver = true;
                     await _orderService.UpdateAsync(OrderVM.Order.Id, OrderVM.Order);
@@ -199,12 +217,13 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-
+            var allCustomers = await _customerService.GetAllAsync();
+            var AllLocations = await _deliveryLocationService.GetAllAsync();
             var VM = new CreateOrderVM()
             {
                 Order = await _orderService.GetByIdAsync(id,o=>o.Customer,o=>o.Attachments,o=>o.DeliveryLocation),
-                Customers = await _customerService.GetAllAsync(),
-                DeliveryLocations = await _deliveryLocationService.GetAllAsync()
+                Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                DeliveryLocations = AllLocations.Where(l=>l.EnterpriseId==user.EnterpriseId) 
             };
             return View(VM);
         }
@@ -222,7 +241,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(order);
         }
 
@@ -235,9 +258,14 @@ namespace OperationManagement.Controllers
             {
                 return Problem("Entity set 'AppDBContext.Orders'  is null.");
             }
-            var order = await _orderService.GetByIdAsync((int)id);
+            var order = await _orderService.GetByIdAsync((int)id,c=>c.Customer);
             if (order != null)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (order.Customer.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _orderService.DeleteAsync(order.Id);
             }
             return RedirectToAction(nameof(Index));
@@ -248,7 +276,12 @@ namespace OperationManagement.Controllers
             var attachment = await _attachmentService.GetByIdAsync(id);
             if (attachment == null)
                 return NotFound();
-
+            var order = await _orderService.GetByIdAsync(attachment.OrderId, o => o.Customer);
+            var user = await _userManager.GetUserAsync(User);
+            if (order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var filePath = Path.Combine(_webHostEnvironment.ContentRootPath,"wwwroot/" ,attachment.FileURL);
 
             if (System.IO.File.Exists(filePath))
@@ -277,6 +310,12 @@ namespace OperationManagement.Controllers
             var attachment = await _attachmentService.GetByIdAsync(id);
             if (attachment == null)
                 return NotFound();
+            var order = await _orderService.GetByIdAsync(attachment.OrderId, o => o.Customer);
+            var user = await _userManager.GetUserAsync(User);
+            if (order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             if (FilesManagement.DeleteFile(attachment.FileURL))
             {
                 await _attachmentService.DeleteAsync(attachment.Id);
