@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -19,17 +20,22 @@ namespace OperationManagement.Controllers
     {
         private readonly AppDBContext _context;
         private readonly ICategoryService _categoryService;
+        private readonly UserManager<ApplicationUser> _userManager;
         public CategoriesController(AppDBContext context,
-            ICategoryService categoryService)
+            ICategoryService categoryService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _categoryService = categoryService;
+            _userManager = userManager;
         }
 
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            return View(await _categoryService.GetAllAsync(c=>c.Enterprise) );
+            var user = await _userManager.GetUserAsync(User);
+            var all = await _categoryService.GetAllAsync(c => c.Enterprise);
+            return View(all.Where(c=>c.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Categories/Details/5
@@ -39,22 +45,27 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
             var category = await _categoryService.GetByIdAsync((int)id, c => c.Enterprise);
             if (category == null)
             {
                 return NotFound();
+            }
+            if (user.EnterpriseId != category.Id)
+            {
+                return RedirectToAction("ActionDenied", "Account");
             }
 
             return View(category);
         }
 
         // GET: Categories/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
             return View(new Category()
             {
-                EnterpriseId=1
+                EnterpriseId= (int)user.EnterpriseId
             });
         }
 
@@ -86,6 +97,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (category.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(category);
         }
 
@@ -100,9 +116,14 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            
             if (ModelState.IsValid)
             {
+                if (user.EnterpriseId != category.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 try
                 {
                     await _categoryService.UpdateAsync(category.Id, category);
@@ -136,6 +157,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (category.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
 
             return View(category);
         }
@@ -150,6 +176,11 @@ namespace OperationManagement.Controllers
                 return Problem("Entity set 'AppDBContext.Categories'  is null.");
             }
             var category = await _categoryService.GetByIdAsync((int)id, c => c.Enterprise);
+            var user = await _userManager.GetUserAsync(User);
+            if (category.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             if (category != null)
             {
                 await _categoryService.DeleteAsync(category.Id);
