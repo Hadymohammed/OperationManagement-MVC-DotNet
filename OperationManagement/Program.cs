@@ -19,7 +19,12 @@ builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 });
+builder.Services.ConfigureApplicationCookie(options =>
+{
+        options.AccessDeniedPath = "/Account/AccessDenied";
+});
 /*Repo Services*/
+builder.Services.AddScoped<IEnterpriseService, EnterpriseService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<ICustomerContactService, CustomerContactService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
