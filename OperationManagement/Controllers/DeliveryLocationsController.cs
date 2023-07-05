@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,18 +19,24 @@ namespace OperationManagement.Controllers
     {
         private readonly AppDBContext _context;
         private readonly IDeliveryLocationService _deliveryLocationService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
 
         public DeliveryLocationsController(AppDBContext context,
-            IDeliveryLocationService deliveryLocationService)
+            IDeliveryLocationService deliveryLocationService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _deliveryLocationService = deliveryLocationService;
+            _userManager = userManager;
         }
 
         // GET: DeliveryLocations
         public async Task<IActionResult> Index()
         {
-            return View(await _deliveryLocationService.GetAllAsync(d=>d.Enterprise));
+            var user = await _userManager.GetUserAsync(User);
+            var all = await _deliveryLocationService.GetAllAsync(d=>d.Enterprise);
+            return View(all.Where(e=>e.EnterpriseId==(int)user.EnterpriseId));
         }
 
         // GET: DeliveryLocations/Details/5
@@ -45,16 +52,22 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (deliveryLocation.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(deliveryLocation);
         }
 
         // GET: DeliveryLocations/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
+            
             return View(new DeliveryLocation()
             {
-                EnterpriseId=1
+                EnterpriseId=(int)user.EnterpriseId
             });
         }
 
@@ -67,6 +80,11 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (deliveryLocation.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _deliveryLocationService.AddAsync(deliveryLocation);
                 return RedirectToAction(nameof(Index));
             }
@@ -86,6 +104,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (deliveryLocation.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(deliveryLocation);
         }
 
@@ -103,6 +126,11 @@ namespace OperationManagement.Controllers
 
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (deliveryLocation.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 try
                 {
                     await _deliveryLocationService.UpdateAsync(deliveryLocation.Id, deliveryLocation);
@@ -136,7 +164,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (deliveryLocation.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(deliveryLocation);
         }
 
@@ -152,6 +184,11 @@ namespace OperationManagement.Controllers
             var deliveryLocation = await _deliveryLocationService.GetByIdAsync((int)id, m => m.Enterprise);
             if (deliveryLocation != null)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (deliveryLocation.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _deliveryLocationService.DeleteAsync(deliveryLocation.Id);
             }
             return RedirectToAction(nameof(Index));
