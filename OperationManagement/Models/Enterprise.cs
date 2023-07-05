@@ -15,6 +15,8 @@ namespace OperationManagement.Models
         public string? LogoURL { get; set; }
         [AllowNull,DefaultValue(false)]
         public bool? Accepted { get; set; }
+        [AllowNull]
+        public string? Description { get; set; }
         public List<ApplicationUser>? Staff { get; set; }
         public List<Category>? Categories { get; set; }
         public List<Component>? Components { get; set; }

@@ -95,5 +95,6 @@ namespace OperationManagement.Data
         public DbSet<ProductProcess> ProductProcesses { get; set; }
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<Token> Tokens { get; set; }
     }
 }
