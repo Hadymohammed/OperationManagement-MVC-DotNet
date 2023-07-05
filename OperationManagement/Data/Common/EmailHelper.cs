@@ -43,14 +43,14 @@ namespace OperationManagement.Data.Common
         }
         static public bool SendEmailAddStaff(string email, string Url, string EnterpriseName)
         {
-            string body = $"Sent from ${SenderName} , here is your invetation link to be a staff member at ${EnterpriseName} , do not share it with anyone  {Url} . ";
+            string body = $"Sent from {SenderName} , here is your invetation link to be a staff member at {EnterpriseName} , do not share it with anyone  {Url} . ";
             const string subject = "Your invetation";
             const string reciverName = "New Staff";
             return SendEmail(email, body, subject, reciverName);
         }
         static public bool SendEmailAddAdmin(string email, string Url)
         {
-            string body = $"Sent from ${SenderName} , here is your invetation link to be an admin at ${SenderName} , do not share it with anyone  {Url} . ";
+            string body = $"Sent from {SenderName} , here is your invetation link to be an admin at {SenderName} , do not share it with anyone  {Url} . ";
             const string subject = "Your invetation";
             const string reciverName = "New Admin";
             return SendEmail(email, body, subject, reciverName);
@@ -63,7 +63,7 @@ namespace OperationManagement.Data.Common
         }
         static public bool SendOTP(string email, string OTP)
         {
-            string body = $"Sent from ${SenderName} , Here is your OTP is {OTP} . Don't share it with anyone. ";
+            string body = $"Sent from {SenderName} , Here is your OTP is {OTP} . Don't share it with anyone. ";
             const string subject = "Your OTP";
             const string reciverName = "New User";
             return SendEmail(email, body, subject, reciverName);
