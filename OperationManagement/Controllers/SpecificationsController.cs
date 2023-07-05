@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol.Plugins;
 using OperationManagement.Data;
 using OperationManagement.Data.Services;
 using OperationManagement.Data.Static;
@@ -21,21 +24,27 @@ namespace OperationManagement.Controllers
         private readonly ISpecificationService _specificationService;
         private readonly ISpecificationOptionService _optionSerivce;
         private readonly ISpecificationStatusService _statusService;
+        private readonly UserManager<ApplicationUser> _userManager;
         public SpecificationsController(AppDBContext context,
             ISpecificationService specificationService,
             ISpecificationOptionService optionSerivce,
-            ISpecificationStatusService statusService)
+            ISpecificationStatusService statusService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _specificationService = specificationService;
             _optionSerivce = optionSerivce;
             _statusService = statusService;
+            _userManager = userManager;
         }
 
         // GET: Specifications
         public async Task<IActionResult> Index()
         {
-            return View(await _specificationService.GetAllAsync(s=>s.Enterprise));
+            var all = await _specificationService.GetAllAsync(s => s.Enterprise);
+            var user = await _userManager.GetUserAsync(User);
+            
+            return View(all.Where(s=>s.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Specifications/Details/5
@@ -52,16 +61,22 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (specification.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(specification);
         }
 
         // GET: Specifications/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
+            
             return View(new Specification()
             {
-                EnterpriseId=1,
+                EnterpriseId=(int)user.EnterpriseId,
                 Options=new List<SpecificationOption>(),
                 Statuses=new List<SpecificationStatus>(),
             });
@@ -76,6 +91,11 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (specification.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _specificationService.AddAsync(specification);
                 foreach(var option in Options)
                 {
@@ -111,6 +131,12 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (specification.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(specification);
         }
 
@@ -128,6 +154,11 @@ namespace OperationManagement.Controllers
 
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (specification.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 try
                 {
                     await _specificationService.UpdateAsync(specification.Id, specification);
@@ -185,6 +216,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (specification.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
 
             return View(specification);
         }
@@ -201,6 +237,11 @@ namespace OperationManagement.Controllers
             var specification = await _specificationService.GetByIdAsync((int)id, s => s.Enterprise, s => s.Statuses, s => s.Options);
             if (specification != null)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (specification.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _specificationService.DeleteAsync(specification.Id);
             }
             
