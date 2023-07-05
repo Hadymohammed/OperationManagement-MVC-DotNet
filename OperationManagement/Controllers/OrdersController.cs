@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.StaticFiles;
@@ -11,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data;
 using OperationManagement.Data.Common;
 using OperationManagement.Data.Services;
+using OperationManagement.Data.Static;
 using OperationManagement.Data.ViewModels;
 using OperationManagement.Models;
 

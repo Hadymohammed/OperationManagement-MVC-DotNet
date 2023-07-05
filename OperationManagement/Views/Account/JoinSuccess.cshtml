@@ -1,0 +1,15 @@
+﻿@{
+    ViewBag.Title = "Success";
+}
+
+<div class="col-md-12 d-flex justify-content-center">
+    <div class="col-md-4 ">
+        <h2 class="text-success">Success</h2>
+        <div>Your request has been sent successfully, we will contact you soon.</div>
+    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

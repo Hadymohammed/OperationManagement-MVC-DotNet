@@ -1,0 +1,53 @@
+﻿@model JoinRequestVM
+@{
+    ViewBag.Title = "Join Us";
+}
+
+<div class="col-md-12 d-flex justify-content-center">
+    <div class="col-md-4">
+        <h2>Join Us</h2>
+
+        @using (Html.BeginForm("JoinRequest", "Account", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="d-flex">
+                <div class="form-group cod-md-5">
+                    @Html.LabelFor(m => m.FirstName)
+                    @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control" })
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group cod-md-5">
+                    @Html.LabelFor(m => m.LastName)
+                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.EnterpriseName)
+                @Html.TextBoxFor(m => m.EnterpriseName, new { @class = "form-control" })
+                <span asp-validation-for="EnterpriseName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+               <label>Description</label>
+               <textarea asp-for="Description" class="form-control"></textarea>
+            <span asp-validation-for="EnterpriseName" class="text-danger"></span>
+            </div>
+            <div class="d-flex align-items-center mt-3">
+                <button type="submit" class="btn btn-primary">Join</button>
+                <div style="margin-left:5px">Have an account? <a asp-action="Login" asp-controller="Account">Login</a></div>
+            </div>
+
+        }
+    </div>
+</div>
+@section Scripts{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

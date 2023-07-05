@@ -1,0 +1,60 @@
+﻿@model ReviewJoinRequestVM
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Customer</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-4">
+                    Enterprise Name
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Enterprise.Name)
+                </dd>
+                <dt class="col-sm-4">
+                    Staff Name
+                </dt>
+                <dd class="col-sm-8">
+                    @Model.Staff.FirstName @Model.Staff.LastName
+                </dd>
+                <dt class="col-sm-4">
+                    Staff Email
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Staff.Email)
+                </dd>
+                <dt class="col-sm-4">
+                    Enterprise Description
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Enterprise.Description)
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <h4>Action</h4>
+        <hr />
+        <form asp-action="JoinRequestAction" asp-controller="Admin">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="EnterpriseId"/>
+            <label asp-for="Messege"></label>
+            <textarea asp-for="Messege" class="form-control" placeholder="Your messege..."></textarea>
+            <label asp-for="Action"></label>
+            <select asp-for="Action">
+                <option value="Accept" class="test-success">Accept</option>
+                <option value="Reject" class="text-danger">Reject</option>
+            </select>
+            <input type="submit" class="btn btn-primary" value="Take Action">
+        </form>
+    </div>
+
+</div>
+
