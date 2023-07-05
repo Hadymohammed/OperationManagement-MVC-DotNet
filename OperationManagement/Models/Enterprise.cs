@@ -1,9 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using OperationManagement.Data.Base;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class Enterprise
+    public class Enterprise:IEntityBase
     {
         [Key]
         public int Id { get; set; }
@@ -11,6 +13,8 @@ namespace OperationManagement.Models
         public string Name { get; set; }
         [AllowNull]
         public string? LogoURL { get; set; }
+        [AllowNull,DefaultValue(false)]
+        public bool? Accepted { get; set; }
         public List<ApplicationUser>? Staff { get; set; }
         public List<Category>? Categories { get; set; }
         public List<Component>? Components { get; set; }

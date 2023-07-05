@@ -19,7 +19,8 @@ namespace OperationManagement.Data
                     {
                         new Enterprise
                         {
-                            Name="Abdelrahman Elhawary"
+                            Name="Abdelrahman Elhawary",
+                            Accepted=true
                         }
                     });
                     context.SaveChanges();
@@ -53,7 +54,8 @@ namespace OperationManagement.Data
                         UserName = "admin-user",
                         Email = adminUserEmail,
                         EmailConfirmed = true,
-                        ProfilePictureURL=Consts.profileImgUrl
+                        ProfilePictureURL=Consts.profileImgUrl,
+                        Registered=true
                     };
                     await userManager.CreateAsync(newAdminUser, "Coding@1234?");
                     await userManager.AddToRoleAsync(newAdminUser, UserRoles.Admin);
@@ -74,6 +76,7 @@ namespace OperationManagement.Data
                         EmailConfirmed = true,
                         ProfilePictureURL = Consts.profileImgUrl,
                         EnterpriseId = 1,
+                        Registered = true
                     };
                     await userManager.CreateAsync(newAppUser, "Coding@1234?");
                     await userManager.AddToRoleAsync(newAppUser, UserRoles.User);
