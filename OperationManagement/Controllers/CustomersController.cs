@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -35,7 +37,10 @@ namespace OperationManagement.Controllers
         // GET: Customers
         public async Task<IActionResult> Index()
         {
-            return View(await _customerService.GetAllAsync(c=>c.Enterprise));
+            var all = await _customerService.GetAllAsync(c => c.Enterprise);
+            var user = await _userManager.GetUserAsync(User);
+            
+            return View(all.Where(c=>c.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Customers/Details/5
@@ -51,19 +56,24 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
 
             return View(customer);
         }
 
         // GET: Customers/Create
-        //[Authorize(Roles =UserRoles.User)]
         public async Task<IActionResult> CreateAsync()
         {
-            //var user = await _userManager.GetUserAsync(User);
+
+            var user = await _userManager.GetUserAsync(User);
             var customer = new Customer
             {
                 Contacts = new List<CustomerContact>(),
-                EnterpriseId = 1//(int)user.EnterpriseId
+                EnterpriseId = (int)user.EnterpriseId
             };
             return View(customer);
         }
@@ -77,7 +87,11 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                
+                var user = await _userManager.GetUserAsync(User);
+                if (customer.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _customerService.AddAsync(customer);
                 foreach(var contact in Contacts)
                 {
@@ -106,6 +120,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(customer);
         }
 
@@ -123,6 +142,11 @@ namespace OperationManagement.Controllers
 
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (customer.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 try
                 {
                     await _customerService.UpdateAsync(customer.Id,customer);
@@ -168,7 +192,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(customer);
         }
 
@@ -182,12 +210,17 @@ namespace OperationManagement.Controllers
                 return Problem("Entity set 'AppDBContext.Customers'  is null.");
             }
             var customer = await _context.Customers.FindAsync(id);
+
             if (customer != null)
             {
-                _context.Customers.Remove(customer);
+                var user = await _userManager.GetUserAsync(User);
+                if (customer.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
+                await _customerService.DeleteAsync(customer.Id);
             }
             
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
