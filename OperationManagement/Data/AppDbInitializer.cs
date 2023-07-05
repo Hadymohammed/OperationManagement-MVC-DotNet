@@ -60,7 +60,7 @@ namespace OperationManagement.Data
                 }
 
 
-                string appUserEmail = "user@etickets.com";
+                string appUserEmail = "user@operation.com";
 
                 var appUser = await userManager.FindByEmailAsync(appUserEmail);
                 if (appUser == null)
