@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,20 +20,26 @@ namespace OperationManagement.Controllers
         private readonly AppDBContext _context;
         private readonly IProcessService _processService;
         private readonly IProcessStatusService _processStatusService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public ProcessesController(AppDBContext context,
             IProcessService processService,
-            IProcessStatusService processStatusService)
+            IProcessStatusService processStatusService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _processService = processService;
             _processStatusService = processStatusService;
+            _userManager = userManager;
         }
 
         // GET: Processes
         public async Task<IActionResult> Index()
         {
-            return View(await _processService.GetAllAsync());
+            var all = await _processService.GetAllAsync();
+            var user = await _userManager.GetUserAsync(User);
+            
+            return View(all.Where(p=>p.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Processes/Details/5
@@ -49,16 +55,22 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
 
             return View(process);
         }
 
         // GET: Processes/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
             return View(new Process()
             {
-                EnterpriseId=1,
+                EnterpriseId=(int)user.EnterpriseId,
                 Statuses=new List<ProcessStatus>()
             });
         }
@@ -72,6 +84,11 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (process.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _processService.AddAsync(process);
                 foreach(var status in statuses)
                 {
@@ -99,6 +116,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(process);
         }
 
@@ -118,6 +140,11 @@ namespace OperationManagement.Controllers
             {
                 try
                 {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (process.EnterpriseId != user.EnterpriseId)
+                    {
+                        return RedirectToAction("AccessDenied", "Account");
+                    }
                     await _processService.UpdateAsync(process.Id, process);
                     process.Statuses = _processStatusService.GetByProcessId(process.Id);
                     process.Statuses.Clear();
@@ -160,6 +187,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
 
             return View(process);
         }
@@ -176,6 +208,11 @@ namespace OperationManagement.Controllers
             var process = await _processService.GetByIdAsync(id);
             if (process != null)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (process.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _processService.DeleteAsync(process.Id);
             }
             return RedirectToAction(nameof(Index));
