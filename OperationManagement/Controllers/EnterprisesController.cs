@@ -28,7 +28,6 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Enterprises
-        [Authorize(Roles =UserRoles.Admin)]
         public async Task<IActionResult> Index()
         {
             return View();

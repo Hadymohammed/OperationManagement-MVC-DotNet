@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -18,17 +20,24 @@ namespace OperationManagement.Controllers
     {
         private readonly AppDBContext _context;
         private readonly IMeasurementService _measurementSerivce;
+        private readonly UserManager<ApplicationUser> _userManager;
+
         public MeasurementsController(AppDBContext context,
-            IMeasurementService measurementService)
+            IMeasurementService measurementService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _measurementSerivce = measurementService;
+            _userManager = userManager;
         }
 
         // GET: Measurements
         public async Task<IActionResult> Index()
         {
-            return View(await _measurementSerivce.GetAllAsync(m=>m.Enterprise));
+            var all = await _measurementSerivce.GetAllAsync(m => m.Enterprise);
+            var user = await _userManager.GetUserAsync(User);
+            
+            return View(all.Where(e=>e.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Measurements/Details/5
@@ -44,16 +53,22 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (measurement.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(measurement);
         }
 
         // GET: Measurements/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
+            
             return View(new Measurement()
             {
-                EnterpriseId=1
+                EnterpriseId=(int)user.EnterpriseId
             });
         }
 
@@ -66,6 +81,11 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (measurement.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _measurementSerivce.AddAsync(measurement);
                 return RedirectToAction(nameof(Index));
             }
@@ -85,6 +105,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (measurement.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(measurement);
         }
 
@@ -102,6 +127,11 @@ namespace OperationManagement.Controllers
 
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (measurement.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 try
                 {
                     await _measurementSerivce.UpdateAsync(id, measurement);
@@ -135,7 +165,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (measurement.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(measurement);
         }
 
@@ -151,6 +185,11 @@ namespace OperationManagement.Controllers
             var measurement = await _measurementSerivce.GetByIdAsync(id, m => m.Enterprise);
             if (measurement != null)
             {
+                var user = await _userManager.GetUserAsync(User);
+                if (measurement.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _measurementSerivce.DeleteAsync(measurement.Id);
             }
             return RedirectToAction(nameof(Index));
