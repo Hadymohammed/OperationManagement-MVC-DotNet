@@ -10,5 +10,9 @@ namespace OperationManagement.Data.Services
         {
             _context = context;
         }
+        public int GetNumberOfAllOrders()
+        {
+            return _context.Orders.Count();
+        }
     }
 }
