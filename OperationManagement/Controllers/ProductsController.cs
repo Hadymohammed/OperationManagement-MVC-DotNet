@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,7 @@ namespace OperationManagement.Controllers
         private readonly IProductProcessService _productProcessService;
         private readonly IProductSpecificationService _productSpecificationService;
         private readonly IOrderService _orderService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public ProductsController(AppDBContext context,
             IProductService productService,
@@ -40,7 +42,8 @@ namespace OperationManagement.Controllers
             IProductMeasurementService productMeasurementService,
             IProductProcessService productProcessService,
             IProductSpecificationService productSpecificationService,
-            IOrderService orderService)
+            IOrderService orderService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _productService = productService;
@@ -53,12 +56,16 @@ namespace OperationManagement.Controllers
             _productProcessService = productProcessService;
             _productSpecificationService = productSpecificationService;
             _orderService = orderService;
+            _userManager = userManager;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            return View(await _productService.GetAllAsync(p=>p.Category,p=>p.Order));
+            var all = await _productService.GetAllAsync(p => p.Category, p => p.Order,p=>p.Order.Customer);
+            var user = await _userManager.GetUserAsync(User);
+            
+            return View(all.Where(p=>p.Order.Customer.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Products/Details/5
@@ -74,29 +81,42 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (product.Order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(product);
         }
 
         // GET: Products/Create
         public async Task<IActionResult> Create(int?orderId)
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name");
+            var user = await _userManager.GetUserAsync(User);
+            
+            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e=>e.EnterpriseId==user.EnterpriseId), "Id", "Name");
             if (orderId != null)
             {
-                var order = await _orderService.GetByIdAsync((int)orderId);
-                ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "EnterpriseOrderNumber",order.Id);
+                var order = await _orderService.GetByIdAsync((int)orderId,o=>o.Customer);
+
+                ViewData["OrderId"] = new SelectList(_context.Orders.Include(o=>o.Customer)
+                    .Where(o=>o.Customer.EnterpriseId==user.EnterpriseId), "Id", "EnterpriseOrderNumber",order.Id);
             }
             else
             {
-                ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "EnterpriseOrderNumber");
+                ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
+                    .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber");
             }
+            var allSpecs = await _specificationService.GetAllAsync(s => s.Statuses, s => s.Options);
+            var allComps = await _componentService.GetAllAsync(c => c.Photos);
+            var allProcess = await _processService.GetAllAsync(p => p.Statuses);
+            var allMeags = await _measurementService.GetAllAsync();
             return View(new CreateProductVM
             {
-                Specifications=await _specificationService.GetAllAsync(s=>s.Statuses,s=>s.Options),
-                Components=await _componentService.GetAllAsync(c=>c.Photos),
-                Processes=await _processService.GetAllAsync(p=>p.Statuses),
-                Measurements=await _measurementService.GetAllAsync()
+                Specifications=allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId),
+                Components= allComps.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                Processes= allProcess.Where(p=>p.EnterpriseId==user.EnterpriseId),
+                Measurements = allMeags.Where(allMeags=>allMeags.EnterpriseId==user.EnterpriseId),
             });
         }
 
@@ -107,82 +127,106 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateProductVM vm)
         {
+            var user = await _userManager.GetUserAsync(User);
+            
             if (ModelState.IsValid)
             {
+                var order = await _orderService.GetByIdAsync(vm.Product.OrderId,o=>o.Customer);
+                if (order.Customer.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
                 await _productService.AddAsync(vm.Product);
                 //add measurements
-                foreach(var m in vm.ProductMeasurements)
+                if (vm.ProductMeasurements != null)
                 {
-                    if (m.Value != null)
+                    foreach(var m in vm.ProductMeasurements)
                     {
-                        await _productMeasurementService.AddAsync(new ProductMeasurement()
+                        if (m.Value != null)
                         {
-                            ProductId = vm.Product.Id,
-                            MeasurementId = m.MeasurementId,
-                            Value = m.Value,
-                            Unit = m.Unit
-                        });
+                            await _productMeasurementService.AddAsync(new ProductMeasurement()
+                            {
+                                ProductId = vm.Product.Id,
+                                MeasurementId = m.MeasurementId,
+                                Value = m.Value,
+                                Unit = m.Unit
+                            });
+                        }
                     }
                 }
                 //add components
-                foreach(var comp in vm.ProductComponents)
+                if (vm.ProductComponents != null)
                 {
-                    if (comp.Item1)
+                    foreach(var comp in vm.ProductComponents)
                     {
-                        await _productComponentService.AddAsync(new ProductComponent() { 
-                            ProductId=vm.Product.Id,
-                            ComponentId= comp.Item2.ComponentId,
-                            Quantity=comp.Item2.Quantity
-                        });
+                        if (comp.Item1)
+                        {
+                            await _productComponentService.AddAsync(new ProductComponent() { 
+                                ProductId=vm.Product.Id,
+                                ComponentId= comp.Item2.ComponentId,
+                                Quantity=comp.Item2.Quantity
+                            });
+                        }
                     }
                 }
                 //add specifications
-                foreach(var spec in vm.ProductSpecifications)
+                if (vm.ProductSpecifications != null)
                 {
-                    if (spec.Item1)
+                    foreach(var spec in vm.ProductSpecifications)
                     {
-                        await _productSpecificationService.AddAsync(new ProductSpecification()
+                        if (spec.Item1)
                         {
-                            ProductId = vm.Product.Id,
-                            SpecificationId = spec.Item2.SpecificationId,
-                            StatusId=spec.Item2.StatusId,
-                            OptionId = spec.Item2.OptionId,
-                            Remark = spec.Item2.Remark,
-                            Date = spec.Item2.Date
-                        });
+                            await _productSpecificationService.AddAsync(new ProductSpecification()
+                            {
+                                ProductId = vm.Product.Id,
+                                SpecificationId = spec.Item2.SpecificationId,
+                                StatusId=spec.Item2.StatusId,
+                                OptionId = spec.Item2.OptionId,
+                                Remark = spec.Item2.Remark,
+                                Date = spec.Item2.Date
+                            });
+                        }
                     }
                 }
                 //add process
-                foreach(var process in vm.ProductProcesses)
+                if (vm.ProductProcesses != null)
                 {
-                    if (process.Item1)
+                    foreach(var process in vm.ProductProcesses)
                     {
-                        await _productProcessService.AddAsync(new ProductProcess()
+                        if (process.Item1)
                         {
-                            ProductId = vm.Product.Id,
-                            ProcessId = process.Item2.ProcessId,
-                            StatusId = process.Item2.StatusId,
-                            Comment = process.Item2.Comment,
-                            StartDate = process.Item2.StartDate,
-                            EndDate = process.Item2.EndDate
-                        });
+                            await _productProcessService.AddAsync(new ProductProcess()
+                            {
+                                ProductId = vm.Product.Id,
+                                ProcessId = process.Item2.ProcessId,
+                                StatusId = process.Item2.StatusId,
+                                Comment = process.Item2.Comment,
+                                StartDate = process.Item2.StartDate,
+                                EndDate = process.Item2.EndDate
+                            });
+                        }
                     }
                 }
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", vm.Product.CategoryId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "EnterpriseOrderNumber", vm.Product.OrderId);
-            vm.Specifications = await _specificationService.GetAllAsync(s => s.Statuses, s => s.Options);
-            vm.Components = await _componentService.GetAllAsync(c => c.Photos);
-            vm.Processes = await _processService.GetAllAsync(p => p.Statuses);
-            vm.Measurements = await _measurementService.GetAllAsync();
+            var allSpecs = await _specificationService.GetAllAsync(s => s.Statuses, s => s.Options);
+            var allComps = await _componentService.GetAllAsync(c => c.Photos);
+            var allProcess = await _processService.GetAllAsync(p => p.Statuses);
+            var allMeags = await _measurementService.GetAllAsync();
+            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e => e.EnterpriseId == user.EnterpriseId), "Id", "Name", vm.Product.CategoryId);
+            ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
+                    .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber", vm.Product.OrderId);
+            vm.Specifications = allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId);
+            vm.Components = allComps.Where(s => s.EnterpriseId == user.EnterpriseId);
+            vm.Processes = allProcess.Where(s => s.EnterpriseId == user.EnterpriseId);
+            vm.Measurements = allMeags.Where(s => s.EnterpriseId == user.EnterpriseId);
             return View(vm);
         }
 
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (id == null || _context.Products == null)
             {
                 return NotFound();
@@ -193,6 +237,10 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            if (product.Order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             var AllComponents =await _componentService.GetAllAsync(c=>c.Photos);
             var AllSpecifications =await _specificationService.GetAllAsync(s=>s.Statuses,s=>s.Options);
             var AllMeasurements =await _measurementService.GetAllAsync();
@@ -201,10 +249,10 @@ namespace OperationManagement.Controllers
             {
                 CategoryId = product.CategoryId,
                 Product = product,
-                Measurements = AllMeasurements,
-                Specifications = AllSpecifications,
-                Processes = AllProcess,
-                Components = AllComponents,
+                Measurements = AllMeasurements.Where(p=>p.EnterpriseId==user.EnterpriseId),
+                Specifications = AllSpecifications.Where(p => p.EnterpriseId == user.EnterpriseId),
+                Processes = AllProcess.Where(p => p.EnterpriseId == user.EnterpriseId),
+                Components = AllComponents.Where(p => p.EnterpriseId == user.EnterpriseId),
                 ProductComponents = new List<TupleVM<bool,ProductComponent>>(),
                 ProductMeasurements=new List<ProductMeasurement>(),
                 ProductProcesses=new List<TupleVM<bool,ProductProcess>>(),
@@ -282,18 +330,20 @@ namespace OperationManagement.Controllers
                 }
 
             }
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "Id", "Name", product.CategoryId);
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "EnterpriseOrderNumber", product.OrderId);
+            ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e => e.EnterpriseId == user.EnterpriseId), "Id", "Name", product.CategoryId);
+            ViewData["OrderId"] = new SelectList(_context.Orders.Include(o=>o.Customer).Where(e => e.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber", product.OrderId);
             return View(vm);
         }
 
         // POST: Products/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkI7778/8d=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id,CreateProductVM vm)
         {
+            var user = await _userManager.GetUserAsync(User);
+            var order = await _orderService.GetByIdAsync(vm.Product.OrderId,o=>o.Customer);
             if (id != vm.Product.Id)
             {
                 return NotFound();
@@ -303,132 +353,148 @@ namespace OperationManagement.Controllers
             {
                 try
                 {
+                    if(order.Customer.EnterpriseId!=user.EnterpriseId)
+                    {
+                        return RedirectToAction("AccessDenied", "Account");
+                    }
                     await _productService.UpdateAsync(id, vm.Product);
                     /*Update details*/
                     var product = _productService.getCompleteProductById(vm.Product.Id);
                     //add measurements
-                    foreach (var m in vm.ProductMeasurements)
+                    if (vm.ProductMeasurements != null)
                     {
-                        var meag = product.Measurements.Where(me => me.MeasurementId == m.MeasurementId).FirstOrDefault();
-                        if(meag!=null)
+                        foreach (var m in vm.ProductMeasurements)
                         {
-                            if (m.Value != null)
+                            var meag = product.Measurements.Where(me => me.MeasurementId == m.MeasurementId).FirstOrDefault();
+                            if(meag!=null)
                             {
-                                meag.Value = m.Value;
-                                meag.Unit = m.Unit;
-                                await _productMeasurementService.UpdateAsync(meag.Id, meag);
+                                if (m.Value != null)
+                                {
+                                    meag.Value = m.Value;
+                                    meag.Unit = m.Unit;
+                                    await _productMeasurementService.UpdateAsync(meag.Id, meag);
+                                }
+                                else
+                                {
+                                    await _productMeasurementService.DeleteAsync(meag.Id);
+                                }
                             }
                             else
                             {
-                                await _productMeasurementService.DeleteAsync(meag.Id);
-                            }
-                        }
-                        else
-                        {
-                            if (m.Value != null)
-                            {
-                                m.ProductId = product.Id;
-                                await _productMeasurementService.AddAsync(m);
+                                if (m.Value != null)
+                                {
+                                    m.ProductId = product.Id;
+                                    await _productMeasurementService.AddAsync(m);
+                                }
                             }
                         }
                     }
                     //add components
-                    foreach (var comp in vm.ProductComponents)
+                    if (vm.ProductComponents != null)
                     {
-                        var component = product.Components.Where(c => c.ComponentId == comp.Item2.ComponentId).FirstOrDefault();
-                        if (comp.Item1)
+                        foreach (var comp in vm.ProductComponents)
                         {
-                            if (component!=null)
+                            var component = product.Components.Where(c => c.ComponentId == comp.Item2.ComponentId).FirstOrDefault();
+                            if (comp.Item1)
                             {
-                                component.Quantity = comp.Item2.Quantity;
-                                await _productComponentService.UpdateAsync(component.Id, component);
+                                if (component!=null)
+                                {
+                                    component.Quantity = comp.Item2.Quantity;
+                                    await _productComponentService.UpdateAsync(component.Id, component);
+                                }
+                                else
+                                {
+                                    await _productComponentService.AddAsync(new ProductComponent()
+                                    {
+                                        ProductId = vm.Product.Id,
+                                        ComponentId = comp.Item2.ComponentId,
+                                        Quantity = comp.Item2.Quantity
+                                    });
+                                }
                             }
                             else
                             {
-                                await _productComponentService.AddAsync(new ProductComponent()
+                                if (component != null)
                                 {
-                                    ProductId = vm.Product.Id,
-                                    ComponentId = comp.Item2.ComponentId,
-                                    Quantity = comp.Item2.Quantity
-                                });
-                            }
-                        }
-                        else
-                        {
-                            if (component != null)
-                            {
-                                await _productComponentService.DeleteAsync(component.Id);
+                                    await _productComponentService.DeleteAsync(component.Id);
+                                }
                             }
                         }
                     }
                     //add specifications
-                    foreach (var spec in vm.ProductSpecifications)
+                    if (vm.ProductSpecifications != null)
                     {
-                        var specification = product.Specifications.Where(s => s.SpecificationId == spec.Item2.SpecificationId).FirstOrDefault();
-                        if (spec.Item1)
+                        foreach (var spec in vm.ProductSpecifications)
                         {
-                            if (specification!=null)
+                            var specification = product.Specifications.Where(s => s.SpecificationId == spec.Item2.SpecificationId).FirstOrDefault();
+                            if (spec.Item1)
                             {
-                                specification.Remark = spec.Item2.Remark;
-                                specification.OptionId = spec.Item2.OptionId;
-                                specification.StatusId = spec.Item2.StatusId;
-                                specification.Date = spec.Item2.Date;
-                                await _productSpecificationService.UpdateAsync(specification.Id, specification);
+                                if (specification!=null)
+                                {
+                                    specification.Remark = spec.Item2.Remark;
+                                    specification.OptionId = spec.Item2.OptionId;
+                                    specification.StatusId = spec.Item2.StatusId;
+                                    specification.Date = spec.Item2.Date;
+                                    await _productSpecificationService.UpdateAsync(specification.Id, specification);
+                                }
+                                else
+                                {
+                                    await _productSpecificationService.AddAsync(new ProductSpecification()
+                                    {
+                                        ProductId = vm.Product.Id,
+                                        SpecificationId = spec.Item2.SpecificationId,
+                                        StatusId = spec.Item2.StatusId,
+                                        OptionId = spec.Item2.OptionId,
+                                        Remark = spec.Item2.Remark,
+                                        Date = spec.Item2.Date
+                                    });
+                                }
                             }
                             else
                             {
-                                await _productSpecificationService.AddAsync(new ProductSpecification()
+                                if (specification != null)
                                 {
-                                    ProductId = vm.Product.Id,
-                                    SpecificationId = spec.Item2.SpecificationId,
-                                    StatusId = spec.Item2.StatusId,
-                                    OptionId = spec.Item2.OptionId,
-                                    Remark = spec.Item2.Remark,
-                                    Date = spec.Item2.Date
-                                });
-                            }
-                        }
-                        else
-                        {
-                            if (specification != null)
-                            {
-                                await _productSpecificationService.DeleteAsync(specification.Id);
+                                    await _productSpecificationService.DeleteAsync(specification.Id);
+                                }
                             }
                         }
                     }
                     //add process
-                    foreach (var process in vm.ProductProcesses)
+                    if (vm.ProductProcesses != null)
                     {
-                        var proc = product.Processes.Where(p => p.ProcessId == process.Item2.ProcessId).FirstOrDefault();
-                        if (process.Item1)
+                        foreach (var process in vm.ProductProcesses)
                         {
-                            if (proc!=null)
+                            var proc = product.Processes.Where(p => p.ProcessId == process.Item2.ProcessId).FirstOrDefault();
+                            if (process.Item1)
                             {
-                                proc.StartDate = process.Item2.StartDate;
-                                proc.EndDate = process.Item2.EndDate;
-                                proc.Comment = process.Item2.Comment;
-                                proc.EstimatedDuration = process.Item2.EstimatedDuration;
+                                if (proc!=null)
+                                {
+                                    proc.StartDate = process.Item2.StartDate;
+                                    proc.EndDate = process.Item2.EndDate;
+                                    proc.Comment = process.Item2.Comment;
+                                    proc.EstimatedDuration = process.Item2.EstimatedDuration;
 
-                                await _productProcessService.UpdateAsync(proc.Id, proc);
+                                    await _productProcessService.UpdateAsync(proc.Id, proc);
+                                }
+                                else
+                                {
+                                    await _productProcessService.AddAsync(new ProductProcess()
+                                    {
+                                        ProductId = vm.Product.Id,
+                                        ProcessId = process.Item2.ProcessId,
+                                        StatusId = process.Item2.StatusId,
+                                        Comment = process.Item2.Comment,
+                                        StartDate = process.Item2.StartDate,
+                                        EndDate = process.Item2.EndDate
+                                    });
+                                }
                             }
                             else
                             {
-                                await _productProcessService.AddAsync(new ProductProcess()
+                                if (proc != null)
                                 {
-                                    ProductId = vm.Product.Id,
-                                    ProcessId = process.Item2.ProcessId,
-                                    StatusId = process.Item2.StatusId,
-                                    Comment = process.Item2.Comment,
-                                    StartDate = process.Item2.StartDate,
-                                    EndDate = process.Item2.EndDate
-                                });
-                            }
-                        }
-                        else
-                        {
-                            if (proc != null)
-                            {
-                                await _productProcessService.DeleteAsync(proc.Id);
+                                    await _productProcessService.DeleteAsync(proc.Id);
+                                }
                             }
                         }
                     }
@@ -452,15 +518,22 @@ namespace OperationManagement.Controllers
         // GET: Products/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            var user = await _userManager.GetUserAsync(User);
+
             if (id == null || _context.Products == null)
             {
                 return NotFound();
             }
 
             var product = await _productService.GetByIdAsync((int)id, p => p.Category, p => p.Order);
+            var order = await _orderService.GetByIdAsync(product.OrderId, p => p.Customer);
             if (product == null)
             {
                 return NotFound();
+            }
+            if (order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
             }
 
             return View(product);
@@ -471,6 +544,8 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var user = await _userManager.GetUserAsync(User);
+
             if (_context.Products == null)
             {
                 return Problem("Entity set 'AppDBContext.Products'  is null.");
@@ -480,7 +555,10 @@ namespace OperationManagement.Controllers
             {
                 await _productService.DeleteCompleteProduct(product.Id);
             }
-
+            if (product.Order.Customer.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return RedirectToAction(nameof(Index));
         }
 
