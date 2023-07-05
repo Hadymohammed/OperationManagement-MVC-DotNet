@@ -45,6 +45,8 @@ namespace OperationManagement.Data.Services
                             .ThenInclude(spec => spec.Options)
                     .Include(p => p.Specifications)
                         .ThenInclude(s => s.Status)
+                    .Include(p=>p.Order)
+                        .ThenInclude(o=>o.Customer)
                     .SingleOrDefault();
         }
         public async Task<bool> DeleteCompleteProduct(int productId)
