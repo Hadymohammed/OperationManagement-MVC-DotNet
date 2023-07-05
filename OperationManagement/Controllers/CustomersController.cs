@@ -14,6 +14,7 @@ using OperationManagement.Models;
 
 namespace OperationManagement.Controllers
 {
+    [Authorize(Roles = UserRoles.User)]
     public class CustomersController : Controller
     {
         private readonly AppDBContext _context;

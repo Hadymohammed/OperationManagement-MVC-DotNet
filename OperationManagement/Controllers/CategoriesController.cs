@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data;
 using OperationManagement.Data.Services;
+using OperationManagement.Data.Static;
 using OperationManagement.Models;
 
 namespace OperationManagement.Controllers
 {
+    [Authorize(Roles = UserRoles.User)]
     public class CategoriesController : Controller
     {
         private readonly AppDBContext _context;
