@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,13 +17,18 @@ namespace OperationManagement.Controllers
     public class EnterprisesController : Controller
     {
         private readonly AppDBContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public EnterprisesController(AppDBContext context)
+
+        public EnterprisesController(AppDBContext context,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Enterprises
+        [Authorize(Roles =UserRoles.Admin)]
         public async Task<IActionResult> Index()
         {
             return View();
@@ -41,7 +47,13 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-            return View(enterprise);
+            var user = await _userManager.GetUserAsync(User);
+            if (enterprise.Id != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+                return View(enterprise);
         }
 
         private bool EnterpriseExists(int id)
