@@ -23,21 +23,27 @@ namespace OperationManagement.Controllers
         private readonly IComponentService _componentService;
         private readonly IComponentPhotoService _PhotoService;
         private readonly IWebHostEnvironment _env;
+        private readonly UserManager<ApplicationUser> _userManager;
         public ComponentsController(AppDBContext context,
             IComponentService componentService,
             IComponentPhotoService photoService,
-            IWebHostEnvironment env)
+            IWebHostEnvironment env,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _componentService = componentService;
             _PhotoService = photoService;
             _env = env;
+            _userManager = userManager;
         }
 
         // GET: Components
         public async Task<IActionResult> Index()
         {
-            return View(await _componentService.GetAllAsync(c=>c.Photos));
+            var all = await _componentService.GetAllAsync(c => c.Photos);
+            var user = await _userManager.GetUserAsync(User);
+            
+            return View(all.Where(c=>c.EnterpriseId==user.EnterpriseId));
         }
 
         // GET: Components/Details/5
@@ -48,21 +54,28 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
+
             var component = await _componentService.GetByIdAsync((int)id, c => c.Photos);
             if (component == null)
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (component.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(component);
         }
 
         // GET: Components/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            var user = await _userManager.GetUserAsync(User);
+            
             return View(new Component()
             {
-                EnterpriseId=1
+                EnterpriseId=(int)user.EnterpriseId
             });
         }
 
@@ -84,6 +97,11 @@ namespace OperationManagement.Controllers
                 {
                     ModelState.AddModelError("Photos", "At least one photo required.");
                     return View(component);
+                }
+                var user = await _userManager.GetUserAsync(User);
+                if (component.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
                 }
                 await _componentService.AddAsync(component);
                 int cnt = 0;
@@ -118,6 +136,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (component.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(component);
         }
 
@@ -137,6 +160,11 @@ namespace OperationManagement.Controllers
             {
                 try
                 {
+                    var user = await _userManager.GetUserAsync(User);
+                    if (component.EnterpriseId != user.EnterpriseId)
+                    {
+                        return RedirectToAction("AccessDenied", "Account");
+                    }
                     await _componentService.UpdateAsync(component.Id,component);
                     var imgs = await _PhotoService.GetAllAsync();
                     int cnt = imgs.LastOrDefault().Id;
@@ -184,7 +212,11 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            var user = await _userManager.GetUserAsync(User);
+            if (component.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(component);
         }
 
@@ -198,10 +230,21 @@ namespace OperationManagement.Controllers
                 return Problem("Entity set 'AppDBContext.Components'  is null.");
             }
             var component = await _componentService.GetByIdAsync((int)id, c => c.Photos);
-            if (component != null)
+
+            if (component == null)
             {
-                await _componentService.DeleteAsync(component.Id);
+                return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (component.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            foreach(var photo in component.Photos)
+            {
+                FilesManagement.DeleteFile(photo.PhotoURL);
+            }
+            await _componentService.DeleteAsync(component.Id);
             
             return RedirectToAction(nameof(Index));
         }
@@ -216,6 +259,11 @@ namespace OperationManagement.Controllers
             if (component.Photos.Count() <= 1)
             {
                 return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (component.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
             }
             string fileName = photo.PhotoURL;
             string rootPath = _env.WebRootPath;
