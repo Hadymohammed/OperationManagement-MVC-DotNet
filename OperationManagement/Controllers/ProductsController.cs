@@ -60,11 +60,59 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? orderId,int? categoryId,int? processId)
         {
-            var all = await _productService.GetAllAsync(p => p.Category, p => p.Order,p=>p.Order.Customer);
+
+            var all = await _productService.GetAllAsync(p => p.Category, p => p.Order,p=>p.Order.Customer,p=>p.Processes);
             var user = await _userManager.GetUserAsync(User);
-            
+            #region ViewList
+            ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
+                .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber");
+
+            // Create a new SelectList with the custom option and assign it to the OrderId ViewData
+            var orderIdList = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "All", Value = "0" }
+            };
+            orderIdList.AddRange((SelectList)ViewData["OrderId"]);
+            ViewData["OrderId"] = new SelectList(orderIdList, "Value", "Text", (orderId != null ? orderId : 0));
+
+            ViewData["CategoryId"] = new SelectList(_context.Categories
+                .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
+            // Create a new SelectList with the custom option and assign it to the CategoryId ViewData
+            var categoryIdList = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "All", Value = "0" }
+            };
+            categoryIdList.AddRange((SelectList)ViewData["CategoryId"]);
+            ViewData["CategoryId"] = new SelectList(categoryIdList, "Value", "Text", (categoryId != null ? categoryId : 0));
+
+            ViewData["ProcessId"] = new SelectList(_context.Processes
+                .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
+            // Create a new SelectList with the custom option and assign it to the ProcessId ViewData
+            var processIdList = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "All", Value = "0" }
+            };
+            processIdList.AddRange((SelectList)ViewData["ProcessId"]);
+            ViewData["ProcessId"] = new SelectList(processIdList, "Value", "Text", (processId != null ? processId : 0));
+
+            #endregion
+            /*Search*/
+            if (orderId != null)
+            {
+                all = all.Where(p => p.OrderId == orderId);
+            }
+            if (categoryId != null)
+            {
+                all = all.Where(p => p.CategoryId == categoryId);
+            }
+            if(processId != null)
+            {
+                all = all.Where(p => p.Processes.Any(pr => pr.ProcessId == processId));
+            }
             return View(all.Where(p=>p.Order.Customer.EnterpriseId==user.EnterpriseId));
         }
 
