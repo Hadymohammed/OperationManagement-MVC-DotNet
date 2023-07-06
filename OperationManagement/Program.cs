@@ -9,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-var DBconnection = Environment.GetEnvironmentVariable("Dev_DBconnection");
+//var DBconnection = Environment.GetEnvironmentVariable("Dev_DBconnection");
+var DBconnection = builder.Configuration.GetConnectionString("DBconnection");
 builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(DBconnection));
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 //Authentication and authorization
