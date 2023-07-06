@@ -8,6 +8,7 @@ namespace OperationManagement.Data.Services
         public List<Product> getByOrderId(int orderId);
         public Product getCompleteProductById(int productId);
         public Task<bool> DeleteCompleteProduct(int productId);
+        public Task<int> UpdateProgressAsync(int productId);
 
     }
 }

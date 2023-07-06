@@ -30,6 +30,8 @@ namespace OperationManagement.Models
         public DateTime? HandOverDate { get; set; }
         [AllowNull,DefaultValue(false)]
         public bool? IsHandOver { get; set; }
+        [AllowNull, DefaultValue(0)]
+        public int? Progress { get; set; }
         [Required,ForeignKey("CustomerId")]
         public int CustomerId { get; set; }
         public Customer? Customer { get; set; }

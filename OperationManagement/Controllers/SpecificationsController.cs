@@ -113,12 +113,26 @@ namespace OperationManagement.Controllers
                         Name = option.Name
                     });
                 }
-                foreach(var status in Statuses)
+                bool DoneStatusFlag = false;
+
+                foreach (var status in Statuses)
                 {
                     await _statusService.AddAsync(new SpecificationStatus()
                     {
                         SpecificationId = specification.Id,
                         Name = status.Name
+                    });
+                    if (status.Name == Consts.DoneStatus)
+                    {
+                        DoneStatusFlag = true;
+                    }
+                }
+                if (!DoneStatusFlag)
+                {
+                    await _statusService.AddAsync(new SpecificationStatus()
+                    {
+                        SpecificationId = specification.Id,
+                        Name = Consts.DoneStatus
                     });
                 }
                 return RedirectToAction(nameof(Index));
@@ -200,6 +214,8 @@ namespace OperationManagement.Controllers
                             Name = option.Name
                         });
                     }
+                    bool DoneStatusFlag = false;
+
                     foreach (var status in Statuses)
                     {
                         await _statusService.AddAsync(new SpecificationStatus()
@@ -207,8 +223,19 @@ namespace OperationManagement.Controllers
                             SpecificationId = specification.Id,
                             Name = status.Name
                         });
+                        if (status.Name == Consts.DoneStatus)
+                        {
+                            DoneStatusFlag = true;
+                        }
                     }
-
+                    if(!DoneStatusFlag)
+                    {
+                        await _statusService.AddAsync(new SpecificationStatus()
+                        {
+                            SpecificationId = specification.Id,
+                            Name = Consts.DoneStatus
+                        });
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {

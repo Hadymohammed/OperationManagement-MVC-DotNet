@@ -7,9 +7,12 @@ namespace OperationManagement.Data.Services
     public class OrderService:EntityBaseRepository<Order>,IOrderService
     {
         private readonly AppDBContext _context;
-        public OrderService(AppDBContext context):base(context)
+        private readonly IProductService _productService;
+        public OrderService(AppDBContext context,
+            IProductService productService):base(context)
         {
             _context = context;
+            _productService = productService;
         }
         public int GetNumberOfAllOrders()
         {
@@ -40,6 +43,31 @@ namespace OperationManagement.Data.Services
                         .ThenInclude(p => p.Specifications)
                             .ThenInclude(s => s.Status)
                     .FirstOrDefault();
+        }
+        public async Task<int> UpdateProgress(int orderId)
+        {
+            var order = await GetByIdAsync(orderId,o=>o.Products);
+            if (order.Products == null)
+            {
+                order.Progress = 0;
+            }
+            else if (order.Products.Count() == 0)
+            {
+                order.Progress = 0;
+            }
+            else
+            {
+                float totalDone = 0;
+                foreach(var product in order.Products)
+                {
+                    await _productService.UpdateProgressAsync(product.Id);
+                    if (product.IsCompleted)
+                        totalDone++;
+                }
+                order.Progress = (int)(totalDone / order.Products.Count() * 100);
+            }
+            await UpdateAsync(order.Id, order);
+            return (int)order.Progress;
         }
     }
 }

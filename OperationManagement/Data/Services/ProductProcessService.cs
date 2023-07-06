@@ -1,4 +1,5 @@
-﻿using OperationManagement.Data.Base;
+﻿using Microsoft.EntityFrameworkCore;
+using OperationManagement.Data.Base;
 using OperationManagement.Models;
 
 namespace OperationManagement.Data.Services
@@ -14,5 +15,10 @@ namespace OperationManagement.Data.Services
         {
             return _context.ProductProcesses.Where(c => c.ProductId == productId && c.ProcessId == processId).FirstOrDefault();
         }
+        public List<ProductProcess> GetByProductId(int productId)
+        {
+            return _context.ProductProcesses.Where(p => p.ProductId == productId).Include(p => p.Process.Statuses).ToList();
+        }
+
     }
 }

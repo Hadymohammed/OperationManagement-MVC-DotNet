@@ -7,6 +7,7 @@ namespace OperationManagement.Data.Services
     {
         public int GetNumberOfAllOrders();
         public Order GetCompleteOrder(int orderId);
-        
+        public Task<int> UpdateProgress(int orderId);
+
     }
 }

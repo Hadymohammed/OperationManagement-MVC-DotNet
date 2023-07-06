@@ -21,6 +21,10 @@ namespace OperationManagement.Models
         public int Quantity { get; set; }
         [Required]
         public int CategoryId { get; set; }
+        [AllowNull,DefaultValue(0)]
+        public int? Progress { get; set; }
+        [AllowNull,DefaultValue(false)]
+        public bool IsCompleted { get; set; }
         public Category? Category { get; set; }
         [Required]
         public int OrderId { get; set; }

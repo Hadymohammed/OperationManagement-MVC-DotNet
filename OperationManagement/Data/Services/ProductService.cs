@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data.Base;
+using OperationManagement.Data.Static;
 using OperationManagement.Models;
 
 namespace OperationManagement.Data.Services
@@ -89,6 +90,37 @@ namespace OperationManagement.Data.Services
                 return false;
             }
             return false;
+        }
+        public async Task<int> UpdateProgressAsync(int productId)
+        {
+            var product = await GetByIdAsync(productId,p=>p.Processes);
+            product.Processes = _productProcessService.GetByProductId(productId);
+            if (product.Processes == null)
+            {
+                product.Progress = 0;
+            }
+            else if (product.Processes.Count()==0)
+            {
+                product.Progress = 0;
+            }
+            else
+            {
+                float totalDone = 0;
+                foreach (var process in product.Processes)
+                {
+                    if (process.Status.Name == Consts.DoneStatus)
+                    {
+                        totalDone++;
+                    }
+                }
+                product.Progress = (int)(totalDone / product.Processes.Count() * 100);
+                if (totalDone == product.Processes.Count())
+                {
+                    product.IsCompleted = true;
+                }
+            }
+            await UpdateAsync(product.Id, product);
+            return (int)product.Progress;
         }
     }
 }

@@ -27,13 +27,16 @@
                         <h4>Process Status</h4>
                         <hr />
                         <div id="status-container">
+                            @{
+                                var i = 0;
+                            }
                             @foreach (var status in Model.Statuses)
                             {
                                 <div class="row status-row">
                                     <div class="col-md-10">
                                         <div class="form-group">
                                             <label asp-for="@status.Name" class="control-label"></label>
-                                            <input asp-for="@status.Name" class="form-control" />
+                                            <input value="@status.Name" name="statuses[@i].Name" class="form-control" />
                                             <span asp-validation-for="@status.Name" class="text-danger"></span>
                                         </div>
                                     </div>

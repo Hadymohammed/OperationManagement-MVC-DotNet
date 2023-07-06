@@ -113,7 +113,7 @@
     </dl>
 </div>
 <div class="text-center">
-    <a asp-action="Create" asp-controller="Products">Add Product</a> |
+    <a asp-action="Create" asp-controller="Products" asp-route-orderId="@Model.Id">Add Product</a> |
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
@@ -168,11 +168,12 @@
                     @Html.DisplayFor(modelItem => item.Category.Name)
                 </td>
                 <td>
-                    50%
+                    @Html.DisplayFor(modelItem => item.Progress)
                 </td>
                 <td>
-                    <a asp-action="Details" asp-controller="Products" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-controller="Products" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Details" asp-controller="Products" asp-route-id="@item.Id">Details</a>
+                    <!-- | <a asp-action="Delete" asp-controller="Products" asp-route-id="@item.Id">Delete</a>-->
+
                 </td>
             </tr>
         }

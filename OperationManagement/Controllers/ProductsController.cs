@@ -143,18 +143,9 @@ namespace OperationManagement.Controllers
             var user = await _userManager.GetUserAsync(User);
             
             ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e=>e.EnterpriseId==user.EnterpriseId), "Id", "Name");
-            if (orderId != null)
-            {
-                var order = await _orderService.GetByIdAsync((int)orderId,o=>o.Customer);
+            ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
+                    .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber",(orderId!=null ? orderId:null));
 
-                ViewData["OrderId"] = new SelectList(_context.Orders.Include(o=>o.Customer)
-                    .Where(o=>o.Customer.EnterpriseId==user.EnterpriseId), "Id", "EnterpriseOrderNumber",order.Id);
-            }
-            else
-            {
-                ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
-                    .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber");
-            }
             var allSpecs = await _specificationService.GetAllAsync(s => s.Statuses, s => s.Options);
             var allComps = await _componentService.GetAllAsync(c => c.Photos);
             var allProcess = await _processService.GetAllAsync(p => p.Statuses);
@@ -255,6 +246,7 @@ namespace OperationManagement.Controllers
                         }
                     }
                 }
+                await _orderService.UpdateProgress(order.Id);
                 return RedirectToAction(nameof(Index));
             }
             var allSpecs = await _specificationService.GetAllAsync(s => s.Statuses, s => s.Options);
@@ -293,20 +285,24 @@ namespace OperationManagement.Controllers
             var AllSpecifications =await _specificationService.GetAllAsync(s=>s.Statuses,s=>s.Options);
             var AllMeasurements =await _measurementService.GetAllAsync();
             var AllProcess =await _processService.GetAllAsync(p=>p.Statuses);
+            AllComponents = AllComponents.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
+            AllSpecifications = AllSpecifications.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
+            AllMeasurements = AllMeasurements.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
+            AllProcess = AllProcess.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
             var vm = new CreateProductVM()
             {
                 CategoryId = product.CategoryId,
                 Product = product,
-                Measurements = AllMeasurements.Where(p=>p.EnterpriseId==user.EnterpriseId),
-                Specifications = AllSpecifications.Where(p => p.EnterpriseId == user.EnterpriseId),
-                Processes = AllProcess.Where(p => p.EnterpriseId == user.EnterpriseId),
-                Components = AllComponents.Where(p => p.EnterpriseId == user.EnterpriseId),
+                Measurements = AllMeasurements,
+                Specifications = AllSpecifications,
+                Processes = AllProcess,
+                Components = AllComponents,
                 ProductComponents = new List<TupleVM<bool,ProductComponent>>(),
                 ProductMeasurements=new List<ProductMeasurement>(),
                 ProductProcesses=new List<TupleVM<bool,ProductProcess>>(),
                 ProductSpecifications=new List<TupleVM<bool,ProductSpecification>>()
             };
-            foreach(var comp in AllComponents)
+            foreach (var comp in AllComponents)
             {
                 if (product.Components.Any(c => c.ComponentId == comp.Id))
                 {
@@ -521,7 +517,7 @@ namespace OperationManagement.Controllers
                                     proc.EndDate = process.Item2.EndDate;
                                     proc.Comment = process.Item2.Comment;
                                     proc.EstimatedDuration = process.Item2.EstimatedDuration;
-
+                                    proc.StatusId = process.Item2.StatusId;
                                     await _productProcessService.UpdateAsync(proc.Id, proc);
                                 }
                                 else
@@ -546,6 +542,7 @@ namespace OperationManagement.Controllers
                             }
                         }
                     }
+                    await _orderService.UpdateProgress(order.Id);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -601,7 +598,9 @@ namespace OperationManagement.Controllers
             var product = _productService.getCompleteProductById(id);
             if (product != null)
             {
+                int orderId = product.OrderId;
                 await _productService.DeleteCompleteProduct(product.Id);
+                await _orderService.UpdateProgress(orderId);
             }
             if (product.Order.Customer.EnterpriseId != user.EnterpriseId)
             {

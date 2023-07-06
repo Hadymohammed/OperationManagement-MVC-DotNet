@@ -98,12 +98,25 @@ namespace OperationManagement.Controllers
                     return RedirectToAction("AccessDenied", "Account");
                 }
                 await _processService.AddAsync(process);
-                foreach(var status in statuses)
+                bool DoneStatusFlag = false;
+                foreach (var status in statuses)
                 {
                     await _processStatusService.AddAsync(new ProcessStatus()
                     {
                         ProcessId = process.Id,
                         Name = status.Name,
+                    });
+                    if (status.Name == Consts.DoneStatus)
+                    {
+                        DoneStatusFlag = true;
+                    }
+                }
+                if (!DoneStatusFlag)
+                {
+                    await _processStatusService.AddAsync(new ProcessStatus()
+                    {
+                        ProcessId = process.Id,
+                        Name = Consts.DoneStatus
                     });
                 }
                 return RedirectToAction(nameof(Index));
@@ -164,12 +177,25 @@ namespace OperationManagement.Controllers
                     await _processService.UpdateAsync(process.Id, process);
                     process.Statuses = _processStatusService.GetByProcessId(process.Id);
                     process.Statuses.Clear();
+                    bool DoneStatusFlag=false;
                     foreach (var status in statuses)
                     {
                         await _processStatusService.AddAsync(new ProcessStatus()
                         {
                             ProcessId = process.Id,
                             Name = status.Name,
+                        });
+                        if (status.Name == Consts.DoneStatus)
+                        {
+                            DoneStatusFlag = true;
+                        }
+                    }
+                    if (!DoneStatusFlag)
+                    {
+                        await _processStatusService.AddAsync(new ProcessStatus()
+                        {
+                            ProcessId = process.Id,
+                            Name = Consts.DoneStatus
                         });
                     }
                     await _context.SaveChangesAsync();
