@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-var DBconnection = builder.Configuration.GetConnectionString("DBconnection");
+var DBconnection = Environment.GetEnvironmentVariable("Dev_DBconnection");
 builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(DBconnection));
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 //Authentication and authorization
@@ -54,7 +54,6 @@ builder.Services.AddScoped<IProductProcessService, ProductProcessService>();
 builder.Services.AddScoped<IProductSpecificationService, ProductSpecificationService>();
 
 var app = builder.Build();
-
 AppDbInitializer.Seed(app);
 AppDbInitializer.SeedUsersAndRolesAsync(app).Wait();
 

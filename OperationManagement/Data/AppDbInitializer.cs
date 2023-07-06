@@ -13,7 +13,7 @@ namespace OperationManagement.Data
             {
                 var context = serviceScope.ServiceProvider.GetService<AppDBContext>();
                 context.Database.EnsureCreated();
-                if (!context.Enterprises.Any())
+                /*if (!context.Enterprises.Any())
                 {
                     context.Enterprises.AddRange(new List<Enterprise>()
                     {
@@ -24,7 +24,7 @@ namespace OperationManagement.Data
                         }
                     });
                     context.SaveChanges();
-                }
+                }*/
             }
         }
         public static async Task SeedUsersAndRolesAsync(IApplicationBuilder applicationBuilder)
