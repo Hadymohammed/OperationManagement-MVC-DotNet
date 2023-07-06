@@ -89,6 +89,14 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,EnterpriseId")] Specification specification, SpecificationOption[] Options, SpecificationStatus[] Statuses)
         {
+            if (Options == null)
+            {
+                ModelState.AddModelError(String.Empty, "Options can't be empty.");
+            }
+            if (Statuses == null)
+            {
+                ModelState.AddModelError(String.Empty, "Status can't be empty.");
+            }
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -115,6 +123,8 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            specification.Statuses = Statuses.ToList();
+            specification.Options = Options.ToList();
             return View(specification);
         }
 
@@ -151,7 +161,22 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            if (Options == null)
+            {
+                ModelState.AddModelError(String.Empty, "Options can't be empty.");
+            }
+            else if (Options.Count() == 0)
+            {
+                ModelState.AddModelError(String.Empty, "Options can't be empty.");
+            }
+            if (Statuses == null)
+            {
+                ModelState.AddModelError(String.Empty, "Status can't be empty.");
+            }
+            else if (Statuses.Count() == 0)
+            {
+                ModelState.AddModelError(String.Empty, "Status can't be empty.");
+            }
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -198,6 +223,8 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            specification.Statuses = Statuses.ToList();
+            specification.Options = Options.ToList();
             return View(specification);
         }
 

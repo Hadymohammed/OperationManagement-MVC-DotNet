@@ -82,6 +82,14 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,EnterpriseId")] Process process, ProcessStatus[] statuses)
         {
+            if (statuses == null)
+            {
+                ModelState.AddModelError(String.Empty, "Status Can't be empty.");
+            }
+            else if (statuses.Count() == 0)
+            {
+                ModelState.AddModelError(String.Empty, "Status Can't be empty.");
+            }
             if (ModelState.IsValid)
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -100,6 +108,7 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            process.Statuses = statuses.ToList();
             return View(process);
         }
 
@@ -135,7 +144,14 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            if (statuses == null)
+            {
+                ModelState.AddModelError(String.Empty, "Status Can't be empty.");
+            }
+            else if (statuses.Count() == 0)
+            {
+                ModelState.AddModelError(String.Empty, "Status Can't be empty.");
+            }
             if (ModelState.IsValid)
             {
                 try
@@ -171,6 +187,7 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            process.Statuses = statuses.ToList();
             return View(process);
         }
 
