@@ -20,6 +20,8 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\resources\ComponentPhotos\" />
+    <Folder Include="wwwroot\resources\ComponentPhotos\" />
+    <Folder Include="wwwroot\resources\OrderAttachements\" />
     <Folder Include="wwwroot\resources\OrderAttachements\" />
   </ItemGroup>
 
