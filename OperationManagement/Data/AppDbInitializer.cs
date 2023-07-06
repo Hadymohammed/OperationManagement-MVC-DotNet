@@ -49,7 +49,7 @@ namespace OperationManagement.Data
                 {
                     var newAdminUser = new ApplicationUser()
                     {
-                        FirstName="Admin",
+                        FirstName="Super",
                         LastName="Admin",
                         UserName = "admin-user",
                         Email = adminUserEmail,
@@ -57,12 +57,13 @@ namespace OperationManagement.Data
                         ProfilePictureURL=Consts.profileImgUrl,
                         Registered=true
                     };
-                    await userManager.CreateAsync(newAdminUser, "Coding@1234?");
+                    await userManager.CreateAsync(newAdminUser, "~1!b-K8qm**s.!7Jg1Gt");
                     await userManager.AddToRoleAsync(newAdminUser, UserRoles.Admin);
                 }
 
 
-                string appUserEmail = "user@operation.com";
+                /*
+                 string appUserEmail = "user@operation.com";
 
                 var appUser = await userManager.FindByEmailAsync(appUserEmail);
                 if (appUser == null)
@@ -81,6 +82,7 @@ namespace OperationManagement.Data
                     await userManager.CreateAsync(newAppUser, "Coding@1234?");
                     await userManager.AddToRoleAsync(newAppUser, UserRoles.User);
                 }
+                */
             }
         }
     }
