@@ -227,7 +227,7 @@ namespace OperationManagement.Controllers
             };
             return View(VM);
         }
-        /*
+        
         // GET: Orders/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -266,11 +266,10 @@ namespace OperationManagement.Controllers
                 {
                     return RedirectToAction("AccessDenied", "Account");
                 }
-                await _orderService.DeleteAsync(order.Id);
+                await _orderService.DeleteCompleteOrder(order.Id);
             }
             return RedirectToAction(nameof(Index));
         }
-        */
         [HttpGet]
         public async Task<IActionResult> Download(int id)
         {
