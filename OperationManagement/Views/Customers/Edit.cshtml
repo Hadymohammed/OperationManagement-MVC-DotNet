@@ -35,7 +35,7 @@
                     <label asp-for="Nationality" class="control-label"></label>
                     <select asp-for="Nationality" class="form-control">
                         <option value="">Select Nationality</option>
-                        @foreach (var country in Enum.GetValues(typeof(Nationality)))
+                        @foreach (var country in Enum.GetValues(typeof(NationalityEnum)))
                         {
                             <option value="@country">@country</option>
                         }
