@@ -247,7 +247,7 @@ namespace OperationManagement.Controllers
                     }
                 }
                 await _orderService.UpdateProgress(order.Id);
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new {Id=vm.Product.Id});
             }
             var allSpecs = await _specificationService.GetAllAsync(s => s.Statuses, s => s.Options);
             var allComps = await _componentService.GetAllAsync(c => c.Photos);
@@ -555,7 +555,7 @@ namespace OperationManagement.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { Id = vm.Product.Id });
             }
             return NotFound();
         }

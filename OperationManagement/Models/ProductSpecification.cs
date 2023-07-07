@@ -10,7 +10,7 @@ namespace OperationManagement.Models
         [Key]
         public int Id { get; set; }
         [AllowNull, DataType(DataType.Date)]
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
         [AllowNull]
         public string? Remark { get; set; }
         [Required,ForeignKey("ProductId")]

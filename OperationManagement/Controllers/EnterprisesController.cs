@@ -28,11 +28,11 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Enterprises
-        public async Task<IActionResult> Index()
+        /*public async Task<IActionResult> Index()
         {
             return View();
-        }
-
+        }*/
+        /*
         // GET: Enterprises/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -54,7 +54,7 @@ namespace OperationManagement.Controllers
 
                 return View(enterprise);
         }
-
+        */
         private bool EnterpriseExists(int id)
         {
           return (_context.Enterprises?.Any(e => e.Id == id)).GetValueOrDefault();

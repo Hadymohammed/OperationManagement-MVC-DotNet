@@ -115,7 +115,7 @@
 <div class="text-center">
     <a asp-action="Create" asp-controller="Products" asp-route-orderId="@Model.Id">Add Product</a> |
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Details" asp-controller="Customers" asp-route-Id="@Model.CustomerId">Back to Customer</a>
 </div>
 <h4>Products</h4>
 <table class="table">

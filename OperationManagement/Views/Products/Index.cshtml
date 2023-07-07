@@ -23,8 +23,8 @@
         <select id="byProcess" name="processId" class="form-control" asp-items="ViewBag.ProcessId"></select>
     </div>
     <div>
-        <a class="btn btn-success" id="applyLink" asp-action="Index">Apply</a>
-        <a asp-action="Index">Reset</a>
+        <a class="btn btn-success" id="applyLink" asp-action="Index">Filter</a>
+        <a class="btn btn-success" asp-action="Index">Reset</a>
     </div>
 </div>
 <table class="table">
@@ -80,8 +80,7 @@
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a>
             </td>
         </tr>
 }
