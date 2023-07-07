@@ -10,5 +10,9 @@ namespace OperationManagement.Data.Services
         {
             _context = context;
         }
+        public List<ComponentPhoto> GetByComponentId(int cId)
+        {
+            return _context.ComponentPhotos.Where(c => c.ComponentId == cId).ToList();
+        }
     }
 }
