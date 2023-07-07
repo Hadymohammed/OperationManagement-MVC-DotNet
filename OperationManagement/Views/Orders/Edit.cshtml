@@ -5,12 +5,18 @@
 }
 
 <h1>Edit</h1>
-
+<div>
+    <h5>Customer : @Model.Customer.Name</h5>
+    <h5>NationalId : @Model.Customer.NationalId</h5>
+    <h5>Email : @Model.Customer.Email</h5>
+</div>
 <h4>Order</h4>
 <hr />
 <div class="row justify-content-center text-center">
         <form asp-action="Edit" enctype="multipart/form-data">
             <input type="hidden" asp-for="Order.Id"/>
+            <input type="hidden" asp-for="Order.CustomerId" class="form-control" value="@Model.Customer.Id" />
+
         <div class="row">
             <div class="col-md-6">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
@@ -63,25 +69,14 @@
                         <input asp-for="Order.HandOverDate" class="form-control" />
                         <span asp-validation-for="Order.HandOverDate" class="text-danger"></span>
                     </div>
-                    <div class="row">
-                        <div class="form-group col-md-6">
-                            <label asp-for="Order.DeliveryLocationId" class="control-label">Delivery Location</label>
-                            <select asp-for="Order.DeliveryLocationId" class="form-control">
-                                @foreach (var location in Model.DeliveryLocations)
-                                {
-                                    <option value="@location.Id">@location.Name</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label asp-for="Order.CustomerId" class="control-label">Customer</label>
-                            <select asp-for="Order.CustomerId" class="form-control">
-                                @foreach (var customer in Model.Customers)
-                                {
-                                    <option value="@customer.Id">@customer.Name</option>
-                                }
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label asp-for="Order.DeliveryLocationId" class="control-label">Delivery Location</label>
+                        <select asp-for="Order.DeliveryLocationId" class="form-control">
+                            @foreach (var location in Model.DeliveryLocations)
+                            {
+                                <option value="@location.Id">@location.Name</option>
+                            }
+                        </select>
                     </div>
                 </div>
             <div class="col-md-6">

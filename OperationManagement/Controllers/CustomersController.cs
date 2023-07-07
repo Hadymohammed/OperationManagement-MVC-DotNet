@@ -61,7 +61,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var customer = await _customerService.GetByIdAsync((int)id, c => c.Enterprise,c=>c.Contacts);
+            var customer = await _customerService.GetByIdAsync((int)id, c => c.Enterprise,c=>c.Contacts,c=>c.Orders);
             if (customer == null)
             {
                 return NotFound();
@@ -237,6 +237,10 @@ namespace OperationManagement.Controllers
         private bool CustomerExists(int id)
         {
           return (_context.Customers?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private bool PhoneNumberUserd(string phone)
+        {
+            return true;// (_context.Customers?.Any(e => e.Contacts.Any() == id)).GetValueOrDefault();
         }
     }
 }
