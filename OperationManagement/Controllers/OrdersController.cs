@@ -52,12 +52,12 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Orders
-        public async Task<IActionResult> Index()
+        /*public async Task<IActionResult> Index()
         {
             var all = await _orderService.GetAllAsync(o => o.Customer, o => o.DeliveryLocation);
             var user = await _userManager.GetUserAsync(User);
             return View(all.Where(o=>o.Customer.EnterpriseId==user.EnterpriseId));
-        }
+        }*/
 
         // GET: Orders/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -82,16 +82,20 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Orders/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int CustomerId)
         {
-            var allCustomers = await _customerService.GetAllAsync();
+            var customer = await _customerService.GetByIdAsync(CustomerId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
             var allLocations = await _deliveryLocationService.GetAllAsync();
             var user = await _userManager.GetUserAsync(User);
 
             
             var vm = new CreateOrderVM()
             {
-                Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                Customer = customer ,
                 DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId)
             };
             return View(vm);
@@ -128,9 +132,8 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            var allCustomers = await _customerService.GetAllAsync();
             var allLocations = await _deliveryLocationService.GetAllAsync();
-            OrderVM.Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId);
+            OrderVM.Customer = await _customerService.GetByIdAsync(OrderVM.Order.CustomerId);
             OrderVM.DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId);
             return View(OrderVM);
         }
@@ -149,7 +152,6 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
             var allLocations = await _deliveryLocationService.GetAllAsync();
-            var allCustomers = await _customerService.GetAllAsync();
 
             var user = await _userManager.GetUserAsync(User);
             if (order.Customer.EnterpriseId != user.EnterpriseId)
@@ -159,7 +161,7 @@ namespace OperationManagement.Controllers
             var VM = new CreateOrderVM()
             {
                 Order = order,
-                Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                Customer = await _customerService.GetByIdAsync(order.CustomerId),
                 DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId)
             };
            return View(VM);
@@ -189,6 +191,7 @@ namespace OperationManagement.Controllers
                     }
                     if (OrderVM.Order.HandOverDate != null)
                         OrderVM.Order.IsHandOver = true;
+                    OrderVM.Order.CustomerId = customer.Id;
                     await _orderService.UpdateAsync(OrderVM.Order.Id, OrderVM.Order);
                     for (int i = 0; OrderVM.Attachments != null && OrderVM.Titles != null && i < OrderVM.Attachments.Count; i++)
                     {
@@ -217,12 +220,12 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            var allCustomers = await _customerService.GetAllAsync();
             var AllLocations = await _deliveryLocationService.GetAllAsync();
+            var order = await _orderService.GetByIdAsync(id, o => o.Customer, o => o.Attachments, o => o.DeliveryLocation);
             var VM = new CreateOrderVM()
             {
-                Order = await _orderService.GetByIdAsync(id,o=>o.Customer,o=>o.Attachments,o=>o.DeliveryLocation),
-                Customers = allCustomers.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                Order =order,
+                Customer =await _customerService.GetByIdAsync(order.CustomerId),
                 DeliveryLocations = AllLocations.Where(l=>l.EnterpriseId==user.EnterpriseId) 
             };
             return View(VM);
