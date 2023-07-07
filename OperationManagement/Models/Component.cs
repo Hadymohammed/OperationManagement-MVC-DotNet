@@ -12,7 +12,7 @@ namespace OperationManagement.Models
         [Required]
         public string Name { get; set; }
         [AllowNull]
-        public string Suppler { get; set; }
+        public string Supplier { get; set; }
         [Required, ForeignKey("EnterpriseId")]
         public int EnterpriseId { get; set; }
         public Enterprise? Enterprise { get; set; }
