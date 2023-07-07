@@ -55,9 +55,41 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
+    <form id="deleteForm" asp-action="Delete">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <input type="button" value="Delete" class="btn btn-danger" onclick="showConfirmationModal()" /> |
         <a asp-action="Index">Back to List</a>
     </form>
+    <div class="fade modal" id="confirmationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the product?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" onclick="submitForm()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+@section Scripts{
+    <script>
+        function showConfirmationModal() {
+            // Show the confirmation modal
+            var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+            confirmationModal.show();
+        }
+
+        function submitForm() {
+            // Submit the form
+            document.getElementById('deleteForm').submit();
+        }
+    </script>
+}
+
