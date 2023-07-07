@@ -79,6 +79,12 @@
     </div>
 </div>
 
+<div class="text-center">
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Delete" asp-route-id="@Model?.Id">Delete</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
 <dl class="row">
     <hr />
     <h5>Components</h5>
@@ -102,7 +108,7 @@
             @m.Specification.Name
         </dt>
         <dd class="col-sm-9">
-            <strong>Option : </strong>@m.Option.Name <span> | <strong>Status : </strong>@m.Status.Name</span> <span> | <strong>Date : </strong>@m.Date.ToShortDateString()</span> | <strong>Remark : </strong>@m.Remark
+            <strong>Option : </strong>@m.Option.Name <span> | <strong>Status : </strong>@m.Status.Name</span> <span> | <strong>Date : </strong>@m.Date?.ToShortDateString()</span> | <strong>Remark : </strong>@m.Remark
         </dd>
         <dd class="col-sm-9">
 
@@ -123,8 +129,3 @@
         </dd>
     }
 </dl>
-
-<div class="text-center">
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>

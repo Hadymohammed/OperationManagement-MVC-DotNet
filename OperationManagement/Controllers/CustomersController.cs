@@ -228,7 +228,8 @@ namespace OperationManagement.Controllers
                 {
                     return RedirectToAction("AccessDenied", "Account");
                 }
-                await _customerService.DeleteAsync(customer.Id);
+                
+                await _customerService.DeleteCompleteCustomer(customer.Id);
             }
             
             return RedirectToAction(nameof(Index));

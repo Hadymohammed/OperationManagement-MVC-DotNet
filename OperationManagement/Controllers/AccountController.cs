@@ -58,7 +58,7 @@ namespace OperationManagement.Controllers
                 {
                     if (vm.Role == UserRoles.User)
                     {
-                        return RedirectToAction("Index", "Enterprises");
+                        return RedirectToAction("Index", "Customers");
                     }
                     else
                     {

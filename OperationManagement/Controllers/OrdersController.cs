@@ -119,7 +119,7 @@ namespace OperationManagement.Controllers
                 await _orderService.AddAsync(OrderVM.Order);
                 for(int i = 0;OrderVM.Attachments!=null&&OrderVM.Titles!=null&& i < OrderVM.Attachments.Count; i++)
                 {
-                    var filePath = await FilesManagement.SaveOrderAttachement(OrderVM.Attachments[i], OrderVM.Order.EnterpriseOrderNumber, OrderVM.Titles[i]);
+                    var filePath = await FilesManagement.SaveOrderAttachement(OrderVM.Attachments[i], OrderVM.Order.EnterpriseOrderNumber, "Attachement");
                     if (filePath != null)
                     {
                         await _attachmentService.AddAsync(new Attachment()
@@ -130,7 +130,7 @@ namespace OperationManagement.Controllers
                         });
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new {Id=OrderVM.Order.Id});
             }
             var allLocations = await _deliveryLocationService.GetAllAsync();
             OrderVM.Customer = await _customerService.GetByIdAsync(OrderVM.Order.CustomerId);
@@ -195,7 +195,7 @@ namespace OperationManagement.Controllers
                     await _orderService.UpdateAsync(OrderVM.Order.Id, OrderVM.Order);
                     for (int i = 0; OrderVM.Attachments != null && OrderVM.Titles != null && i < OrderVM.Attachments.Count; i++)
                     {
-                        var filePath = await FilesManagement.SaveOrderAttachement(OrderVM.Attachments[i], OrderVM.Order.EnterpriseOrderNumber, OrderVM.Titles[i]);
+                        var filePath = await FilesManagement.SaveOrderAttachement(OrderVM.Attachments[i], OrderVM.Order.EnterpriseOrderNumber, "Attachement");
                         if (filePath != null)
                         {
                             await _attachmentService.AddAsync(new Attachment()
@@ -218,7 +218,7 @@ namespace OperationManagement.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new {Id=OrderVM.Order.Id});
             }
             var AllLocations = await _deliveryLocationService.GetAllAsync();
             var order = await _orderService.GetByIdAsync(id, o => o.Customer, o => o.Attachments, o => o.DeliveryLocation);
@@ -262,6 +262,7 @@ namespace OperationManagement.Controllers
                 return Problem("Entity set 'AppDBContext.Orders'  is null.");
             }
             var order = await _orderService.GetByIdAsync((int)id,c=>c.Customer);
+            var customerId = order.CustomerId;
             if (order != null)
             {
                 var user = await _userManager.GetUserAsync(User);
@@ -271,7 +272,7 @@ namespace OperationManagement.Controllers
                 }
                 await _orderService.DeleteCompleteOrder(order.Id);
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Details", "Customers", new {id=customerId});
         }
         [HttpGet]
         public async Task<IActionResult> Download(int id)
