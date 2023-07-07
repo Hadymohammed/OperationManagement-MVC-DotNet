@@ -16,6 +16,9 @@
                 @Html.DisplayNameFor(model => model.EnterpriseOrderNumber)
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.Customer)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.ContractDate)
             </th>
             <th>
@@ -29,9 +32,6 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.IsHandOver)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Customer)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DeliveryLocation)
@@ -49,6 +49,9 @@
                 @Html.DisplayFor(modelItem => item.EnterpriseOrderNumber)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Customer.Name)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.ContractDate)
             </td>
             <td>
@@ -64,9 +67,6 @@
                 @Html.DisplayFor(modelItem => item.IsHandOver)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Customer.Name)
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.DeliveryLocation.Name)
             </td>
             <td>
@@ -75,7 +75,7 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <!--<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>-->
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
 }

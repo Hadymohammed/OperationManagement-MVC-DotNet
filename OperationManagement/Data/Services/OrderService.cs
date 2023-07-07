@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data.Base;
+using OperationManagement.Data.Common;
 using OperationManagement.Models;
+using System.Net.Mail;
 
 namespace OperationManagement.Data.Services
 {
@@ -8,11 +10,14 @@ namespace OperationManagement.Data.Services
     {
         private readonly AppDBContext _context;
         private readonly IProductService _productService;
+        private readonly IAttachmentService _attachmentService;
         public OrderService(AppDBContext context,
-            IProductService productService):base(context)
+            IProductService productService,
+            IAttachmentService attachmentService) : base(context)
         {
             _context = context;
             _productService = productService;
+            _attachmentService = attachmentService;
         }
         public int GetNumberOfAllOrders()
         {
@@ -68,6 +73,33 @@ namespace OperationManagement.Data.Services
             }
             await UpdateAsync(order.Id, order);
             return (int)order.Progress;
+        }
+    
+        public async Task<bool> DeleteCompleteOrder(int orderId)
+        {
+            var order = await GetByIdAsync(orderId, o=>o.Products,o=>o.Attachments);
+            try
+            {
+                var products = order.Products.ToList();
+                foreach(var product in products)
+                {
+                    await _productService.DeleteCompleteProduct(product.Id);
+                }
+                var attachements = order.Attachments.ToList();
+                foreach(var attachment in attachements)
+                {
+                    if (FilesManagement.DeleteFile(attachment.FileURL))
+                    {
+                        await _attachmentService.DeleteAsync(attachment.Id);
+                    }
+                }
+                await DeleteAsync(order.Id);
+                return true;
+            }
+            catch(Exception err)
+            {
+                return false;
+            }
         }
     }
 }

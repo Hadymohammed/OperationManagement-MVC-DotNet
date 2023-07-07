@@ -26,13 +26,19 @@
     </thead>
     <tbody>
 @foreach (var item in Model) {
-        <tr>
-            <td>
+            <tr>
+                <td>
+                    @{
+                        var url = Consts.ComponentImgUrl;
+                        if(item.Photos!=null&&item.Photos.Count()!=0){
+                            url = @item.Photos.First().PhotoURL;
+                        }
+                    }
                     <img style="
                         width: 50px;
                         height: auto;
                         border-radius: 50%;
-                    " src="../@item.Photos.First().PhotoURL" />
+                    " src="@url" />
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)

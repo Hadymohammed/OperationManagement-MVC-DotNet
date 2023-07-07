@@ -35,12 +35,22 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Customers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? email, string? name)
         {
             var all = await _customerService.GetAllAsync(c => c.Enterprise);
             var user = await _userManager.GetUserAsync(User);
-            
-            return View(all.Where(c=>c.EnterpriseId==user.EnterpriseId));
+            all = all.Where(c => c.EnterpriseId == user.EnterpriseId);
+            if (!string.IsNullOrEmpty(email))
+            {
+                all = all.Where(c => c.Email.Contains(email));
+                ViewBag.Email = email;
+            }
+            if (!string.IsNullOrEmpty(name))
+            {
+                all = all.Where(c => c.Name.Contains(name));
+                ViewBag.Name = name;
+            }
+            return View(all);
         }
 
         // GET: Customers/Details/5
@@ -51,7 +61,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var customer = await _customerService.GetByIdAsync((int)id, c => c.Enterprise,c=>c.Contacts);
+            var customer = await _customerService.GetByIdAsync((int)id, c => c.Enterprise,c=>c.Contacts,c=>c.Orders);
             if (customer == null)
             {
                 return NotFound();
@@ -227,6 +237,10 @@ namespace OperationManagement.Controllers
         private bool CustomerExists(int id)
         {
           return (_context.Customers?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private bool PhoneNumberUserd(string phone)
+        {
+            return true;// (_context.Customers?.Any(e => e.Contacts.Any() == id)).GetValueOrDefault();
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace OperationManagement.Data.Enums
 {
-    public enum Nationality
+    public enum NationalityEnum
     {
         [Description("AF")] Afghanistan = 1,
         [Description("AX")] ÅlandIslands = 2,

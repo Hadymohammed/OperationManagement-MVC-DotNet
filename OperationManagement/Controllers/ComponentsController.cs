@@ -88,16 +88,7 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (Photos == null)
-                {
-                    ModelState.AddModelError("Photos", "At least one photo required.");
-                    return View(component);
-                }
-                if (Photos.Count == 0)
-                {
-                    ModelState.AddModelError("Photos", "At least one photo required.");
-                    return View(component);
-                }
+                
                 var user = await _userManager.GetUserAsync(User);
                 if (component.EnterpriseId != user.EnterpriseId)
                 {
@@ -105,17 +96,20 @@ namespace OperationManagement.Controllers
                 }
                 await _componentService.AddAsync(component);
                 int cnt = 0;
-                foreach(var photo in Photos)
+                if (Photos.Any())
                 {
-                    cnt++;
-                    var filePath = await FilesManagement.ComponentPhoto(photo, component.Name, component.Id, cnt);
-                    if (filePath != null)
+                    foreach(var photo in Photos)
                     {
-                        await _PhotoService.AddAsync(new ComponentPhoto()
+                        cnt++;
+                        var filePath = await FilesManagement.ComponentPhoto(photo, "Component", component.Id, cnt);
+                        if (filePath != null)
                         {
-                            ComponentId=component.Id,
-                            PhotoURL=filePath
-                        });
+                            await _PhotoService.AddAsync(new ComponentPhoto()
+                            {
+                                ComponentId=component.Id,
+                                PhotoURL=filePath
+                            });
+                        }
                     }
                 }
                 return RedirectToAction(nameof(Index));
@@ -166,19 +160,22 @@ namespace OperationManagement.Controllers
                         return RedirectToAction("AccessDenied", "Account");
                     }
                     await _componentService.UpdateAsync(component.Id,component);
-                    var imgs = await _PhotoService.GetAllAsync();
-                    int cnt = imgs.LastOrDefault().Id;
-                    foreach (var photo in photos)
+                    var imgs = _PhotoService.GetByComponentId(component.Id);
+                    int cnt = ((imgs!=null&&imgs.Any())?imgs.LastOrDefault().Id:0);
+                    if (photos != null && photos.Any())
                     {
-                        cnt++;
-                        var filePath = await FilesManagement.ComponentPhoto(photo, component.Name, component.Id, cnt);
-                        if (filePath != null)
+                        foreach (var photo in photos)
                         {
-                            await _PhotoService.AddAsync(new ComponentPhoto()
+                            cnt++;
+                            var filePath = await FilesManagement.ComponentPhoto(photo, "Component", component.Id, cnt);
+                            if (filePath != null)
                             {
-                                ComponentId = component.Id,
-                                PhotoURL = filePath
-                            });
+                                await _PhotoService.AddAsync(new ComponentPhoto()
+                                {
+                                    ComponentId = component.Id,
+                                    PhotoURL = filePath
+                                });
+                            }
                         }
                     }
                     await _context.SaveChangesAsync();

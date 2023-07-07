@@ -1,5 +1,6 @@
 ﻿using OperationManagement.Data.Base;
 using OperationManagement.Data.Enums;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
@@ -13,10 +14,10 @@ namespace OperationManagement.Models
         public string Name { get; set; }
         [AllowNull,EmailAddress]
         public string Email { get; set; }
-        [AllowNull]
+        [AllowNull,DefaultValue("None")]
         public string? NationalId { get; set; }
-        [AllowNull]
-        public Nationality? Nationality { get; set; }
+        [AllowNull,DefaultValue(NationalityEnum.Egypt)]
+        public NationalityEnum? Nationality { get; set; }
         [AllowNull]
         public Gender? Gender { get; set; }
         [AllowNull,DataType(DataType.Date)]

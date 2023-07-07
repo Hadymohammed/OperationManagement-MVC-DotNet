@@ -81,7 +81,77 @@
     </div>
 </div>
 
-<div>
+<div class="text-center">
+    <a asp-action="Create" asp-controller="Orders" asp-route-CustomerId="@Model?.Id">Add Product</a> |
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+<h4>Orders</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Enterprise Order Number
+            </th>
+            <th>
+                ContractDate
+            </th>
+            <th>
+                PlannedStartDate
+            </th>
+            <th>
+                PlannedEndDate
+            </th>
+            <th>
+                ActualStartDate
+            </th>
+            <th>
+                IsHandOver
+            </th>
+            <th>
+                DeliveryLocation
+            </th>
+            <th>
+                Progress
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Orders)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.EnterpriseOrderNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ContractDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlannedStartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PlannedEndDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ActualStartDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsHandOver)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeliveryLocation.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Progress)%
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-controller="Orders" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-controller="Orders" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-controller="Orders" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
