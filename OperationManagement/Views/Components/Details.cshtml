@@ -26,54 +26,63 @@
 <h1>Details</h1>
 
 <div>
-    <div class="slider-container">
-        <div class="slider-card">
-            <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-                <ol class="carousel-indicators">
-                    @for (int i = 0; i < Model.Photos.Count(); i++)
-                    {
-                        @if (i == 0)
+    @if (Model.Photos != null && Model.Photos.Count() > 0)
+    {
+        <div class="slider-container">
+            <div class="slider-card">
+                <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+                    <ol class="carousel-indicators">
+                        @for (int i = 0; i < Model.Photos.Count(); i++)
                         {
-                            <li data-target="#carouselExampleIndicators" data-slide-to="@i" class="active"></li>
-                        }
-                        else
-                        {
-                            <li data-target="#carouselExampleIndicators" data-slide-to="@i"></li>
-                        }
-                    }
-                </ol>
-                <div class="carousel-inner">
-                    @{
-                        var j = 0;
-
-                                @foreach (var photo in Model.Photos)
-                        {
-                                    @if (j++ == 0)
+                            @if (i == 0)
                             {
-                                        <div class="carousel-item active">
-                                            <img class="slider-image" src="../../@photo.PhotoURL" alt="@j slide">
-                                        </div>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="@i" class="active"></li>
                             }
                             else
                             {
-                                        <div class="carousel-item">
-                                            <img class="slider-image" src="../../@photo.PhotoURL" alt="@j slide">
-                                        </div>
+                                <li data-target="#carouselExampleIndicators" data-slide-to="@i"></li>
                             }
                         }
-                    }
+                    </ol>
+                    <div class="carousel-inner">
+                        @{
+                            var j = 0;
+
+                            @foreach (var photo in Model.Photos)
+                            {
+                                @if (j++ == 0)
+                                {
+                                    <div class="carousel-item active">
+                                        <img class="slider-image" src="../../@photo.PhotoURL" alt="@j slide">
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="carousel-item">
+                                        <img class="slider-image" src="../../@photo.PhotoURL" alt="@j slide">
+                                    </div>
+                                }
+                            }
+                        }
+                    </div>
+                    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="sr-only">Next</span>
+                    </a>
                 </div>
-                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Previous</span>
-                </a>
-                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="sr-only">Next</span>
-                </a>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="col-md-12 text-center m-3">
+            <div> No photos found! Add some.</div>
+        </div>
+    }
     <h4>Component</h4>
     <hr />
     <dl class="row">
