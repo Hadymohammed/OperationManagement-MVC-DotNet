@@ -47,11 +47,15 @@
             <input type="hidden" asp-for="EnterpriseId"/>
             <label asp-for="Messege"></label>
             <textarea asp-for="Messege" class="form-control" placeholder="Your messege..."></textarea>
+            <span asp-validation-for="Messege" class="text-danger"></span>
+
             <label asp-for="Action"></label>
             <select asp-for="Action">
                 <option value="Accept" class="test-success">Accept</option>
                 <option value="Reject" class="text-danger">Reject</option>
             </select>
+            <span asp-validation-for="Action" class="text-danger"></span>
+
             <input type="submit" class="btn btn-primary" value="Take Action">
         </form>
     </div>
