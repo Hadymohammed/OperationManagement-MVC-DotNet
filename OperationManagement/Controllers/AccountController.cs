@@ -251,15 +251,19 @@ namespace OperationManagement.Controllers
             return View();
         }
         [HttpGet]
-        public async Task<IActionResult> Register(int UID, string Role, string token)
+        public async Task<IActionResult> Register(int TID, string Role, string token)
         {
-            if (_context.Tokens.Where(t => t.Id == UID).FirstOrDefault() == null || JWTHelper.ValidateToken(token) == null)
+            if (_context.Tokens.Where(t => t.Id == TID).FirstOrDefault() == null || JWTHelper.ValidateToken(token) == null)
             {
                 return NotFound();
             }
             var UserIdStr = JWTHelper.ValidateToken(token);
             var staff=await _userManager.FindByIdAsync(UserIdStr);
-            SessionHelper.saveObject(HttpContext, SessionHelper.JoinKey, staff);
+            SessionHelper.saveObject(HttpContext, SessionHelper.TokenKey, new Token()
+            {
+                Id=TID,
+                token=token
+            });
             return View(new AddPasswordVM()
             {
                 FirstName=staff.FirstName,
@@ -271,6 +275,20 @@ namespace OperationManagement.Controllers
         public async Task<IActionResult> Register(AddPasswordVM vm)
         {
             var staff = await _userManager.FindByIdAsync(vm.StaffId);
+            if (staff == null)
+            {
+                ModelState.AddModelError("Password", "No such user please contact us.");
+                return View(vm);
+            }
+            var token = SessionHelper.getObject<Token>(HttpContext, SessionHelper.TokenKey);
+            var tokenDB = _context.Tokens.Where(t => t.Id == token.Id).FirstOrDefault();
+            if(tokenDB == null)
+            {
+                ModelState.AddModelError("Password", "Your link is not valid please contact us if this the first time you use it.");
+                return View(vm);
+            }
+            _context.Tokens.Remove(token);
+            _context.SaveChanges();
             staff.PasswordHash=_userManager.PasswordHasher.HashPassword(staff, vm.Password);
             staff.Registered = true;
             await _userManager.UpdateAsync(staff);

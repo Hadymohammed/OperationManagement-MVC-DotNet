@@ -95,8 +95,8 @@ namespace OperationManagement.Controllers
                 };
                 await _context.Tokens.AddAsync(Token);
                 _context.SaveChanges();
-                var UId = Token.Id;
-                string oneTimeAddStaffLink = Url.Action("Register", "Account", new { UID = UId, Role = UserRoles.User, token = Token.token }, Request.Scheme);
+                var TId = Token.Id;
+                string oneTimeAddStaffLink = Url.Action("Register", "Account", new { TID = TId, Role = UserRoles.User, token = Token.token }, Request.Scheme);
                 EmailHelper.SendEmailAddStaff(enterprise.Staff.FirstOrDefault().Email, oneTimeAddStaffLink,enterprise.Name);
             }
             else if (vm.Action == "Reject")
