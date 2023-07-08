@@ -6,6 +6,7 @@ namespace OperationManagement.Data.Common
     {
         public const string ForgetPasswordKey = "ForgetPasswordModel";
         public const string JoinKey = "JoinVM";
+        public const string TokenKey = "Token";
         static public bool saveObject(HttpContext context, string key, Object obj)
         {
             try
