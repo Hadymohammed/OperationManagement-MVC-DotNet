@@ -97,7 +97,7 @@ namespace OperationManagement.Controllers
                 _context.SaveChanges();
                 var TId = Token.Id;
                 string oneTimeAddStaffLink = Url.Action("Register", "Account", new { TID = TId, Role = UserRoles.User, token = Token.token }, Request.Scheme);
-                EmailHelper.SendEmailAddStaff(enterprise.Staff.FirstOrDefault().Email, oneTimeAddStaffLink,enterprise.Name);
+                EmailHelper.SendEnterpriseAccept(enterprise.Staff.FirstOrDefault().Email, oneTimeAddStaffLink,enterprise.Name,vm.Messege);
             }
             else if (vm.Action == "Reject")
             {
@@ -105,6 +105,13 @@ namespace OperationManagement.Controllers
                 if (enterprise == null)
                 {
                     return NotFound();
+                }
+                if (string.IsNullOrEmpty(vm.Messege))
+                {
+                    vm.Enterprise = enterprise;
+                    vm.Staff = vm.Enterprise.Staff.FirstOrDefault();
+                    ModelState.AddModelError("Messege", "Rejection messege is required!");
+                    return View(vm);
                 }
                 EmailHelper.SendEnterpriseRejection(enterprise.Staff.FirstOrDefault().Email, vm.Messege, enterprise.Name);
                 await _userManager.DeleteAsync(enterprise.Staff.FirstOrDefault());

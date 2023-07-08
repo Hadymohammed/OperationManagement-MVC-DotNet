@@ -61,6 +61,14 @@ namespace OperationManagement.Data.Common
             string reciverName = $"{EnterpriseName} Manager";
             return SendEmail(email, Messege, subject, reciverName);
         }
+        static public bool SendEnterpriseAccept(string email, string Url, string EnterpriseName,string?messege)
+        {
+            string messegeToSend = messege != null ? messege : $"Congratulations {EnterpriseName} Manager , your request has been accepted.<br/>";
+            string body = $"Here is your invitation link to be a staff member at {EnterpriseName} , do not share it with anyone  {Url} . ";
+            const string subject = "Enterprise accepted!";
+            const string reciverName = "New Staff";
+            return SendEmail(email, body, subject, reciverName);
+        }
         static public bool SendOTP(string email, string OTP)
         {
             string body = $"Sent from {SenderName} , Here is your OTP is {OTP} . Don't share it with anyone. ";
