@@ -11,12 +11,16 @@
 </p>
 <div class="col-md-12 d-flex justify-content-around align-items-end">
     <div class="form-group col-md-2">
-        <label class="control-label">Email</label>
-        <input type="email" id="byEmail" class="form-control" value="@ViewBag.Email"/>
-    </div>
-    <div class="form-group col-md-2">
         <label class="control-label">Name</label>
         <input type="text" id="byName" class="form-control" value="@ViewBag.Name" />
+    </div>
+    <div class="form-group col-md-2">
+        <label class="control-label">Phone</label>
+        <input type="text" id="byPhone" class="form-control" value="@ViewBag.Phone" />
+    </div>
+    <div class="form-group col-md-2">
+        <label class="control-label">Email</label>
+        <input type="email" id="byEmail" class="form-control" value="@ViewBag.Email"/>
     </div>
     <div>
         <a class="btn btn-success" id="applyLink" asp-action="Index">Filter</a>
@@ -28,6 +32,9 @@
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Phone)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Email)
@@ -42,9 +49,6 @@
                 @Html.DisplayNameFor(model => model.Gender)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.BirthDate)
-            </th>
-            <th>
                 @Html.DisplayNameFor(model => model.Enterprise)
             </th>
             <th></th>
@@ -55,6 +59,9 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Phone)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Email)
@@ -88,16 +95,6 @@
                 }
             </td>
             <td>
-                @if (item.BirthDate != null)
-                {
-                    @Html.DisplayFor(modelItem => item.BirthDate)
-                }
-                else
-                {
-                    <span>none</span>
-                }
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.Enterprise.Name)
             </td>
             <td>
@@ -112,9 +109,10 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
-            $('#byEmail, #byName').on('change', function () {
+            $('#byEmail, #byName, #byPhone').on('change', function () {
                 var email = $('#byEmail').val();
                 var name = $('#byName').val();
+                var phone = $('#byPhone').val();
                 
 
                 var query=[];
@@ -123,6 +121,9 @@
                 }
                 if (name !== '') {
                     query.push({ key: "name", val: name });
+                }
+                if (phone !== '') {
+                    query.push({ key: "phone", val: phone });
                 }
                 var href = $('#applyLink').attr('href');
                 var updatedHref = "";

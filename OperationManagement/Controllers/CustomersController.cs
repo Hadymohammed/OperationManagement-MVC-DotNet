@@ -35,7 +35,7 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Customers
-        public async Task<IActionResult> Index(string? email, string? name)
+        public async Task<IActionResult> Index(string? email, string? name,string? phone)
         {
             var all = await _customerService.GetAllAsync(c => c.Enterprise);
             var user = await _userManager.GetUserAsync(User);
@@ -49,6 +49,11 @@ namespace OperationManagement.Controllers
             {
                 all = all.Where(c => c.Name.Contains(name));
                 ViewBag.Name = name;
+            }
+            if (!string.IsNullOrEmpty(phone))
+            {
+                all = all.Where(c => c.Phone.Contains(phone));
+                ViewBag.Phone = phone;
             }
             return View(all);
         }
@@ -93,7 +98,7 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Email,NationalId,Nationality,Gender,BirthDate,EnterpriseId")] Customer customer, CustomerContact[] Contacts)
+        public async Task<IActionResult> Create([Bind("Id,Phone,Name,Email,NationalId,Nationality,Gender,BirthDate,EnterpriseId")] Customer customer, CustomerContact[] Contacts)
         {
             if (ModelState.IsValid)
             {
@@ -101,6 +106,12 @@ namespace OperationManagement.Controllers
                 if (customer.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
+                }
+                if (await PhoneNumberExists(customer.Phone,customer.EnterpriseId,null))
+                {
+                    customer.Contacts = new List<CustomerContact>();
+                    ModelState.AddModelError("Phone", "This Phone number is registered already.");
+                    return View(customer);
                 }
                 await _customerService.AddAsync(customer);
                 foreach(var contact in Contacts)
@@ -114,6 +125,7 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            customer.Contacts = new List<CustomerContact>();
             return View(customer);
         }
 
@@ -143,7 +155,7 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,NationalId,Nationality,Gender,BirthDate,EnterpriseId,Contacts")] Customer customer, CustomerContact[] Contacts)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Phone,Name,Email,NationalId,Nationality,Gender,BirthDate,EnterpriseId,Contacts")] Customer customer, CustomerContact[] Contacts)
         {
             if (id != customer.Id)
             {
@@ -156,6 +168,12 @@ namespace OperationManagement.Controllers
                 if (customer.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
+                }
+                if (await PhoneNumberExists(customer.Phone, customer.EnterpriseId, customer.Id))
+                {
+                    //customer.Contacts = new List<CustomerContact>();
+                    ModelState.AddModelError("Phone", "This Phone number is registered already.");
+                    return View(customer);
                 }
                 try
                 {
@@ -185,6 +203,7 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            customer.Contacts = new List<CustomerContact>();
             return View(customer);
         }
 
@@ -239,9 +258,13 @@ namespace OperationManagement.Controllers
         {
           return (_context.Customers?.Any(e => e.Id == id)).GetValueOrDefault();
         }
-        private bool PhoneNumberUserd(string phone)
+        private async Task<bool> PhoneNumberExists(string phone,int enterpriseId, int? customerId)
         {
-            return true;// (_context.Customers?.Any(e => e.Contacts.Any() == id)).GetValueOrDefault();
+            return (_context.Customers?.Any(e => e.EnterpriseId==enterpriseId
+            && e.Phone == phone
+            && (customerId==null?true:e.Id!=customerId))
+            ).GetValueOrDefault();
+
         }
     }
 }
