@@ -111,7 +111,7 @@ namespace OperationManagement.Controllers
                     vm.Enterprise = enterprise;
                     vm.Staff = vm.Enterprise.Staff.FirstOrDefault();
                     ModelState.AddModelError("Messege", "Rejection messege is required!");
-                    return View(vm);
+                    return RedirectToAction("ReviewJoinRequest",vm);
                 }
                 EmailHelper.SendEnterpriseRejection(enterprise.Staff.FirstOrDefault().Email, vm.Messege, enterprise.Name);
                 await _userManager.DeleteAsync(enterprise.Staff.FirstOrDefault());
