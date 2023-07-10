@@ -155,7 +155,7 @@ namespace OperationManagement.Controllers
                 Specifications=allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId),
                 Components= allComps.Where(c=>c.EnterpriseId==user.EnterpriseId),
                 Processes= allProcess.Where(p=>p.EnterpriseId==user.EnterpriseId),
-                Measurements = allMeags.Where(allMeags=>allMeags.EnterpriseId==user.EnterpriseId),
+                Measurements = allMeags.Where(allMeags=> allMeags.EnterpriseId==user.EnterpriseId),
             });
         }
 
