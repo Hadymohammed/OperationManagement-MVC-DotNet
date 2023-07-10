@@ -253,10 +253,16 @@
                         }
                         @foreach (var component in Model.Components)
                         {
+                            
+                            var url = Consts.ComponentImgUrl;
+                            if(component.Photos!=null&&component.Photos.Count()!=0){
+                                url = component.Photos.First().PhotoURL;
+                            }
+                            
                             <tr>
                                 <td>
                                     <div class="form-group">
-                                        <img src=".@component.Photos.First().PhotoURL" style="width:50px; height:50px;"/>
+                                        <img src=".@url" style="width:50px; height:50px;"/>
                                     </div> 
                                 </td>
                                 <td>
