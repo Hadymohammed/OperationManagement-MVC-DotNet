@@ -22,6 +22,11 @@
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 <div class="form-group">
+                    <label asp-for="Phone" class="control-label"></label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
                     <label asp-for="Email" class="control-label"></label>
                     <input asp-for="Email" class="form-control" />
                     <span asp-validation-for="Email" class="text-danger"></span>
@@ -64,7 +69,7 @@
                 <h4>Contacts</h4>
                 <hr />
                 <div id="contact-container">
-                    @for (int i = 0; i < Model.Contacts.Count; i++)
+                    @for (int i = 0; i < Model.Contacts?.Count; i++)
                     {
                         <div class="row contact-row">
                             <div class="col-md-5">

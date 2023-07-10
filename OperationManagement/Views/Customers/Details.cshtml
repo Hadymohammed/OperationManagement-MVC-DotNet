@@ -19,6 +19,12 @@
                     @Html.DisplayFor(model => model.Name)
                 </dd>
                 <dt class="col-sm-4">
+                    @Html.DisplayNameFor(model => model.Phone)
+                </dt>
+                <dd class="col-sm-8">
+                    @Html.DisplayFor(model => model.Phone)
+                </dd>
+                <dt class="col-sm-4">
                     @Html.DisplayNameFor(model => model.Email)
                 </dt>
                 <dd class="col-sm-8">
@@ -59,7 +65,7 @@
         <div class="col-md-6">
             <h4>Contacts</h4>
             <hr />
-            @if (Model.Contacts != null && Model.Contacts.Count > 0)
+            @if (Model.Contacts != null && Model.Contacts?.Count > 0)
             {
                 <dl class="row">
                     @foreach (var contact in Model.Contacts)

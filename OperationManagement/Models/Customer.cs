@@ -12,6 +12,8 @@ namespace OperationManagement.Models
         public int Id { get; set; }
         [Required, RegularExpression("^[\\w'\\-,.][^0-9_!¡?÷?¿/\\\\+=@#$%ˆ&*(){}|~<>;:[\\]]{2,}$"), Display(Name = "Full name")]
         public string Name { get; set; }
+        [Required, Phone]
+        public string Phone { get; set; }
         [AllowNull,EmailAddress]
         public string Email { get; set; }
         [AllowNull,DefaultValue("None")]
