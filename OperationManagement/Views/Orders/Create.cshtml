@@ -16,6 +16,8 @@
 <div class="row justify-content-center text-center">
         <form asp-action="Create" enctype="multipart/form-data">
         <input type="hidden" asp-for="Order.CustomerId" class="form-control" value="@Model.Customer.Id"/>
+        <input type="hidden" asp-for="EnterpriseId" class="form-control" />
+
         <div class="justify-content-center row">
             <div class="col-md-6">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>

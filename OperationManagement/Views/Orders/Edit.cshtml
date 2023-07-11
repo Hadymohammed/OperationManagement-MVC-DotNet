@@ -16,6 +16,7 @@
         <form asp-action="Edit" enctype="multipart/form-data">
             <input type="hidden" asp-for="Order.Id"/>
             <input type="hidden" asp-for="Order.CustomerId" class="form-control" value="@Model.Customer.Id" />
+        <input type="hidden" asp-for="EnterpriseId" class="form-control"/>
 
         <div class="row">
             <div class="col-md-6">
