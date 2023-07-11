@@ -111,6 +111,18 @@ namespace OperationManagement.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (ModelState.IsValid)
             {
+                if (EnterpriseOrderNumberExists(OrderVM.Order.EnterpriseOrderNumber,null))
+                {
+                    ModelState.AddModelError("Order.EnterpriseOrderNumber", "The enterprise code already used.");
+                    var Locations = await _deliveryLocationService.GetAllAsync();
+                    var model = new CreateOrderVM()
+                    {
+                        Order = OrderVM.Order,
+                        Customer = await _customerService.GetByIdAsync(OrderVM.Order.CustomerId),
+                        DeliveryLocations = Locations.Where(l => l.EnterpriseId == user.EnterpriseId)
+                    };
+                    return View(model);
+                }
                 var customer = await _customerService.GetByIdAsync(OrderVM.Order.CustomerId);
                 if (customer.EnterpriseId != user.EnterpriseId)
                 {
@@ -182,8 +194,21 @@ namespace OperationManagement.Controllers
             
             if (ModelState.IsValid)
             {
-                try
+                if (EnterpriseOrderNumberExists(OrderVM.Order.EnterpriseOrderNumber,OrderVM.Order.Id))
                 {
+                    ModelState.AddModelError("Order.EnterpriseOrderNumber", "The enterprise code already used.");
+                    var Locations = await _deliveryLocationService.GetAllAsync();
+                    var dbOrder = await _orderService.GetByIdAsync(id, o => o.Customer, o => o.Attachments, o => o.DeliveryLocation);
+                    var model = new CreateOrderVM()
+                    {
+                        Order = dbOrder,
+                        Customer = await _customerService.GetByIdAsync(dbOrder.CustomerId),
+                        DeliveryLocations = Locations.Where(l => l.EnterpriseId == user.EnterpriseId)
+                    };
+                    return View(model);
+                }
+                try
+                    {
                     var customer = await _customerService.GetByIdAsync(OrderVM.Order.CustomerId);
                     if (customer.EnterpriseId != user.EnterpriseId)
                     {
@@ -333,6 +358,11 @@ namespace OperationManagement.Controllers
         private bool OrderExists(int id)
         {
           return (_context.Orders?.Any(e => e.Id == id)).GetValueOrDefault();
+        }
+        private bool EnterpriseOrderNumberExists(string code,int? orderId)
+        {
+            return (_context.Orders?.Any(e => e.EnterpriseOrderNumber == code
+            && (orderId==null?true:e.Id!=orderId))).GetValueOrDefault();
         }
         private string GetMimeType(string fileExtension)
         {
