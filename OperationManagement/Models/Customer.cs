@@ -15,7 +15,7 @@ namespace OperationManagement.Models
         [Required, Phone]
         public string Phone { get; set; }
         [AllowNull,EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         [AllowNull,DefaultValue("None")]
         public string? NationalId { get; set; }
         [AllowNull,DefaultValue(NationalityEnum.Egypt)]
