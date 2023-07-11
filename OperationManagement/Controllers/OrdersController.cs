@@ -96,6 +96,7 @@ namespace OperationManagement.Controllers
             var vm = new CreateOrderVM()
             {
                 Customer = customer ,
+                EnterpriseId = customer.EnterpriseId,
                 DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId)
             };
             return View(vm);
@@ -111,9 +112,9 @@ namespace OperationManagement.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (ModelState.IsValid)
             {
-                if (EnterpriseOrderNumberExists(OrderVM.Order.EnterpriseOrderNumber,null))
+                if (EnterpriseOrderNumberExists(OrderVM.Order.EnterpriseOrderNumber, OrderVM.EnterpriseId,null))
                 {
-                    ModelState.AddModelError("Order.EnterpriseOrderNumber", "The enterprise code already used.");
+                    ModelState.AddModelError("Order.EnterpriseOrderNumber", $"The enterprise code {OrderVM.Order.EnterpriseOrderNumber} already used.");
                     var Locations = await _deliveryLocationService.GetAllAsync();
                     var model = new CreateOrderVM()
                     {
@@ -170,10 +171,12 @@ namespace OperationManagement.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
+            var customer = await _customerService.GetByIdAsync(order.CustomerId);
             var VM = new CreateOrderVM()
             {
                 Order = order,
-                Customer = await _customerService.GetByIdAsync(order.CustomerId),
+                Customer = customer,
+                EnterpriseId = customer.EnterpriseId,
                 DeliveryLocations = allLocations.Where(l=>l.EnterpriseId==user.EnterpriseId)
             };
            return View(VM);
@@ -191,12 +194,11 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
             var user = await _userManager.GetUserAsync(User);
-            
             if (ModelState.IsValid)
             {
-                if (EnterpriseOrderNumberExists(OrderVM.Order.EnterpriseOrderNumber,OrderVM.Order.Id))
+                if (EnterpriseOrderNumberExists(OrderVM.Order.EnterpriseOrderNumber,OrderVM.EnterpriseId,OrderVM.Order.Id))
                 {
-                    ModelState.AddModelError("Order.EnterpriseOrderNumber", "The enterprise code already used.");
+                    ModelState.AddModelError("Order.EnterpriseOrderNumber", $"The enterprise code {OrderVM.Order.EnterpriseOrderNumber} already used.");
                     var Locations = await _deliveryLocationService.GetAllAsync();
                     var dbOrder = await _orderService.GetByIdAsync(id, o => o.Customer, o => o.Attachments, o => o.DeliveryLocation);
                     var model = new CreateOrderVM()
@@ -359,9 +361,10 @@ namespace OperationManagement.Controllers
         {
           return (_context.Orders?.Any(e => e.Id == id)).GetValueOrDefault();
         }
-        private bool EnterpriseOrderNumberExists(string code,int? orderId)
+        private bool EnterpriseOrderNumberExists(string code,int enterpriseId, int? orderId)
         {
-            return (_context.Orders?.Any(e => e.EnterpriseOrderNumber == code
+            return (_context.Orders?.Any(e =>e.Customer.EnterpriseId==enterpriseId
+            && e.EnterpriseOrderNumber == code
             && (orderId==null?true:e.Id!=orderId))).GetValueOrDefault();
         }
         private string GetMimeType(string fileExtension)
