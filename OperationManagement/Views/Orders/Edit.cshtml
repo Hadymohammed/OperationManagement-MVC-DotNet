@@ -102,7 +102,7 @@
             </div>
             <div>
                 <a asp-action="Delete" asp-route-id="@Model.Order.Id">Delete</a> |
-                <a asp-action="Index">Back to List</a>
+                <a asp-action="Details" asp-controller="Customers" asp-route-Id="@Model.Order.CustomerId">Back to Customer</a>
             </div>
 
         </form>
