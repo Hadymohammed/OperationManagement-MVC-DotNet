@@ -84,7 +84,7 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Suppler,EnterpriseId")] Component component,List<IFormFile> Photos)
+        public async Task<IActionResult> Create([Bind("Name,Supplier,EnterpriseId")] Component component,List<IFormFile> Photos)
         {
             if (ModelState.IsValid)
             {
