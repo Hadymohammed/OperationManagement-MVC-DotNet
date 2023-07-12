@@ -287,7 +287,7 @@ namespace OperationManagement.Controllers
                 ModelState.AddModelError("Password", "Your link is not valid please contact us if this the first time you use it.");
                 return View(vm);
             }
-            _context.Tokens.Remove(token);
+            _context.Tokens.Remove(tokenDB);
             _context.SaveChanges();
             staff.PasswordHash=_userManager.PasswordHasher.HashPassword(staff, vm.Password);
             staff.Registered = true;
