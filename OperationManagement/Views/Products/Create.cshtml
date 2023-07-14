@@ -375,22 +375,34 @@
 
                 </table>
                 <div class="row justify-content-end">
-                        <div class="dropdown col-md-3">
-                          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownComponent" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Add Component
-                          </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownComponent">
-                            @{i=0;}
-                        @foreach(var comp in Model.Components){
-                                <div class="dropdown-item add-item" index="@i" for="components-items" >@comp.Name <i class="fas fa-plus add-icon"></i></div>
-                                i++;
-                            }
-                          </div>
-                        </div>
+                <div class="dropdown col-md-3">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownComponent" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add Component
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownComponent">
+                        @{
+                            i = 0;
+                        }
+                        @foreach (var category in Model.ComponentCategories)
+                        {
+                            <div class="dropdown">
+                                <a class="dropdown-item dropdown-toggle category-dropdown" href="#" role="button" id="categoryDropdown-@category.Id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @category.Name
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
+                                    @foreach (var component in category.Components)
+                                    {
+                                        <div class="dropdown-item add-item" index="@i" for="components-items">@component.Name <i class="fas fa-plus add-icon"></i></div>
+                                        i++;
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
 
                 </div>
             </div>
-        </div>
+            </div>
         <div class="form-group mt-3">
             <input type="submit" value="Create" class="btn btn-primary" />
         </div>
@@ -426,46 +438,5 @@
             $(this).closest('tr').find('input[type="radio"][value="false"]').prop('checked', true);
           });
         });
-        /*function recalculateIndexes(){
-            recalculateSpecificationsIndexes();
-            recalculateMeasurementsIndexes();
-            recalculateProcessIndexes();
-            recalculateComponentIndexes();
-        }
-        function recalculateSpecificationsIndexes() {
-            $('.specifications-items:not(.hide)').each(function (index) {
-                $(this).find('input').attr('name', `Model.ProductSpecifications[${index}].Item2.SpecificationId`);
-                $(this).find('select:eq(0)').attr('name', `Model.ProductSpecifications[${index}].Item2.OptionId`);
-                $(this).find('select:eq(1)').attr('name', `Model.ProductSpecifications[${index}].Item2.StatusId`);
-                $(this).find('input[type="date"]').attr('name', `Model.ProductSpecifications[${index}].Item2.Date`);
-                $(this).find('textarea').attr('name', `Model.ProductSpecifications[${index}].Item2.Remark`);
-                $(this).find('input[type="radio"]').prop('checked', true).attr('name', `Model.ProductSpecifications[${index}].Item1`);
-            });
-        }
-        function recalculateMeasurementsIndexes() {
-          $('.measurements-items:not(.hide)').each(function(index) {
-            $(this).find('input:eq(0)').attr('name', `Model.ProductMeasurements[${index}].MeasurementId`);
-            $(this).find('input:eq(1)').attr('name', `Model.ProductMeasurements[${index}].Value`);
-            $(this).find('select').attr('name', `Model.ProductMeasurements[${index}].Unit`);
-          });
-        }
-        function recalculateProcessIndexes() {
-          $('.processes-items:not(.hide)').each(function(index) {
-            $(this).find('input:eq(0)').attr('name', `Model.ProductProcesses[${index}].Item2.ProcessId`);
-            $(this).find('select').attr('name', `Model.ProductProcesses[${index}].Item2.StatusId`);
-            $(this).find('input:eq(1)').attr('name', `Model.ProductProcesses[${index}].Item2.StartDate`);
-            $(this).find('input:eq(2)').attr('name', `Model.ProductProcesses[${index}].Item2.EndDate`);
-            $(this).find('input:eq(3)').attr('name', `Model.ProductProcesses[${index}].Item2.EstimatedDuration`);
-            $(this).find('textarea').attr('name', `Model.ProductProcesses[${index}].Item2.Comment`);
-            $(this).find('input[type="radio"]').prop('checked', true).attr('name', `Model.ProductProcesses[${index}].Item1`);
-          });
-        }
-        function recalculateComponentIndexes() {
-          $('.components-items:not(.hide)').each(function(index) {
-            $(this).find('input:eq(0)').attr('name', `Model.ProductComponents[${index}].Item2.ComponentId`);
-            $(this).find('input:eq(1)').attr('name', `Model.ProductComponents[${index}].Item2.Quantity`);
-            $(this).find('input[type="radio"]').prop('checked', true).attr('name', `Model.ProductProcesses[${index}].Item1`);
-          });
-        }*/
     </script>
 }

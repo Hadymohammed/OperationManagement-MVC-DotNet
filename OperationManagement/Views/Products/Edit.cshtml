@@ -548,14 +548,24 @@
                             @{
                                 i = 0;
                             }
-                            @foreach (var comp in Model.Components)
+                            @foreach (var category in Model.ComponentCategories)
                             {
-                                <div class="dropdown-item add-item" index="@i" for="components-items">@comp.Name <i class="fas fa-plus add-icon"></i></div>
-                                i++;
+                                <div class="dropdown">
+                                    <a class="dropdown-item dropdown-toggle category-dropdown" href="#" role="button" id="categoryDropdown-@category.Id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        @category.Name
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
+                                        @foreach (var component in category.Components)
+                                        {
+                                            <div class="dropdown-item add-item" index="@i" for="components-items">@component.Name <i class="fas fa-plus add-icon"></i></div>
+                                            i++;
+                                        }
+                                    </div>
+                                </div>
                             }
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
         </div>
