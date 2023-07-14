@@ -109,35 +109,36 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
-            $('#byEmail, #byName, #byPhone').on('change', function () {
-                var email = $('#byEmail').val();
-                var name = $('#byName').val();
-                var phone = $('#byPhone').val();
-                
-
-                var query=[];
-                if (email !== '') {
-                    query.push({ key: "email", val: email });
-                }
-                if (name !== '') {
-                    query.push({ key: "name", val: name });
-                }
-                if (phone !== '') {
-                    query.push({ key: "phone", val: phone });
-                }
-                var href = $('#applyLink').attr('href');
-                var updatedHref = "";
-                console.log(query);
-                for(let i=0;i<query.length;i++){
-                    if(i==0){
-                        updatedHref += "?" + query[i].key + "=" + query[i].val;
-                    }
-                    else{
-                        updatedHref += "&" + query[i].key + "=" + query[i].val;
-                    }
-                }
-                $('#applyLink').attr('href', href.split('?')[0] + updatedHref);
-            });
+            $('#applyLink').on('click', updateFilter);
         });
+        function updateFilter(){
+            var email = $('#byEmail').val();
+            var name = $('#byName').val();
+            var phone = $('#byPhone').val();
+
+
+            var query = [];
+            if (email !== '') {
+                query.push({ key: "email", val: email });
+            }
+            if (name !== '') {
+                query.push({ key: "name", val: name });
+            }
+            if (phone !== '') {
+                query.push({ key: "phone", val: phone });
+            }
+            var href = $('#applyLink').attr('href');
+            var updatedHref = "";
+            console.log(query);
+            for (let i = 0; i < query.length; i++) {
+                if (i == 0) {
+                    updatedHref += "?" + query[i].key + "=" + query[i].val;
+                }
+                else {
+                    updatedHref += "&" + query[i].key + "=" + query[i].val;
+                }
+            }
+            $('#applyLink').attr('href', href.split('?')[0] + updatedHref);
+        }
     </script>
 }

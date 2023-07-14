@@ -42,12 +42,14 @@ namespace OperationManagement.Controllers
             all = all.Where(c => c.EnterpriseId == user.EnterpriseId);
             if (!string.IsNullOrEmpty(email))
             {
-                all = all.Where(c => c.Email.Contains(email));
+                var Nemail = _userManager.NormalizeEmail(email);
+                all = all.Where(c => c.NormalizedEmail.Contains(Nemail));
                 ViewBag.Email = email;
             }
             if (!string.IsNullOrEmpty(name))
             {
-                all = all.Where(c => c.Name.Contains(name));
+                var Nname = _userManager.NormalizeName(name);
+                all = all.Where(c => c.NormalizedName.Contains(Nname));
                 ViewBag.Name = name;
             }
             if (!string.IsNullOrEmpty(phone))
