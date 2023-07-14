@@ -33,7 +33,10 @@ namespace OperationManagement.Controllers
         // GET: ProcessCategories
         public async Task<IActionResult> Index()
         {
-            return View(await _categoryService.GetAllAsync());
+            var categories = await _categoryService.GetAllAsync();
+            var user = await _userManager.GetUserAsync(User);
+
+            return View(categories.Where(c=>c.EnterpriseId==(int)user.EnterpriseId));
         }
 
         // GET: ProcessCategories/Details/5
