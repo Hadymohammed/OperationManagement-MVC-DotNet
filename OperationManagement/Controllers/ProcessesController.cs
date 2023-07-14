@@ -20,23 +20,26 @@ namespace OperationManagement.Controllers
         private readonly AppDBContext _context;
         private readonly IProcessService _processService;
         private readonly IProcessStatusService _processStatusService;
+        private readonly IProcessCategoryService _categoryService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public ProcessesController(AppDBContext context,
             IProcessService processService,
             IProcessStatusService processStatusService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IProcessCategoryService processCategoryService)
         {
             _context = context;
             _processService = processService;
             _processStatusService = processStatusService;
             _userManager = userManager;
+            _categoryService = processCategoryService;
         }
 
         // GET: Processes
         public async Task<IActionResult> Index()
         {
-            var all = await _processService.GetAllAsync();
+            var all = await _processService.GetAllAsync(p=>p.Category);
             var user = await _userManager.GetUserAsync(User);
             
             return View(all.Where(p=>p.EnterpriseId==user.EnterpriseId));
@@ -50,7 +53,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var process = await _processService.GetByIdAsync((int)id, p => p.Enterprise, p => p.Statuses);
+            var process = await _processService.GetByIdAsync((int)id, p => p.Enterprise, p => p.Statuses,p=>p.Category);
             if (process == null)
             {
                 return NotFound();
@@ -68,6 +71,9 @@ namespace OperationManagement.Controllers
         public async Task<IActionResult> Create()
         {
             var user = await _userManager.GetUserAsync(User);
+            ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
             return View(new Process()
             {
                 EnterpriseId=(int)user.EnterpriseId,
@@ -80,8 +86,9 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,EnterpriseId")] Process process, ProcessStatus[] statuses)
+        public async Task<IActionResult> Create([Bind("Name,EnterpriseId,CategoryId")] Process process, ProcessStatus[] statuses)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (statuses == null)
             {
                 ModelState.AddModelError(String.Empty, "Status Can't be empty.");
@@ -92,7 +99,6 @@ namespace OperationManagement.Controllers
             }
             if (ModelState.IsValid)
             {
-                var user = await _userManager.GetUserAsync(User);
                 if (process.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
@@ -122,6 +128,9 @@ namespace OperationManagement.Controllers
                 return RedirectToAction(nameof(Index));
             }
             process.Statuses = statuses.ToList();
+            ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
             return View(process);
         }
 
@@ -133,7 +142,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var process = await _processService.GetByIdAsync((int)id, p => p.Enterprise, p => p.Statuses);
+            var process = await _processService.GetByIdAsync((int)id, p => p.Enterprise, p => p.Statuses, p => p.Category);
             if (process == null)
             {
                 return NotFound();
@@ -143,6 +152,10 @@ namespace OperationManagement.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
+
+            ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
+               .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
             return View(process);
         }
 
@@ -151,8 +164,9 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EnterpriseId")] Process process, ProcessStatus[] statuses)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EnterpriseId,CategoryId")] Process process, ProcessStatus[] statuses)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (id != process.Id)
             {
                 return NotFound();
@@ -169,7 +183,6 @@ namespace OperationManagement.Controllers
             {
                 try
                 {
-                    var user = await _userManager.GetUserAsync(User);
                     if (process.EnterpriseId != user.EnterpriseId)
                     {
                         return RedirectToAction("AccessDenied", "Account");
@@ -213,6 +226,9 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
             process.Statuses = statuses.ToList();
             return View(process);
         }
