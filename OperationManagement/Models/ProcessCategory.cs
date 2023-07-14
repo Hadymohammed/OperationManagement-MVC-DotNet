@@ -13,5 +13,8 @@ namespace OperationManagement.Models
         [AllowNull]
         public string? NoramlizedName { get; set; }
         public List<Process>? Processes { get; set; }
+        [Required]
+        public int EnterpriseId { get; set; }
+        public Enterprise Enterprise { get; set; }
     }
 }
