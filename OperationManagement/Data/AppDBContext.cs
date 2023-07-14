@@ -24,10 +24,6 @@ namespace OperationManagement.Data
             modelBuilder.Entity<ApplicationUser>().HasOne(s => s.Enterprise).WithMany(e => e.Staff).HasForeignKey(s => s.EnterpriseId);
             //Enterprise Has Cagegories
             modelBuilder.Entity<Category>().HasOne(s => s.Enterprise).WithMany(e => e.Categories).HasForeignKey(s => s.EnterpriseId);
-            //Enterprise Has Components
-            modelBuilder.Entity<Component>().HasOne(s => s.Enterprise).WithMany(e => e.Components).HasForeignKey(s => s.EnterpriseId);
-            //Component Has Photos
-            modelBuilder.Entity<ComponentPhoto>().HasOne(s => s.Component).WithMany(e => e.Photos).HasForeignKey(s => s.ComponentId);
             //Enterprise Has Measurements
             modelBuilder.Entity<Measurement>().HasOne(s => s.Enterprise).WithMany(e => e.Measurements).HasForeignKey(s => s.EnterpriseId);
             //Enterprise Has DeliveryLocations
@@ -36,6 +32,14 @@ namespace OperationManagement.Data
             modelBuilder.Entity<Process>().HasOne(s => s.Enterprise).WithMany(e => e.Processes).HasForeignKey(s => s.EnterpriseId);
             //Enterprise Has ProcessCategories
             modelBuilder.Entity<ProcessCategory>().HasOne(s => s.Enterprise).WithMany(e => e.ProcessCategories).HasForeignKey(s => s.EnterpriseId);
+            //Enterprise Has ComponentCategory
+            modelBuilder.Entity<ComponentCategory>().HasOne(s => s.Enterprise).WithMany(e => e.ComponentCategories).HasForeignKey(s => s.EnterpriseId);
+            //Enterprise Has Components
+            modelBuilder.Entity<Component>().HasOne(s => s.Enterprise).WithMany(e => e.Components).HasForeignKey(s => s.EnterpriseId);
+            //Component Has Photos
+            modelBuilder.Entity<ComponentPhoto>().HasOne(s => s.Component).WithMany(e => e.Photos).HasForeignKey(s => s.ComponentId);
+            //Component Has ComponentCategory
+            modelBuilder.Entity<Component>().HasOne(s => s.Category).WithMany(e => e.Components).HasForeignKey(s => s.CategoryId);
             //Process Has Status
             modelBuilder.Entity<ProcessStatus>().HasOne(s => s.Process).WithMany(e => e.Statuses).HasForeignKey(s => s.ProcessId);
             //Process Has ProcessCategory
@@ -101,5 +105,6 @@ namespace OperationManagement.Data
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Token> Tokens { get; set; }
         public DbSet<ProcessCategory> ProcessCategories { get; set; }
+        public DbSet<ComponentCategory> ComponentCategories { get; set; }
     }
 }

@@ -13,6 +13,9 @@ namespace OperationManagement.Models
         public string Name { get; set; }
         [AllowNull]
         public string Supplier { get; set; }
+        [AllowNull,ForeignKey("CategoryId")]
+        public int? CategoryId { get; set; }
+        public ComponentCategory? Category { get; set; }
         [Required, ForeignKey("EnterpriseId")]
         public int EnterpriseId { get; set; }
         public Enterprise? Enterprise { get; set; }
