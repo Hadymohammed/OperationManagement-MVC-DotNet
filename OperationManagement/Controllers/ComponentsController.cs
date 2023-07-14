@@ -24,23 +24,26 @@ namespace OperationManagement.Controllers
         private readonly IComponentPhotoService _PhotoService;
         private readonly IWebHostEnvironment _env;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IComponentCategoryService _categoryService;
         public ComponentsController(AppDBContext context,
             IComponentService componentService,
             IComponentPhotoService photoService,
             IWebHostEnvironment env,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IComponentCategoryService categoryService)
         {
             _context = context;
             _componentService = componentService;
             _PhotoService = photoService;
             _env = env;
-            _userManager = userManager;
+            _userManager = userManager;            _categoryService = categoryService;
+
         }
 
         // GET: Components
         public async Task<IActionResult> Index()
         {
-            var all = await _componentService.GetAllAsync(c => c.Photos);
+            var all = await _componentService.GetAllAsync(c => c.Photos,c=>c.Category);
             var user = await _userManager.GetUserAsync(User);
             
             return View(all.Where(c=>c.EnterpriseId==user.EnterpriseId));
@@ -55,7 +58,7 @@ namespace OperationManagement.Controllers
             }
 
 
-            var component = await _componentService.GetByIdAsync((int)id, c => c.Photos);
+            var component = await _componentService.GetByIdAsync((int)id, c => c.Photos,c=>c.Category);
             if (component == null)
             {
                 return NotFound();
@@ -72,7 +75,9 @@ namespace OperationManagement.Controllers
         public async Task<IActionResult> Create()
         {
             var user = await _userManager.GetUserAsync(User);
-            
+            ViewData["CategoryId"] = new SelectList(_context.ComponentCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
             return View(new Component()
             {
                 EnterpriseId=(int)user.EnterpriseId
@@ -84,12 +89,11 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Supplier,EnterpriseId")] Component component,List<IFormFile> Photos)
+        public async Task<IActionResult> Create([Bind("Name,Supplier,EnterpriseId,CategoryId")] Component component,List<IFormFile> Photos)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (ModelState.IsValid)
             {
-                
-                var user = await _userManager.GetUserAsync(User);
                 if (component.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
@@ -114,6 +118,9 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoryId"] = new SelectList(_context.ComponentCategories
+            .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+            component = await _componentService.GetByIdAsync((int)component.Id, c => c.Photos, c => c.Category);
             return View(component);
         }
 
@@ -125,7 +132,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var component = await _componentService.GetByIdAsync((int)id, c => c.Photos);
+            var component = await _componentService.GetByIdAsync((int)id, c => c.Photos, c => c.Category);
             if (component == null)
             {
                 return NotFound();
@@ -135,6 +142,8 @@ namespace OperationManagement.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
+            ViewData["CategoryId"] = new SelectList(_context.ComponentCategories
+            .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
             return View(component);
         }
 
@@ -143,18 +152,18 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Suppler,EnterpriseId")] Component component, List<IFormFile> photos)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Supplier,EnterpriseId,CategoryId")] Component component, List<IFormFile> photos)
         {
             if (id != component.Id)
             {
                 return NotFound();
             }
 
+            var user = await _userManager.GetUserAsync(User);
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var user = await _userManager.GetUserAsync(User);
                     if (component.EnterpriseId != user.EnterpriseId)
                     {
                         return RedirectToAction("AccessDenied", "Account");
@@ -193,6 +202,9 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoryId"] = new SelectList(_context.ComponentCategories
+               .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+            component = await _componentService.GetByIdAsync((int)component.Id, c => c.Photos, c => c.Category);
             return View(component);
         }
 
@@ -204,7 +216,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var component = await _componentService.GetByIdAsync((int)id, c => c.Photos);
+            var component = await _componentService.GetByIdAsync((int)id, c => c.Photos, c => c.Category);
             if (component == null)
             {
                 return NotFound();
