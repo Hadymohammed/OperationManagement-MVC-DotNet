@@ -286,20 +286,28 @@
                 </table>
                 <div class="row justify-content-end">
                     <div class="dropdown col-md-3">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownProcess" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Add Process
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownProcess">
-                            @{
-                                i = 0;
-                            }
-                            @foreach (var process in Model.Processes)
-                            {
-                                <div class="dropdown-item add-item" index="@i" for="processes-items">@process.Name <i class="fas fa-plus add-icon"></i></div>
-                                i++;
-                            }
-                        </div>
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownProcess" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add Process
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownProcess">
+                        @{i=0;}
+                        @foreach (var category in Model.ProcessCategories)
+                        {
+                            <div class="dropdown">
+                                <a class="dropdown-item dropdown-toggle category-dropdown" href="#" role="button" id="categoryDropdown-@category.Id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @category.Name
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
+                                    @foreach (var process in category.Processes)
+                                    {
+                                        <div class="dropdown-item add-item" index="@i" for="processes-items">@process.Name <i class="fas fa-plus add-icon"></i></div>
+                                        i++;
+                                    }
+                                </div>
+                            </div>
+                        }
                     </div>
+                </div>
 
                 </div>
             </div>
@@ -401,10 +409,15 @@
                 var index = $(this).attr('index');
                 var items = $(this).attr('for');
                 items = $(`.${items}`);
+                
                 $(items[index]).removeClass('hide');
                 $(items[index]).find('input[type="radio"][value="true"]').prop('checked', true);
                 $(items[index]).find('input[type="radio"][value="false"]').prop('checked', false);
             });
+            $('.category-dropdown').on('click', function (e) {
+                e.stopPropagation();
+            });
+            
         });
         $(document).ready(function() {
           $('.remove-item').click(function() {

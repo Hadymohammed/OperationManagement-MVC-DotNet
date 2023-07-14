@@ -31,6 +31,7 @@ namespace OperationManagement.Controllers
         private readonly IProductSpecificationService _productSpecificationService;
         private readonly IOrderService _orderService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IProcessCategoryService _processCategoryService;
 
         public ProductsController(AppDBContext context,
             IProductService productService,
@@ -43,7 +44,8 @@ namespace OperationManagement.Controllers
             IProductProcessService productProcessService,
             IProductSpecificationService productSpecificationService,
             IOrderService orderService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IProcessCategoryService processCategoryService)
         {
             _context = context;
             _productService = productService;
@@ -57,6 +59,7 @@ namespace OperationManagement.Controllers
             _productSpecificationService = productSpecificationService;
             _orderService = orderService;
             _userManager = userManager;
+            _processCategoryService = processCategoryService;
         }
 
         // GET: Products
@@ -165,12 +168,16 @@ namespace OperationManagement.Controllers
             var allComps = await _componentService.GetAllAsync(c => c.Photos);
             var allProcess = await _processService.GetAllAsync(p => p.Statuses);
             var allMeags = await _measurementService.GetAllAsync();
+            var AllProcessCategories =await _processCategoryService.GetAllAsync(p=>p.Processes);
+            AllProcessCategories=AllProcessCategories.OrderBy(p => p.Id);
+            
             return View(new CreateProductVM
             {
                 Specifications=allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId),
                 Components= allComps.Where(c=>c.EnterpriseId==user.EnterpriseId),
-                Processes= allProcess.Where(p=>p.EnterpriseId==user.EnterpriseId),
+                Processes= allProcess.Where(p=>p.EnterpriseId==user.EnterpriseId).OrderBy(p=>p.CategoryId),
                 Measurements = allMeags.Where(m=> m.EnterpriseId==user.EnterpriseId),
+                ProcessCategories=AllProcessCategories.Where(p=>p.EnterpriseId==user.EnterpriseId),
             });
         }
 
@@ -253,7 +260,7 @@ namespace OperationManagement.Controllers
                             if (process.Item2.StartDate != null && process.Item2.EndDate != null)
                             {
                                 TimeSpan timeDiff = (TimeSpan)(process.Item2.EndDate - process.Item2.StartDate);
-                                diffDays = timeDiff.Days;
+                                diffDays = Math.Abs(timeDiff.Days)+1;
                             }
                             await _productProcessService.AddAsync(new ProductProcess()
                             {
@@ -275,13 +282,17 @@ namespace OperationManagement.Controllers
             var allComps = await _componentService.GetAllAsync(c => c.Photos);
             var allProcess = await _processService.GetAllAsync(p => p.Statuses);
             var allMeags = await _measurementService.GetAllAsync();
+            var AllProcessCategories =await _processCategoryService.GetAllAsync(p=>p.Processes);
+            AllProcessCategories=AllProcessCategories.OrderBy(p => p.Id);
+            
             ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e => e.EnterpriseId == user.EnterpriseId), "Id", "Name", vm.Product.CategoryId);
             ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
                     .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber", vm.Product.OrderId);
             vm.Specifications = allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId);
             vm.Components = allComps.Where(s => s.EnterpriseId == user.EnterpriseId);
-            vm.Processes = allProcess.Where(s => s.EnterpriseId == user.EnterpriseId);
+            vm.Processes = allProcess.Where(s => s.EnterpriseId == user.EnterpriseId).OrderBy(p => p.CategoryId);
             vm.Measurements = allMeags.Where(s => s.EnterpriseId == user.EnterpriseId);
+            vm.ProcessCategories = AllProcessCategories.Where(s => s.EnterpriseId == user.EnterpriseId);
             return View(vm);
         }
 
@@ -307,10 +318,13 @@ namespace OperationManagement.Controllers
             var AllSpecifications =await _specificationService.GetAllAsync(s=>s.Statuses,s=>s.Options);
             var AllMeasurements =await _measurementService.GetAllAsync();
             var AllProcess =await _processService.GetAllAsync(p=>p.Statuses);
+            var AllProcessCategories =await _processCategoryService.GetAllAsync(p=>p.Processes);
+            AllProcessCategories=AllProcessCategories.OrderBy(p => p.Id);
+            
             AllComponents = AllComponents.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
             AllSpecifications = AllSpecifications.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
             AllMeasurements = AllMeasurements.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
-            AllProcess = AllProcess.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
+            AllProcess = AllProcess.Where(p => p.EnterpriseId == (int)user.EnterpriseId).OrderBy(p => p.CategoryId);
             var vm = new CreateProductVM()
             {
                 CategoryId = product.CategoryId,
@@ -319,6 +333,7 @@ namespace OperationManagement.Controllers
                 Specifications = AllSpecifications,
                 Processes = AllProcess,
                 Components = AllComponents,
+                ProcessCategories = AllProcessCategories.Where(p => p.EnterpriseId == user.EnterpriseId).OrderBy(p => p.Id),
                 ProductComponents = new List<TupleVM<bool,ProductComponent>>(),
                 ProductMeasurements=new List<ProductMeasurement>(),
                 ProductProcesses=new List<TupleVM<bool,ProductProcess>>(),
@@ -537,7 +552,7 @@ namespace OperationManagement.Controllers
                             if (process.Item2.StartDate != null && process.Item2.EndDate != null)
                             {
                                 TimeSpan timeDiff = (TimeSpan)(process.Item2.EndDate - process.Item2.StartDate);
-                                diffDays = timeDiff.Days;
+                                diffDays = Math.Abs(timeDiff.Days)+1;
                             }
                             process.Item2.EstimatedDuration = diffDays;
                             if (process.Item1)
