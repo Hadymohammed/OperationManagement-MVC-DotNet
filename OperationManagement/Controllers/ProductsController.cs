@@ -60,7 +60,7 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(int? orderId,int? categoryId,int? processId)
+        public async Task<IActionResult> Index(int? orderId,int? categoryId,int? processId,int? processCategoryId)
         {
 
             var all = await _productService.GetAllAsync(p => p.Category, p => p.Order,p=>p.Order.Customer,p=>p.Processes);
@@ -99,6 +99,17 @@ namespace OperationManagement.Controllers
             processIdList.AddRange((SelectList)ViewData["ProcessId"]);
             ViewData["ProcessId"] = new SelectList(processIdList, "Value", "Text", (processId != null ? processId : 0));
 
+            ViewData["ProcessCategoryId"] = new SelectList(_context.ProcessCategories
+                .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
+            // Create a new SelectList with the custom option and assign it to the CategoryId ViewData
+            var processCategoryIdList = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "All", Value = "0" }
+            };
+            processCategoryIdList.AddRange((SelectList)ViewData["ProcessCategoryId"]);
+            ViewData["ProcessCategoryId"] = new SelectList(processCategoryIdList, "Value", "Text", (processCategoryId != null ? processCategoryId : 0));
+
             #endregion
             /*Search*/
             if (orderId != null)
@@ -112,6 +123,10 @@ namespace OperationManagement.Controllers
             if(processId != null)
             {
                 all = all.Where(p => p.Processes.Any(pr => pr.ProcessId == processId));
+            }
+            if (processCategoryId != null)
+            {
+                all = all.Where(p => p.Processes.Any(pr => pr.Process?.CategoryId == processCategoryId));
             }
             return View(all.Where(p=>p.Order.Customer.EnterpriseId==user.EnterpriseId));
         }
