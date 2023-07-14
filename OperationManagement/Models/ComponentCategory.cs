@@ -1,9 +1,10 @@
 ﻿using Microsoft.Build.Framework;
+using OperationManagement.Data.Base;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OperationManagement.Models
 {
-    public class ComponentCategory
+    public class ComponentCategory:IEntityBase
     {
         [Required]
         public int Id { get; set; }

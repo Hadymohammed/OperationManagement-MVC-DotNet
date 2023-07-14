@@ -54,6 +54,7 @@ builder.Services.AddScoped<IProductComponentService, ProductComponentService>();
 builder.Services.AddScoped<IProductProcessService, ProductProcessService>();
 builder.Services.AddScoped<IProductSpecificationService, ProductSpecificationService>();
 builder.Services.AddScoped<IProcessCategoryService, ProcessCategoryService>();
+builder.Services.AddScoped<IComponentCategoryService, ComponentCategoryService>();
 
 var app = builder.Build();
 AppDbInitializer.Seed(app);
