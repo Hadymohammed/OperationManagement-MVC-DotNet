@@ -113,6 +113,8 @@ namespace OperationManagement.Controllers
                     ModelState.AddModelError("Phone", "This Phone number is registered already.");
                     return View(customer);
                 }
+                customer.NormalizedName=_userManager.NormalizeName(customer.Name);
+                customer.NormalizedEmail=_userManager.NormalizeEmail(customer.Email);
                 await _customerService.AddAsync(customer);
                 foreach(var contact in Contacts)
                 {
@@ -177,6 +179,8 @@ namespace OperationManagement.Controllers
                 }
                 try
                 {
+                    customer.NormalizedName = _userManager.NormalizeName(customer.Name);
+                    customer.NormalizedEmail = _userManager.NormalizeEmail(customer.Email);
                     await _customerService.UpdateAsync(customer.Id,customer);
                     customer.Contacts = _customerContactService.getByCustomerId(customer.Id);
                     customer.Contacts.Clear();
