@@ -90,8 +90,10 @@
         Yen,
         Rupee,
         Yuan,
-        SwissFranc
-        // Add more measurement units here, if needed
+        SwissFranc,
+        
+        //
+        Item
     }
 
 }
