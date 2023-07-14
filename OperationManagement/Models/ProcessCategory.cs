@@ -1,9 +1,10 @@
 ﻿using Microsoft.Build.Framework;
+using OperationManagement.Data.Base;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OperationManagement.Models
 {
-    public class ProcessCategory
+    public class ProcessCategory:IEntityBase
     {
         [Required]
         public int Id { get; set; }
