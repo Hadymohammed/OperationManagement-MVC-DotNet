@@ -15,6 +15,6 @@ namespace OperationManagement.Models
         public List<Process>? Processes { get; set; }
         [Required]
         public int EnterpriseId { get; set; }
-        public Enterprise Enterprise { get; set; }
+        public Enterprise? Enterprise { get; set; }
     }
 }
