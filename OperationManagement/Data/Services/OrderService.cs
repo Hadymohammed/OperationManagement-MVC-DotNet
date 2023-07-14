@@ -63,13 +63,12 @@ namespace OperationManagement.Data.Services
             else
             {
                 float totalDone = 0;
-                foreach(var product in order.Products)
+                order.Progress = 0;
+                foreach (var product in order.Products)
                 {
                     await _productService.UpdateProgressAsync(product.Id);
-                    if (product.IsCompleted)
-                        totalDone++;
+                    order.Progress += (int)(product.Progress / order.Products.Count());
                 }
-                order.Progress = (int)(totalDone / order.Products.Count() * 100);
             }
             await UpdateAsync(order.Id, order);
             return (int)order.Progress;

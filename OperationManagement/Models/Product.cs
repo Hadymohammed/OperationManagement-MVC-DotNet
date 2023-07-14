@@ -17,7 +17,7 @@ namespace OperationManagement.Models
         public string? Description { get; set; }
         [Required]
         public float Price { get; set; }
-        [AllowNull,DefaultValue(1)]
+        [AllowNull,DefaultValue(1),Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
         public int Quantity { get; set; }
         [Required]
         public int CategoryId { get; set; }

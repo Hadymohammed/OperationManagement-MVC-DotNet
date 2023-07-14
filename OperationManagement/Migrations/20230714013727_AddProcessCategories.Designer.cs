@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OperationManagement.Data;
 
@@ -11,9 +12,11 @@ using OperationManagement.Data;
 namespace OperationManagement.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230714013727_AddProcessCategories")]
+    partial class AddProcessCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -540,9 +543,6 @@ namespace OperationManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("EnterpriseId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -551,8 +551,6 @@ namespace OperationManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EnterpriseId");
 
                     b.ToTable("ProcessCategories");
                 });
@@ -978,17 +976,6 @@ namespace OperationManagement.Migrations
                     b.Navigation("Enterprise");
                 });
 
-            modelBuilder.Entity("OperationManagement.Models.ProcessCategory", b =>
-                {
-                    b.HasOne("OperationManagement.Models.Enterprise", "Enterprise")
-                        .WithMany("ProcessCategories")
-                        .HasForeignKey("EnterpriseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Enterprise");
-                });
-
             modelBuilder.Entity("OperationManagement.Models.ProcessStatus", b =>
                 {
                     b.HasOne("OperationManagement.Models.Process", "Process")
@@ -1187,8 +1174,6 @@ namespace OperationManagement.Migrations
                     b.Navigation("DeliveryLocations");
 
                     b.Navigation("Measurements");
-
-                    b.Navigation("ProcessCategories");
 
                     b.Navigation("Processes");
 

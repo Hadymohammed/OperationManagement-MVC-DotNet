@@ -60,7 +60,7 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index(int? orderId,int? categoryId,int? processId)
+        public async Task<IActionResult> Index(int? orderId,int? categoryId,int? processId,int? processCategoryId)
         {
 
             var all = await _productService.GetAllAsync(p => p.Category, p => p.Order,p=>p.Order.Customer,p=>p.Processes);
@@ -99,6 +99,17 @@ namespace OperationManagement.Controllers
             processIdList.AddRange((SelectList)ViewData["ProcessId"]);
             ViewData["ProcessId"] = new SelectList(processIdList, "Value", "Text", (processId != null ? processId : 0));
 
+            ViewData["ProcessCategoryId"] = new SelectList(_context.ProcessCategories
+                .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+
+            // Create a new SelectList with the custom option and assign it to the CategoryId ViewData
+            var processCategoryIdList = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "All", Value = "0" }
+            };
+            processCategoryIdList.AddRange((SelectList)ViewData["ProcessCategoryId"]);
+            ViewData["ProcessCategoryId"] = new SelectList(processCategoryIdList, "Value", "Text", (processCategoryId != null ? processCategoryId : 0));
+
             #endregion
             /*Search*/
             if (orderId != null)
@@ -112,6 +123,10 @@ namespace OperationManagement.Controllers
             if(processId != null)
             {
                 all = all.Where(p => p.Processes.Any(pr => pr.ProcessId == processId));
+            }
+            if (processCategoryId != null)
+            {
+                all = all.Where(p => p.Processes.Any(pr => pr.Process?.CategoryId == processCategoryId));
             }
             return View(all.Where(p=>p.Order.Customer.EnterpriseId==user.EnterpriseId));
         }
@@ -234,6 +249,12 @@ namespace OperationManagement.Controllers
                     {
                         if (process.Item1)
                         {
+                            var diffDays = 0;
+                            if (process.Item2.StartDate != null && process.Item2.EndDate != null)
+                            {
+                                TimeSpan timeDiff = (TimeSpan)(process.Item2.EndDate - process.Item2.StartDate);
+                                diffDays = timeDiff.Days;
+                            }
                             await _productProcessService.AddAsync(new ProductProcess()
                             {
                                 ProductId = vm.Product.Id,
@@ -241,7 +262,8 @@ namespace OperationManagement.Controllers
                                 StatusId = process.Item2.StatusId,
                                 Comment = process.Item2.Comment,
                                 StartDate = process.Item2.StartDate,
-                                EndDate = process.Item2.EndDate
+                                EndDate = process.Item2.EndDate,
+                                EstimatedDuration = diffDays
                             });
                         }
                     }
@@ -444,6 +466,7 @@ namespace OperationManagement.Controllers
                                 if (component!=null)
                                 {
                                     component.Quantity = comp.Item2.Quantity;
+                                    component.Unit = comp.Item2.Unit;
                                     await _productComponentService.UpdateAsync(component.Id, component);
                                 }
                                 else
@@ -452,7 +475,8 @@ namespace OperationManagement.Controllers
                                     {
                                         ProductId = vm.Product.Id,
                                         ComponentId = comp.Item2.ComponentId,
-                                        Quantity = comp.Item2.Quantity
+                                        Quantity = comp.Item2.Quantity,
+                                        Unit = comp.Item2.Unit
                                     });
                                 }
                             }
@@ -509,6 +533,13 @@ namespace OperationManagement.Controllers
                         foreach (var process in vm.ProductProcesses)
                         {
                             var proc = product.Processes.Where(p => p.ProcessId == process.Item2.ProcessId).FirstOrDefault();
+                            var diffDays = 0;
+                            if (process.Item2.StartDate != null && process.Item2.EndDate != null)
+                            {
+                                TimeSpan timeDiff = (TimeSpan)(process.Item2.EndDate - process.Item2.StartDate);
+                                diffDays = timeDiff.Days;
+                            }
+                            process.Item2.EstimatedDuration = diffDays;
                             if (process.Item1)
                             {
                                 if (proc!=null)
@@ -529,7 +560,8 @@ namespace OperationManagement.Controllers
                                         StatusId = process.Item2.StatusId,
                                         Comment = process.Item2.Comment,
                                         StartDate = process.Item2.StartDate,
-                                        EndDate = process.Item2.EndDate
+                                        EndDate = process.Item2.EndDate,
+                                        EstimatedDuration = process.Item2.EstimatedDuration
                                     });
                                 }
                             }
@@ -608,7 +640,58 @@ namespace OperationManagement.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-
+        [HttpGet]
+        public async Task<IActionResult> DeleteMeasurement(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var meas = await _productMeasurementService.GetByIdAsync(id, m => m.Measurement);
+            if (meas.Measurement.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            var productId = meas.ProductId;
+            await _productMeasurementService.DeleteAsync(meas.Id);
+            return RedirectToAction("Details", new { id = productId });
+        }
+        [HttpGet]
+        public async Task<IActionResult> DeleteSpecification(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var spec = await _productSpecificationService.GetByIdAsync(id, m => m.Specification);
+            if (spec.Specification.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            var productId = spec.ProductId;
+            await _productSpecificationService.DeleteAsync(spec.Id);
+            return RedirectToAction("Details", new { id = productId });
+        }
+        [HttpGet]
+        public async Task<IActionResult> DeleteProcess(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var process = await _productProcessService.GetByIdAsync(id, m => m.Process);
+            if (process.Process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            var productId = process.ProductId;
+            await _productProcessService.DeleteAsync(process.Id);
+            return RedirectToAction("Details", new { id = productId });
+        }
+        [HttpGet]
+        public async Task<IActionResult> DeleteComponent(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var comp = await _productComponentService.GetByIdAsync(id, m => m.Component);
+            if (comp.Component.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            var productId = comp.ProductId;
+            await _productComponentService.DeleteAsync(comp.Id);
+            return RedirectToAction("Details", new { id = productId });
+        }
         private bool ProductExists(int id)
         {
           return (_context.Products?.Any(e => e.Id == id)).GetValueOrDefault();

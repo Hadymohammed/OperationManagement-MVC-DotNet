@@ -1,4 +1,5 @@
 ﻿using OperationManagement.Data.Base;
+using OperationManagement.Data.Enums;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,8 +11,10 @@ namespace OperationManagement.Models
     {
         [Key]
         public int Id { get; set; }
-        [AllowNull,DefaultValue(0)]
+        [Required,DefaultValue(0), Range(1, int.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
         public int Quantity { get; set; }
+        [Required]
+        public MeasurementUnit Unit { get; set; }
         [Required, ForeignKey("ProductId")]
         public int ProductId { get; set; }
         public Product? Product { get; set; }

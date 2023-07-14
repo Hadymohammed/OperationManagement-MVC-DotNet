@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OperationManagement.Data;
 
@@ -11,9 +12,11 @@ using OperationManagement.Data;
 namespace OperationManagement.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230714000800_addProductComponentUnit")]
+    partial class addProductComponentUnit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -333,12 +336,6 @@ namespace OperationManagement.Migrations
                     b.Property<int?>("Nationality")
                         .HasColumnType("int");
 
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -513,48 +510,18 @@ namespace OperationManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<int>("EnterpriseId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("EnterpriseId");
-
-                    b.ToTable("Processes");
-                });
-
-            modelBuilder.Entity("OperationManagement.Models.ProcessCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EnterpriseId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NoramlizedName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("ProcessCategories");
+                    b.ToTable("Processes");
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProcessStatus", b =>
@@ -963,25 +930,8 @@ namespace OperationManagement.Migrations
 
             modelBuilder.Entity("OperationManagement.Models.Process", b =>
                 {
-                    b.HasOne("OperationManagement.Models.ProcessCategory", "Category")
-                        .WithMany("Processes")
-                        .HasForeignKey("CategoryId");
-
                     b.HasOne("OperationManagement.Models.Enterprise", "Enterprise")
                         .WithMany("Processes")
-                        .HasForeignKey("EnterpriseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Enterprise");
-                });
-
-            modelBuilder.Entity("OperationManagement.Models.ProcessCategory", b =>
-                {
-                    b.HasOne("OperationManagement.Models.Enterprise", "Enterprise")
-                        .WithMany("ProcessCategories")
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1188,8 +1138,6 @@ namespace OperationManagement.Migrations
 
                     b.Navigation("Measurements");
 
-                    b.Navigation("ProcessCategories");
-
                     b.Navigation("Processes");
 
                     b.Navigation("Specifications");
@@ -1214,11 +1162,6 @@ namespace OperationManagement.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("Statuses");
-                });
-
-            modelBuilder.Entity("OperationManagement.Models.ProcessCategory", b =>
-                {
-                    b.Navigation("Processes");
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProcessStatus", b =>

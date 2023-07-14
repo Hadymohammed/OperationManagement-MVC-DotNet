@@ -22,6 +22,10 @@
         <label class="control-label">Process</label>
         <select id="byProcess" name="processId" class="form-control" asp-items="ViewBag.ProcessId"></select>
     </div>
+    <div class="form-group col-md-2">
+        <label class="control-label">Process Category</label>
+        <select id="byProcessCategory" name="processCategoryId" class="form-control" asp-items="ViewBag.ProcessCategoryId"></select>
+    </div>
     <div>
         <a class="btn btn-success" id="applyLink" asp-action="Index">Filter</a>
         <a class="btn btn-success" asp-action="Index">Reset</a>
@@ -89,39 +93,38 @@
 @section Scripts{
     <script>
         $(document).ready(function () {
-            // Add custom option to each select
-            //$('#byCategory, #byOrder, #byProcess').prepend('<option value="0" Selected>All</option>');
-
-            // Handle select change event
-            $('#byCategory, #byOrder, #byProcess').on('change', function () {
-                var categoryId = $('#byCategory').val();
-                var orderId = $('#byOrder').val();
-                var processId = $('#byProcess').val();
-
-                var query=[];
-                if (categoryId !== '0') {
-                    query.push({ key: "categoryId", val: categoryId });
-                }
-                if (orderId !== '0') {
-                    query.push({ key: "orderId", val: orderId });
-                }
-                if (processId !== '0') {
-                    query.push({ key: "processId", val: processId });
-                }
-
-                var href = $('#applyLink').attr('href');
-                var updatedHref = "";
-                console.log(query);
-                for(let i=0;i<query.length;i++){
-                    if(i==0){
-                        updatedHref += "?" + query[i].key + "=" + query[i].val;
-                    }
-                    else{
-                        updatedHref += "&" + query[i].key + "=" + query[i].val;
-                    }
-                }
-                $('#applyLink').attr('href', href.split('?')[0] + updatedHref);
-            });
+            $('#applyLink').on('click', UpdateFilter);
         });
+        function UpdateFilter(){
+            var categoryId = $('#byCategory').val();
+            var orderId = $('#byOrder').val();
+            var processId = $('#byProcess').val();
+            var processCategoryId = $('#byProcessCategory').val();
+            var query = [];
+            if (categoryId !== '0') {
+                query.push({ key: "categoryId", val: categoryId });
+            }
+            if (orderId !== '0') {
+                query.push({ key: "orderId", val: orderId });
+            }
+            if (processId !== '0') {
+                query.push({ key: "processId", val: processId });
+            }
+            if (processCategoryId !== '0') {
+                query.push({ key: "processCategoryId", val: processCategoryId });
+            }
+            var href = $('#applyLink').attr('href');
+            var updatedHref = "";
+            console.log(query);
+            for (let i = 0; i < query.length; i++) {
+                if (i == 0) {
+                    updatedHref += "?" + query[i].key + "=" + query[i].val;
+                }
+                else {
+                    updatedHref += "&" + query[i].key + "=" + query[i].val;
+                }
+            }
+            $('#applyLink').attr('href', href.split('?')[0] + updatedHref);
+        }
     </script>
 }

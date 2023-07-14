@@ -34,8 +34,12 @@ namespace OperationManagement.Data
             modelBuilder.Entity<DeliveryLocation>().HasOne(s => s.Enterprise).WithMany(e => e.DeliveryLocations).HasForeignKey(s => s.EnterpriseId);
             //Enterprise Has Processes
             modelBuilder.Entity<Process>().HasOne(s => s.Enterprise).WithMany(e => e.Processes).HasForeignKey(s => s.EnterpriseId);
+            //Enterprise Has ProcessCategories
+            modelBuilder.Entity<ProcessCategory>().HasOne(s => s.Enterprise).WithMany(e => e.ProcessCategories).HasForeignKey(s => s.EnterpriseId);
             //Process Has Status
             modelBuilder.Entity<ProcessStatus>().HasOne(s => s.Process).WithMany(e => e.Statuses).HasForeignKey(s => s.ProcessId);
+            //Process Has ProcessCategory
+            modelBuilder.Entity<Process>().HasOne(s => s.Category).WithMany(e => e.Processes).HasForeignKey(s => s.CategoryId);
             //Enterprise Has Specifications
             modelBuilder.Entity<Specification>().HasOne(s => s.Enterprise).WithMany(e => e.Specifications).HasForeignKey(s => s.EnterpriseId);
             //Specification Has Status
@@ -96,5 +100,6 @@ namespace OperationManagement.Data
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
         public DbSet<Attachment> Attachments { get; set; }
         public DbSet<Token> Tokens { get; set; }
+        public DbSet<ProcessCategory> ProcessCategories { get; set; }
     }
 }

@@ -41,7 +41,7 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(vm.Email);
+                var user = await _userManager.FindByEmailAsync(vm.Email);   
                 if (user == null)
                 {
                     ModelState.AddModelError("Email", "This email not registered on our system.");
@@ -56,7 +56,7 @@ namespace OperationManagement.Controllers
                 var result = await _signInManager.PasswordSignInAsync(user, vm.Password, false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    if (vm.Role == UserRoles.User)
+                    if (await _userManager.IsInRoleAsync(user, UserRoles.User))
                     {
                         return RedirectToAction("Index", "Customers");
                     }
@@ -287,7 +287,7 @@ namespace OperationManagement.Controllers
                 ModelState.AddModelError("Password", "Your link is not valid please contact us if this the first time you use it.");
                 return View(vm);
             }
-            _context.Tokens.Remove(token);
+            _context.Tokens.Remove(tokenDB);
             _context.SaveChanges();
             staff.PasswordHash=_userManager.PasswordHasher.HashPassword(staff, vm.Password);
             staff.Registered = true;

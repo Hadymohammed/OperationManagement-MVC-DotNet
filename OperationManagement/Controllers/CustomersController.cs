@@ -42,12 +42,14 @@ namespace OperationManagement.Controllers
             all = all.Where(c => c.EnterpriseId == user.EnterpriseId);
             if (!string.IsNullOrEmpty(email))
             {
-                all = all.Where(c => c.Email.Contains(email));
+                var Nemail = _userManager.NormalizeEmail(email);
+                all = all.Where(c => c.NormalizedEmail.Contains(Nemail));
                 ViewBag.Email = email;
             }
             if (!string.IsNullOrEmpty(name))
             {
-                all = all.Where(c => c.Name.Contains(name));
+                var Nname = _userManager.NormalizeName(name);
+                all = all.Where(c => c.NormalizedName.Contains(Nname));
                 ViewBag.Name = name;
             }
             if (!string.IsNullOrEmpty(phone))
@@ -113,6 +115,8 @@ namespace OperationManagement.Controllers
                     ModelState.AddModelError("Phone", "This Phone number is registered already.");
                     return View(customer);
                 }
+                customer.NormalizedName=_userManager.NormalizeName(customer.Name);
+                customer.NormalizedEmail=_userManager.NormalizeEmail(customer.Email);
                 await _customerService.AddAsync(customer);
                 foreach(var contact in Contacts)
                 {
@@ -177,6 +181,8 @@ namespace OperationManagement.Controllers
                 }
                 try
                 {
+                    customer.NormalizedName = _userManager.NormalizeName(customer.Name);
+                    customer.NormalizedEmail = _userManager.NormalizeEmail(customer.Email);
                     await _customerService.UpdateAsync(customer.Id,customer);
                     customer.Contacts = _customerContactService.getByCustomerId(customer.Id);
                     customer.Contacts.Clear();

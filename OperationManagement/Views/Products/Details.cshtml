@@ -82,7 +82,7 @@
 <div class="text-center">
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Delete" asp-route-id="@Model?.Id">Delete</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back to all products</a>
 </div>
 
 <dl class="row">
@@ -94,7 +94,7 @@
             <a asp-action="Details" asp-controller="Components" asp-route-id="@m.ComponentId"> @m.Component.Name </a>
         </dt>
         <dd class="col-sm-9">
-            <strong>Qty : </strong>@m.Quantity
+            <strong>Qty : </strong>@m.Quantity @m.Unit
         </dd>
     }
 </dl>
@@ -108,7 +108,9 @@
             @m.Specification.Name
         </dt>
         <dd class="col-sm-9">
-            <strong>Option : </strong>@m.Option.Name <span> | <strong>Status : </strong>@m.Status.Name</span> <span> | <strong>Date : </strong>@m.Date?.ToShortDateString()</span> | <strong>Remark : </strong>@m.Remark
+            <strong>Option : </strong>@m.Option.Name <span> | <strong>Status : </strong>@m.Status.Name</span> <span> | <strong>Date : </strong>@m.Date?.ToShortDateString()</span>
+            <br />
+            <strong>Remark : </strong>@m.Remark
         </dd>
         <dd class="col-sm-9">
 
@@ -125,7 +127,9 @@
             @m.Process.Name
         </dt>
         <dd class="col-sm-9">
-            <strong>Status : </strong>@m.Status.Name | <strong>StartDate : </strong>@m.StartDate?.ToShortDateString() | <strong>EndDate : </strong>@m.EndDate?.ToShortDateString() | <strong>Estimated Duration : </strong>@m.EstimatedDuration | <strong>Comment : </strong>@m.Comment
+            <strong>Status : </strong>@m.Status.Name | <strong>StartDate : </strong>@m.StartDate?.ToShortDateString() | <strong>EndDate : </strong>@m.EndDate?.ToShortDateString() | <strong>Estimated Duration (days) : </strong>@m.EstimatedDuration 
+            <br />
+            <strong>Comment : </strong>@m.Comment
         </dd>
     }
 </dl>
