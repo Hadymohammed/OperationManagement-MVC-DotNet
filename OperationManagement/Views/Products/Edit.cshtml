@@ -66,9 +66,17 @@
                     <select asp-for="@Model.Product.CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
                 </div>
             </div>
-            <h4>Specifications</h4>
+
             <hr />
-            <div id="specifications-container col-md-12">
+
+            <div class="mt-3 row justify-content-between">
+                <h4 style="width:fit-content">Specifications</h4>
+                <button style="width: 50px;" class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#specifications-section" aria-expanded="false" aria-controls="specifications-section">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div id="specifications-section" class="collapse">
+                <div id="specifications-container col-md-12">
                 <table class="table">
                     <thead>
                         <tr>
@@ -208,96 +216,113 @@
                     </div>
                 </div>
             </div>
-            <h4 class="mt-3">Measurements</h4>
+            </div>
             <hr />
-            <div id="measurments-container col-md-12">
-                <table class="table">
-                    <thead>
-                    <th>
-                        Measurement
-                    </th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                    <th></th>
-                    </thead>
-                    <tbody>
-                        @{
-                            i = 0;
-                        }
-                        @foreach (var meag in Model.Measurements)
-                        {
-                            var exist = Model.ProductMeasurements[@i].Value != null;
-                            if(exist){
-                                <tr class="measurements-items">
-                                    <td>
-                                        <input type="hidden" asp-for="@Model.ProductMeasurements[@i].MeasurementId" value="@meag.Id" />
-                                        <label class="control-label">@meag.Name</label>
-                                    </td>
-                                    <td>
-                                        <input type="number" asp-for="@Model.ProductMeasurements[@i].Value" />
-                                    </td>
-                                    <td>
-                                        <select asp-for="@Model.ProductMeasurements[@i].Unit">
-                                            @foreach (var unit in Enum.GetValues(typeof(MeasurementUnit)))
-                                            {
-                                                <option value="@unit">@unit</option>
-                                            }
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <a asp-action="DeleteMeasurement" asp-controller="Products" asp-route-id="@Model.ProductMeasurements[@i].Id" class="btn btn-danger" onclick="return confirmDelete('Measurement')">Delete</a>
-                                    </td>
-                                </tr>
-                            }
-                            else{
-                                <tr class="measurements-items hide">
-                                    <td>
-                                        <input type="hidden" asp-for="@Model.ProductMeasurements[@i].MeasurementId" value="@meag.Id" />
-                                        <label class="control-label">@meag.Name</label>
-                                    </td>
-                                    <td>
-                                        <input type="number" asp-for="@Model.ProductMeasurements[@i].Value" />
-                                    </td>
-                                    <td>
-                                        <select asp-for="@Model.ProductMeasurements[@i].Unit">
-                                            @foreach (var unit in Enum.GetValues(typeof(MeasurementUnit)))
-                                            {
-                                                <option value="@unit">@unit</option>
-                                            }
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <div class="btn btn-danger remove-item">Remove</div>
-                                    </td>
-                                </tr>
-                            }
-                            
-                            i++;
-                        }
-                    </tbody>
-                </table>
-                <div class="row justify-content-end">
-                    <div class="dropdown col-md-3">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMeasurement" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Add Measurement
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMeasurement">
+
+            <div class="mt-3 row justify-content-between">
+                <h4 style="width:fit-content">Measurements</h4>
+                <button style="width: 50px;" class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#measurements-sections" aria-expanded="false" aria-controls="measurements-sections">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div id="measurements-sections" class="collapse">
+                <div id="measurments-container col-md-12">
+                    <table class="table">
+                        <thead>
+                        <th>
+                            Measurement
+                        </th>
+                        <th>Value</th>
+                        <th>Unit</th>
+                        <th></th>
+                        </thead>
+                        <tbody>
                             @{
                                 i = 0;
                             }
                             @foreach (var meag in Model.Measurements)
                             {
-                                <div class="dropdown-item add-item" index="@i" for="measurements-items">@meag.Name <i class="fas fa-plus add-icon"></i></div>
+                                var exist = Model.ProductMeasurements[@i].Value != null;
+                                if(exist){
+                                    <tr class="measurements-items">
+                                        <td>
+                                            <input type="hidden" asp-for="@Model.ProductMeasurements[@i].MeasurementId" value="@meag.Id" />
+                                            <label class="control-label">@meag.Name</label>
+                                        </td>
+                                        <td>
+                                            <input type="number" asp-for="@Model.ProductMeasurements[@i].Value" />
+                                        </td>
+                                        <td>
+                                            <select asp-for="@Model.ProductMeasurements[@i].Unit">
+                                                @foreach (var unit in Enum.GetValues(typeof(MeasurementUnit)))
+                                                {
+                                                    <option value="@unit">@unit</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <a asp-action="DeleteMeasurement" asp-controller="Products" asp-route-id="@Model.ProductMeasurements[@i].Id" class="btn btn-danger" onclick="return confirmDelete('Measurement')">Delete</a>
+                                        </td>
+                                    </tr>
+                                }
+                                else{
+                                    <tr class="measurements-items hide">
+                                        <td>
+                                            <input type="hidden" asp-for="@Model.ProductMeasurements[@i].MeasurementId" value="@meag.Id" />
+                                            <label class="control-label">@meag.Name</label>
+                                        </td>
+                                        <td>
+                                            <input type="number" asp-for="@Model.ProductMeasurements[@i].Value" />
+                                        </td>
+                                        <td>
+                                            <select asp-for="@Model.ProductMeasurements[@i].Unit">
+                                                @foreach (var unit in Enum.GetValues(typeof(MeasurementUnit)))
+                                                {
+                                                    <option value="@unit">@unit</option>
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <div class="btn btn-danger remove-item">Remove</div>
+                                        </td>
+                                    </tr>
+                                }
+                            
                                 i++;
                             }
+                        </tbody>
+                    </table>
+                    <div class="row justify-content-end">
+                        <div class="dropdown col-md-3">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMeasurement" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Add Measurement
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMeasurement">
+                                @{
+                                    i = 0;
+                                }
+                                @foreach (var meag in Model.Measurements)
+                                {
+                                    <div class="dropdown-item add-item" index="@i" for="measurements-items">@meag.Name <i class="fas fa-plus add-icon"></i></div>
+                                    i++;
+                                }
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
-            <h4 class="mt-3">Processes</h4>
+            
             <hr />
-            <div id="processes-container col-md-12">
+
+            <div class="mt-3 row justify-content-between">
+                <h4 style="width:fit-content">Processes</h4>
+                <button style="width: 50px;" class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#processes-section" aria-expanded="false" aria-controls="processes-section">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div id="processes-section" class="collapse">
+                <div id="processes-container col-md-12">
                 <table class="table">
                     <thead>
                         <tr>
@@ -412,26 +437,43 @@
                 </table>
                 <div class="row justify-content-end">
                     <div class="dropdown col-md-3">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownProcess" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Add Process
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownProcess">
-                            @{
-                                i = 0;
-                            }
-                            @foreach (var process in Model.Processes)
-                            {
-                                <div class="dropdown-item add-item" index="@i" for="processes-items">@process.Name <i class="fas fa-plus add-icon"></i></div>
-                                i++;
-                            }
-                        </div>
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownProcess" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add Process
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownProcess">
+                        @{i=0;}
+                        @foreach (var category in Model.ProcessCategories)
+                        {
+                            <div class="dropdown">
+                                <a class="dropdown-item dropdown-toggle category-dropdown" href="#" role="button" id="categoryDropdown-@category.Id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    @category.Name
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
+                                    @foreach (var process in category.Processes)
+                                    {
+                                        <div class="dropdown-item add-item" index="@i" for="processes-items">@process.Name <i class="fas fa-plus add-icon"></i></div>
+                                        i++;
+                                    }
+                                </div>
+                            </div>
+                        }
                     </div>
 
                 </div>
             </div>
-            <h4 class="mt-3">Components</h4>
+                </div>
+            </div>
+
             <hr />
-            <div id="component-container col-md-12">
+
+            <div class="mt-3 row justify-content-between">
+                <h4 style="width:fit-content">Components</h4>
+                <button style="width: 50px;" class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#Components-section" aria-expanded="false" aria-controls="Components-section">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div id="Components-section" class="collapse">
+                <div id="component-container col-md-12">
                 <table class="table">
                     <thead>
                         <tr>
@@ -541,18 +583,28 @@
                             @{
                                 i = 0;
                             }
-                            @foreach (var comp in Model.Components)
+                            @foreach (var category in Model.ComponentCategories)
                             {
-                                <div class="dropdown-item add-item" index="@i" for="components-items">@comp.Name <i class="fas fa-plus add-icon"></i></div>
-                                i++;
+                                <div class="dropdown">
+                                    <a class="dropdown-item dropdown-toggle category-dropdown" href="#" role="button" id="categoryDropdown-@category.Id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        @category.Name
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
+                                        @foreach (var component in category.Components)
+                                        {
+                                            <div class="dropdown-item add-item" index="@i" for="components-items">@component.Name <i class="fas fa-plus add-icon"></i></div>
+                                            i++;
+                                        }
+                                    </div>
+                                </div>
                             }
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="form-group mt-3">
+            </div>        
+            <div class="form-group mt-3">
             <input type="submit" value="Save" class="btn btn-primary" />
         </div>
     </div>
@@ -573,6 +625,9 @@
                 $(items[index]).removeClass('hide');
                 $(items[index]).find('input[type="radio"][value="true"]').prop('checked', true);
                 $(items[index]).find('input[type="radio"][value="false"]').prop('checked', false);
+            });
+            $('.category-dropdown').on('click', function (e) {
+                e.stopPropagation();
             });
         });
         $(document).ready(function() {

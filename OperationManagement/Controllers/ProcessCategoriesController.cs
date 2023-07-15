@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OperationManagement.Data;
 using OperationManagement.Data.Services;
+using OperationManagement.Data.Static;
 using OperationManagement.Models;
 
 namespace OperationManagement.Controllers
 {
+    [Authorize(Roles =UserRoles.User)]
     public class ProcessCategoriesController : Controller
     {
         private readonly AppDBContext _context;
@@ -30,7 +33,10 @@ namespace OperationManagement.Controllers
         // GET: ProcessCategories
         public async Task<IActionResult> Index()
         {
-            return View(await _categoryService.GetAllAsync());
+            var categories = await _categoryService.GetAllAsync();
+            var user = await _userManager.GetUserAsync(User);
+
+            return View(categories.Where(c=>c.EnterpriseId==(int)user.EnterpriseId));
         }
 
         // GET: ProcessCategories/Details/5

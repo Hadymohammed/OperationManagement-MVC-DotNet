@@ -23,6 +23,7 @@ namespace OperationManagement.Models
         public List<Measurement>? Measurements { get; set; }
         public List<Process>? Processes { get; set; }
         public List<ProcessCategory>? ProcessCategories { get; set; }
+        public List<ComponentCategory>? ComponentCategories { get; set; }
         public List<Specification>? Specifications { get; set; }
         public List<Customer>? Customers { get; set; }
         public List<DeliveryLocation>? DeliveryLocations { get; set; }
