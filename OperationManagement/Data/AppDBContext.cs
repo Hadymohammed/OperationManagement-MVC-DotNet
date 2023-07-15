@@ -79,7 +79,8 @@ namespace OperationManagement.Data
             modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Specification).WithMany(e => e.Products).HasForeignKey(s => s.SpecificationId).OnDelete(DeleteBehavior.Restrict); ;
             modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Status).WithMany(e => e.Products).HasForeignKey(s => s.StatusId).OnDelete(DeleteBehavior.Restrict); ;
             modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Option).WithMany(e => e.Products).HasForeignKey(s => s.OptionId).OnDelete(DeleteBehavior.Restrict); ;
-
+            //Token Has User
+            modelBuilder.Entity<Token>().HasOne(s => s.user).WithMany(e => e.Tokens).HasForeignKey(s => s.userId);
         }
 
         //Tables
