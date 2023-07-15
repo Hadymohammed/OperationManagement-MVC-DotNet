@@ -79,29 +79,30 @@ namespace OperationManagement.Controllers
                 vm.Staff = vm.Enterprise.Staff.FirstOrDefault();
                 return View(vm);
             }
+            var enterprise = await _enterpriseService.GetByIdAsync(vm.EnterpriseId, s => s.Staff);
+            var staff = enterprise.Staff.FirstOrDefault();
             if (vm.Action == "Accept")
             {
-                var enterprise = await _enterpriseService.GetByIdAsync(vm.EnterpriseId, s => s.Staff);
                 if (enterprise == null)
                 {
                     return NotFound();
                 }
                 enterprise.Accepted = true;
                 await _enterpriseService.UpdateAsync(enterprise.Id, enterprise);
-                var token=JWTHelper.GenerateJwtToken(enterprise.Staff.FirstOrDefault().Email, enterprise.Staff.FirstOrDefault().Id);
+                var token=JWTHelper.GenerateJwtToken(staff.Email, staff.Id);
                 var Token = new Token
                 {
-                    token = token
+                    token = token,
+                    userId = staff.Id
                 };
                 await _context.Tokens.AddAsync(Token);
                 _context.SaveChanges();
                 var TId = Token.Id;
                 string oneTimeAddStaffLink = Url.Action("Register", "Account", new { TID = TId, Role = UserRoles.User, token = Token.token }, Request.Scheme);
-                EmailHelper.SendEnterpriseAccept(enterprise.Staff.FirstOrDefault().Email, oneTimeAddStaffLink,enterprise.Name,vm.Messege);
+                EmailHelper.SendEnterpriseAccept(staff.Email, oneTimeAddStaffLink,enterprise.Name,vm.Messege);
             }
             else if (vm.Action == "Reject")
             {
-                var enterprise = await _enterpriseService.GetByIdAsync(vm.EnterpriseId,s=>s.Staff);
                 if (enterprise == null)
                 {
                     return NotFound();
@@ -109,12 +110,15 @@ namespace OperationManagement.Controllers
                 if (string.IsNullOrEmpty(vm.Messege))
                 {
                     vm.Enterprise = enterprise;
-                    vm.Staff = vm.Enterprise.Staff.FirstOrDefault();
+                    vm.Staff = staff;
                     ModelState.AddModelError("Messege", "Rejection messege is required!");
                     return RedirectToAction("ReviewJoinRequest",vm);
                 }
-                EmailHelper.SendEnterpriseRejection(enterprise.Staff.FirstOrDefault().Email, vm.Messege, enterprise.Name);
-                await _userManager.DeleteAsync(enterprise.Staff.FirstOrDefault());
+                EmailHelper.SendEnterpriseRejection(staff.Email, vm.Messege, enterprise.Name);
+                var tokensToDelete = _context.Tokens.Where(t => t.userId == staff.Id);
+                _context.Tokens.RemoveRange(tokensToDelete);
+                _context.SaveChanges();
+                await _userManager.DeleteAsync(staff);
                 await _enterpriseService.DeleteAsync(enterprise.Id);
             }
             return RedirectToAction("Index");

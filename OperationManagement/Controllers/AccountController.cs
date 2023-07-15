@@ -181,6 +181,9 @@ namespace OperationManagement.Controllers
                 return NotFound();
             var staff = await _userManager.FindByEmailAsync(email);
             staff.PasswordHash = _userManager.PasswordHasher.HashPassword(staff, vm.Password);
+            var tokensToDelete = _context.Tokens.Where(t => t.userId == staff.Id);
+            _context.Tokens.RemoveRange(tokensToDelete);
+            _context.SaveChanges();
             await _userManager.UpdateAsync(staff);
             return RedirectToAction("Login");
         }
