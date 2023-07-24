@@ -57,28 +57,30 @@ namespace OperationManagement.Data
             //Customer Has Orders
             modelBuilder.Entity<Order>().HasOne(s => s.Customer).WithMany(e => e.Orders).HasForeignKey(s => s.CustomerId);
             //Order Has DeliveryLocation
-            modelBuilder.Entity<Order>().HasOne(s => s.DeliveryLocation).WithMany(e => e.Orders).HasForeignKey(s => s.DeliveryLocationId).OnDelete(DeleteBehavior.Restrict); ;
+            modelBuilder.Entity<Order>().HasOne(s => s.DeliveryLocation).WithMany(e => e.Orders).HasForeignKey(s => s.DeliveryLocationId).OnDelete(DeleteBehavior.Restrict); 
             //Order Has Products
-            modelBuilder.Entity<Product>().HasOne(s => s.Order).WithMany(e => e.Products).HasForeignKey(s => s.OrderId).OnDelete(DeleteBehavior.Restrict); ;
+            modelBuilder.Entity<Product>().HasOne(s => s.Order).WithMany(e => e.Products).HasForeignKey(s => s.OrderId).OnDelete(DeleteBehavior.Restrict); 
             //Order Has Attachments
             modelBuilder.Entity<Attachment>().HasOne(s => s.Order).WithMany(e => e.Attachments).HasForeignKey(s => s.OrderId);
             //Product Has Category
             modelBuilder.Entity<Product>().HasOne(s => s.Category).WithMany(e => e.Products).HasForeignKey(s => s.CategoryId);
             //Product Has Components
             modelBuilder.Entity<ProductComponent>().HasOne(s => s.Product).WithMany(e => e.Components).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<ProductComponent>().HasOne(s => s.Component).WithMany(e => e.Products).HasForeignKey(s => s.ComponentId).OnDelete(DeleteBehavior.Restrict); ;
+            modelBuilder.Entity<ProductComponent>().HasOne(s => s.Component).WithMany(e => e.Products).HasForeignKey(s => s.ComponentId).OnDelete(DeleteBehavior.Restrict); 
             //Product Has Measurements
-            modelBuilder.Entity<ProductMeasurement>().HasOne(s => s.Product).WithMany(e => e.Measurements).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict); ;
-            modelBuilder.Entity<ProductMeasurement>().HasOne(s => s.Measurement).WithMany(e => e.Products).HasForeignKey(s => s.MeasurementId).OnDelete(DeleteBehavior.Restrict); ;
+            modelBuilder.Entity<ProductMeasurement>().HasOne(s => s.Product).WithMany(e => e.Measurements).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict); 
+            modelBuilder.Entity<ProductMeasurement>().HasOne(s => s.Measurement).WithMany(e => e.Products).HasForeignKey(s => s.MeasurementId).OnDelete(DeleteBehavior.Restrict); 
             //Product Has Process
-            modelBuilder.Entity<ProductProcess>().HasOne(s => s.Product).WithMany(e => e.Processes).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict); ;
-            modelBuilder.Entity<ProductProcess>().HasOne(s => s.Process).WithMany(e => e.Products).HasForeignKey(s => s.ProcessId).OnDelete(DeleteBehavior.Restrict); ;
+            modelBuilder.Entity<ProductProcess>().HasOne(s => s.Product).WithMany(e => e.Processes).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ProductProcess>().HasOne(s => s.Process).WithMany(e => e.Products).HasForeignKey(s => s.ProcessId).OnDelete(DeleteBehavior.Restrict); 
             modelBuilder.Entity<ProductProcess>().HasOne(s => s.Status).WithMany(e => e.Products).HasForeignKey(s => s.StatusId);
             //Product Has Specifications
-            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Product).WithMany(e => e.Specifications).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict); ;
-            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Specification).WithMany(e => e.Products).HasForeignKey(s => s.SpecificationId).OnDelete(DeleteBehavior.Restrict); ;
-            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Status).WithMany(e => e.Products).HasForeignKey(s => s.StatusId).OnDelete(DeleteBehavior.Restrict); ;
-            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Option).WithMany(e => e.Products).HasForeignKey(s => s.OptionId).OnDelete(DeleteBehavior.Restrict); ;
+            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Product).WithMany(e => e.Specifications).HasForeignKey(s => s.ProductId).OnDelete(DeleteBehavior.Restrict); 
+            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Specification).WithMany(e => e.Products).HasForeignKey(s => s.SpecificationId).OnDelete(DeleteBehavior.Restrict); 
+            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Status).WithMany(e => e.Products).HasForeignKey(s => s.StatusId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<ProductSpecification>().HasOne(s => s.Option).WithMany(e => e.Products).HasForeignKey(s => s.OptionId).OnDelete(DeleteBehavior.Restrict);
+            //Specification has category
+            modelBuilder.Entity<Specification>().HasOne(s => s.Category).WithMany(e => e.Specifications).HasForeignKey(s => s.CategoryId).OnDelete(DeleteBehavior.Restrict);
             //Token Has User
             modelBuilder.Entity<Token>().HasOne(s => s.user).WithMany(e => e.Tokens).HasForeignKey(s => s.userId);
         }
@@ -107,5 +109,6 @@ namespace OperationManagement.Data
         public DbSet<Token> Tokens { get; set; }
         public DbSet<ProcessCategory> ProcessCategories { get; set; }
         public DbSet<ComponentCategory> ComponentCategories { get; set; }
+        public DbSet<SpecificationCategory> SpecificationCategories { get; set; }
     }
 }

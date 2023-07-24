@@ -60,6 +60,7 @@ builder.Services.AddScoped<IProductProcessService, ProductProcessService>();
 builder.Services.AddScoped<IProductSpecificationService, ProductSpecificationService>();
 builder.Services.AddScoped<IProcessCategoryService, ProcessCategoryService>();
 builder.Services.AddScoped<IComponentCategoryService, ComponentCategoryService>();
+builder.Services.AddScoped<ISpecificationCategoryService,SpecificationCategoryService>();
 
 var app = builder.Build();
 AppDbInitializer.Seed(app);
