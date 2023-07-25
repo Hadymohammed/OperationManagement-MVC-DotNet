@@ -51,23 +51,23 @@ namespace OperationManagement.Data.Services
         }
         public async Task<int> UpdateProgress(int orderId)
         {
-            var order = await GetByIdAsync(orderId,o=>o.Products);
-            if (order.Products == null)
+            var order = await GetByIdAsync(orderId);
+            var Products = _productService.getByOrderId(orderId);
+            if (Products == null)
             {
                 order.Progress = 0;
             }
-            else if (order.Products.Count() == 0)
+            else if (Products.Count() == 0)
             {
                 order.Progress = 0;
             }
             else
             {
-                float totalDone = 0;
                 order.Progress = 0;
-                foreach (var product in order.Products)
+                foreach (var product in Products)
                 {
                     await _productService.UpdateProgressAsync(product.Id);
-                    order.Progress += (int)(product.Progress / order.Products.Count());
+                    order.Progress += (int)(product.Progress / Products.Count());
                 }
             }
             await UpdateAsync(order.Id, order);

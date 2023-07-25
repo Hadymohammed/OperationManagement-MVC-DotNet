@@ -36,7 +36,8 @@ namespace OperationManagement.Controllers
             _componentService = componentService;
             _PhotoService = photoService;
             _env = env;
-            _userManager = userManager;            _categoryService = categoryService;
+            _userManager = userManager;
+            _categoryService = categoryService;
 
         }
 
@@ -143,7 +144,7 @@ namespace OperationManagement.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
             ViewData["CategoryId"] = new SelectList(_context.ComponentCategories
-            .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+            .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name",component.CategoryId);
             return View(component);
         }
 

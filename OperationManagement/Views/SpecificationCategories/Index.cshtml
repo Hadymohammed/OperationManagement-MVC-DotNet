@@ -1,10 +1,10 @@
-﻿@model IEnumerable<OperationManagement.Models.Specification>
+﻿@model IEnumerable<OperationManagement.Models.SpecificationCategory>
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Specifications</h1>
+<h1>Specification Categories</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -15,9 +15,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th>
-                Category
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -27,8 +24,6 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Category.Name)
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |

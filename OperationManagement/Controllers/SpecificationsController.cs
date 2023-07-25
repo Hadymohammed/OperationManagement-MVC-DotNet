@@ -41,7 +41,7 @@ namespace OperationManagement.Controllers
         // GET: Specifications
         public async Task<IActionResult> Index()
         {
-            var all = await _specificationService.GetAllAsync(s => s.Enterprise);
+            var all = await _specificationService.GetAllAsync(s => s.Enterprise, s=>s.Category);
             var user = await _userManager.GetUserAsync(User);
             
             return View(all.Where(s=>s.EnterpriseId==user.EnterpriseId));
@@ -55,7 +55,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var specification = await _specificationService.GetByIdAsync((int)id, s => s.Enterprise, s => s.Statuses, s => s.Options);
+            var specification = await _specificationService.GetByIdAsync((int)id, s => s.Enterprise,s=>s.Category, s => s.Statuses, s => s.Options);
                 
             if (specification == null)
             {
@@ -73,7 +73,8 @@ namespace OperationManagement.Controllers
         public async Task<IActionResult> Create()
         {
             var user = await _userManager.GetUserAsync(User);
-            
+            ViewData["CategoryId"] = new SelectList(_context.SpecificationCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
             return View(new Specification()
             {
                 EnterpriseId=(int)user.EnterpriseId,
@@ -87,8 +88,9 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,EnterpriseId")] Specification specification, SpecificationOption[] Options, SpecificationStatus[] Statuses)
+        public async Task<IActionResult> Create([Bind("Name,EnterpriseId,CategoryId")] Specification specification, SpecificationOption[] Options, SpecificationStatus[] Statuses)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (Options == null)
             {
                 ModelState.AddModelError(String.Empty, "Options can't be empty.");
@@ -99,7 +101,6 @@ namespace OperationManagement.Controllers
             }
             if (ModelState.IsValid)
             {
-                var user = await _userManager.GetUserAsync(User);
                 if (specification.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
@@ -139,6 +140,8 @@ namespace OperationManagement.Controllers
             }
             specification.Statuses = Statuses.ToList();
             specification.Options = Options.ToList();
+            ViewData["CategoryId"] = new SelectList(_context.SpecificationCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name",specification.CategoryId);
             return View(specification);
         }
 
@@ -150,7 +153,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var specification = await _specificationService.GetByIdAsync((int)id, s => s.Enterprise, s => s.Statuses, s => s.Options);
+            var specification = await _specificationService.GetByIdAsync((int)id, s => s.Enterprise,s=>s.Category, s => s.Statuses, s => s.Options);
             if (specification == null)
             {
                 return NotFound();
@@ -161,6 +164,8 @@ namespace OperationManagement.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
+            ViewData["CategoryId"] = new SelectList(_context.SpecificationCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name",specification.CategoryId);
             return View(specification);
         }
 
@@ -169,8 +174,9 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EnterpriseId")] Specification specification, SpecificationOption[] Options, SpecificationStatus[] Statuses)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EnterpriseId,CategoryId")] Specification specification, SpecificationOption[] Options, SpecificationStatus[] Statuses)
         {
+            var user = await _userManager.GetUserAsync(User);
             if (id != specification.Id)
             {
                 return NotFound();
@@ -193,7 +199,6 @@ namespace OperationManagement.Controllers
             }
             if (ModelState.IsValid)
             {
-                var user = await _userManager.GetUserAsync(User);
                 if (specification.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
@@ -252,6 +257,8 @@ namespace OperationManagement.Controllers
             }
             specification.Statuses = Statuses.ToList();
             specification.Options = Options.ToList();
+            ViewData["CategoryId"] = new SelectList(_context.SpecificationCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name",specification.CategoryId);
             return View(specification);
         }
 
@@ -263,9 +270,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var specification = await _context.Specifications
-                .Include(s => s.Enterprise)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var specification = await _specificationService.GetByIdAsync((int)id,s=>s.Category,s=>s.Enterprise);
             if (specification == null)
             {
                 return NotFound();

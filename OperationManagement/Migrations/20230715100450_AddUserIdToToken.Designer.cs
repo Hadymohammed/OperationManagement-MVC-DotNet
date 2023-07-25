@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OperationManagement.Data;
 
@@ -11,9 +12,11 @@ using OperationManagement.Data;
 namespace OperationManagement.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230715100450_AddUserIdToToken")]
+    partial class AddUserIdToToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -797,48 +800,18 @@ namespace OperationManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<int>("EnterpriseId")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("EnterpriseId");
-
-                    b.ToTable("Specifications");
-                });
-
-            modelBuilder.Entity("OperationManagement.Models.SpecificationCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EnterpriseId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NoramlizedName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("SpecificationCategories");
+                    b.ToTable("Specifications");
                 });
 
             modelBuilder.Entity("OperationManagement.Models.SpecificationOption", b =>
@@ -1201,27 +1174,8 @@ namespace OperationManagement.Migrations
 
             modelBuilder.Entity("OperationManagement.Models.Specification", b =>
                 {
-                    b.HasOne("OperationManagement.Models.SpecificationCategory", "Category")
-                        .WithMany("Specifications")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("OperationManagement.Models.Enterprise", "Enterprise")
                         .WithMany("Specifications")
-                        .HasForeignKey("EnterpriseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
-                    b.Navigation("Enterprise");
-                });
-
-            modelBuilder.Entity("OperationManagement.Models.SpecificationCategory", b =>
-                {
-                    b.HasOne("OperationManagement.Models.Enterprise", "Enterprise")
-                        .WithMany()
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1366,11 +1320,6 @@ namespace OperationManagement.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("Statuses");
-                });
-
-            modelBuilder.Entity("OperationManagement.Models.SpecificationCategory", b =>
-                {
-                    b.Navigation("Specifications");
                 });
 
             modelBuilder.Entity("OperationManagement.Models.SpecificationOption", b =>

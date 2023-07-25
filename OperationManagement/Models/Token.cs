@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OperationManagement.Models
 {
@@ -8,5 +9,8 @@ namespace OperationManagement.Models
         public int Id { get; set; }
         [Required]
         public string token { get; set; }
+        [Required,ForeignKey("userId")]
+        public string userId { get; set; }
+        public ApplicationUser? user { get; set; }
     }
 }

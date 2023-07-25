@@ -20,5 +20,6 @@ namespace OperationManagement.Models
         [AllowNull, ForeignKey("EnterpriseId")]
         public int? EnterpriseId { get; set; }
         public Enterprise? Enterprise { get; set; }
+        public List<Token>? Tokens { get; set; }
     }
 }

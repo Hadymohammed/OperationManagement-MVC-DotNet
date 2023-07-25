@@ -16,6 +16,7 @@ namespace OperationManagement.Data.ViewModels
         public IEnumerable<Process>? Processes { get; set; }
         public IEnumerable<ProcessCategory>? ProcessCategories { get; set; }
         public IEnumerable<ComponentCategory>? ComponentCategories { get; set; }
+        public IEnumerable<SpecificationCategory>? SpecificationCategories {get;set;}
         public IEnumerable<Measurement>? Measurements { get; set; }
         public IEnumerable<Component>? Components { get; set; }
     }

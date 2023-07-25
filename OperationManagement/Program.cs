@@ -11,7 +11,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 //var DBconnection = Environment.GetEnvironmentVariable("Dev_DBconnection");
 var DBconnection = builder.Configuration.GetConnectionString("DBconnection");
-builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(DBconnection));
+builder.Services.AddDbContext<AppDBContext>(options => {
+ options.UseSqlServer(DBconnection,sqlServerOptionsAction:sqlOptions=>
+ {
+     sqlOptions.EnableRetryOnFailure(maxRetryCount: 10, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+ });
+});
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 //Authentication and authorization
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDBContext>();
@@ -55,6 +60,7 @@ builder.Services.AddScoped<IProductProcessService, ProductProcessService>();
 builder.Services.AddScoped<IProductSpecificationService, ProductSpecificationService>();
 builder.Services.AddScoped<IProcessCategoryService, ProcessCategoryService>();
 builder.Services.AddScoped<IComponentCategoryService, ComponentCategoryService>();
+builder.Services.AddScoped<ISpecificationCategoryService,SpecificationCategoryService>();
 
 var app = builder.Build();
 AppDbInitializer.Seed(app);
