@@ -5,25 +5,37 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using OperationManagement.Data;
+using OperationManagement.Data.Services;
 using OperationManagement.Models;
+using Microsoft.AspNetCore.Authorization;
+using OperationManagement.Data.Static;
 
 namespace OperationManagement.Controllers
 {
+    [Authorize(Roles = UserRoles.User)]
     public class SpecificationCategoriesController : Controller
     {
         private readonly AppDBContext _context;
+        private readonly ISpecificationCategoryService _specificationCategoryService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public SpecificationCategoriesController(AppDBContext context)
+        public SpecificationCategoriesController(AppDBContext context,
+            ISpecificationCategoryService specificationCategoryService,
+            UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _specificationCategoryService = specificationCategoryService;
+            _userManager = userManager;
         }
 
         // GET: SpecificationCategories
         public async Task<IActionResult> Index()
         {
-            var appDBContext = _context.SpecificationCategories.Include(s => s.Enterprise);
-            return View(await appDBContext.ToListAsync());
+            var user = await _userManager.GetUserAsync(User);
+            var Categories = await _specificationCategoryService.GetAllAsync();
+            return View(Categories.Where(s=>s.EnterpriseId==user.EnterpriseId).ToList());
         }
 
         // GET: SpecificationCategories/Details/5
@@ -33,23 +45,27 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
-            var specificationCategory = await _context.SpecificationCategories
-                .Include(s => s.Enterprise)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var user = await _userManager.GetUserAsync(User);
+            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id.Value,s=>s.Enterprise);
+        
             if (specificationCategory == null)
             {
                 return NotFound();
             }
-
+            if(specificationCategory.EnterpriseId!=user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(specificationCategory);
         }
 
         // GET: SpecificationCategories/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name");
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            return View(new SpecificationCategory(){
+                EnterpriseId = (int)user.EnterpriseId
+            });
         }
 
         // POST: SpecificationCategories/Create
@@ -57,15 +73,14 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,NoramlizedName,EnterpriseId")] SpecificationCategory specificationCategory)
+        public async Task<IActionResult> Create([Bind("Name,EnterpriseId")] SpecificationCategory specificationCategory)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(specificationCategory);
-                await _context.SaveChangesAsync();
+                specificationCategory.NoramlizedName = _userManager.NormalizeName(specificationCategory.Name);
+                await _specificationCategoryService.AddAsync(specificationCategory);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name", specificationCategory.EnterpriseId);
             return View(specificationCategory);
         }
 
@@ -76,13 +91,16 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
-            var specificationCategory = await _context.SpecificationCategories.FindAsync(id);
+            var user = await _userManager.GetUserAsync(User);
+            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id.Value,s=>s.Enterprise);
             if (specificationCategory == null)
             {
                 return NotFound();
             }
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name", specificationCategory.EnterpriseId);
+            if (specificationCategory.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(specificationCategory);
         }
 
@@ -91,7 +109,7 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,NoramlizedName,EnterpriseId")] SpecificationCategory specificationCategory)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EnterpriseId")] SpecificationCategory specificationCategory)
         {
             if (id != specificationCategory.Id)
             {
@@ -100,10 +118,16 @@ namespace OperationManagement.Controllers
 
             if (ModelState.IsValid)
             {
+                var user = await _userManager.GetUserAsync(User);
                 try
                 {
-                    _context.Update(specificationCategory);
-                    await _context.SaveChangesAsync();
+                    if (specificationCategory.EnterpriseId != user.EnterpriseId)
+                    {
+                        return RedirectToAction("AccessDenied", "Account");
+                    }
+                    specificationCategory.NoramlizedName = _userManager.NormalizeName(specificationCategory.Name);
+                    await _specificationCategoryService.UpdateAsync(specificationCategory.Id,specificationCategory);
+                    
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -118,7 +142,6 @@ namespace OperationManagement.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EnterpriseId"] = new SelectList(_context.Enterprises, "Id", "Name", specificationCategory.EnterpriseId);
             return View(specificationCategory);
         }
 
@@ -129,15 +152,17 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id.Value,s=>s.Enterprise);
 
-            var specificationCategory = await _context.SpecificationCategories
-                .Include(s => s.Enterprise)
-                .FirstOrDefaultAsync(m => m.Id == id);
             if (specificationCategory == null)
             {
                 return NotFound();
             }
-
+            if (specificationCategory.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
             return View(specificationCategory);
         }
 
@@ -150,13 +175,20 @@ namespace OperationManagement.Controllers
             {
                 return Problem("Entity set 'AppDBContext.SpecificationCategories'  is null.");
             }
-            var specificationCategory = await _context.SpecificationCategories.FindAsync(id);
+            var user = await _userManager.GetUserAsync(User);
+            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id,s=>s.Enterprise);
             if (specificationCategory != null)
             {
-                _context.SpecificationCategories.Remove(specificationCategory);
+                if (specificationCategory.EnterpriseId != user.EnterpriseId)
+                {
+                    return RedirectToAction("AccessDenied", "Account");
+                }
+                await _specificationCategoryService.DeleteAsync(specificationCategory.Id);
             }
-            
-            await _context.SaveChangesAsync();
+            else
+            {
+                return NotFound();
+            }
             return RedirectToAction(nameof(Index));
         }
 
