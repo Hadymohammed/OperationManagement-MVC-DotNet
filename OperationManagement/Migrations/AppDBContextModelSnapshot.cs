@@ -38,7 +38,7 @@ namespace OperationManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -60,7 +60,7 @@ namespace OperationManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RoleClaims");
+                    b.ToTable("RoleClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -82,7 +82,7 @@ namespace OperationManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserClaims");
+                    b.ToTable("UserClaims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -101,7 +101,7 @@ namespace OperationManagement.Migrations
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
-                    b.ToTable("UserLogins");
+                    b.ToTable("UserLogins", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -114,7 +114,7 @@ namespace OperationManagement.Migrations
 
                     b.HasKey("UserId", "RoleId");
 
-                    b.ToTable("UserRoles");
+                    b.ToTable("UserRoles", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -133,7 +133,7 @@ namespace OperationManagement.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("UserTokens");
+                    b.ToTable("UserTokens", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ApplicationUser", b =>
@@ -204,7 +204,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Attachment", b =>
@@ -230,7 +230,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Attachments");
+                    b.ToTable("Attachments", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Category", b =>
@@ -252,7 +252,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Component", b =>
@@ -283,7 +283,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Components");
+                    b.ToTable("Components", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ComponentCategory", b =>
@@ -305,7 +305,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("ComponentCategories");
+                    b.ToTable("ComponentCategories", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ComponentPhoto", b =>
@@ -327,7 +327,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("ComponentId");
 
-                    b.ToTable("ComponentPhotos");
+                    b.ToTable("ComponentPhotos", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Customer", b =>
@@ -374,7 +374,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.CustomerContact", b =>
@@ -399,7 +399,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("CustomerContacts");
+                    b.ToTable("CustomerContacts", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.DeliveryLocation", b =>
@@ -424,7 +424,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("DeliveryLocations");
+                    b.ToTable("DeliveryLocations", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Enterprise", b =>
@@ -450,7 +450,7 @@ namespace OperationManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Enterprises");
+                    b.ToTable("Enterprises", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Measurement", b =>
@@ -472,7 +472,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Measurements");
+                    b.ToTable("Measurements", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Order", b =>
@@ -529,7 +529,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("DeliveryLocationId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Process", b =>
@@ -556,7 +556,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Processes");
+                    b.ToTable("Processes", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProcessCategory", b =>
@@ -581,7 +581,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("ProcessCategories");
+                    b.ToTable("ProcessCategories", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProcessStatus", b =>
@@ -603,7 +603,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("ProcessId");
 
-                    b.ToTable("ProcessStatuses");
+                    b.ToTable("ProcessStatuses", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Product", b =>
@@ -649,7 +649,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProductComponent", b =>
@@ -678,7 +678,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductComponents");
+                    b.ToTable("ProductComponents", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProductMeasurement", b =>
@@ -707,7 +707,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductMeasurements");
+                    b.ToTable("ProductMeasurements", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProductProcess", b =>
@@ -747,7 +747,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("ProductProcesses");
+                    b.ToTable("ProductProcesses", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ProductSpecification", b =>
@@ -786,7 +786,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("ProductSpecifications");
+                    b.ToTable("ProductSpecifications", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Specification", b =>
@@ -813,7 +813,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("Specifications");
+                    b.ToTable("Specifications", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.SpecificationCategory", b =>
@@ -838,7 +838,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("EnterpriseId");
 
-                    b.ToTable("SpecificationCategories");
+                    b.ToTable("SpecificationCategories", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.SpecificationOption", b =>
@@ -860,7 +860,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("SpecificationId");
 
-                    b.ToTable("SpecificationOptions");
+                    b.ToTable("SpecificationOptions", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.SpecificationStatus", b =>
@@ -882,7 +882,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("SpecificationId");
 
-                    b.ToTable("SpecificationStatuses");
+                    b.ToTable("SpecificationStatuses", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.Token", b =>
@@ -905,7 +905,7 @@ namespace OperationManagement.Migrations
 
                     b.HasIndex("userId");
 
-                    b.ToTable("Tokens");
+                    b.ToTable("Tokens", (string)null);
                 });
 
             modelBuilder.Entity("OperationManagement.Models.ApplicationUser", b =>

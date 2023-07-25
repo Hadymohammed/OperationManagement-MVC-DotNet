@@ -14,7 +14,7 @@ namespace OperationManagement.Migrations
                 name: "CategoryId",
                 table: "Specifications",
                 type: "int",
-                nullable: false,
+                nullable: true,
                 defaultValue: 0);
 
             migrationBuilder.CreateTable(
