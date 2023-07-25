@@ -28,6 +28,8 @@
 <form asp-action="Edit">
     <input type="hidden" asp-for="Product.Id"/>
     <input type="hidden" asp-for="CategoryId" />
+    <input type="hidden" asp-for="Product.OrderId" />
+
     <div class="row">
         <div class="col-md-12">
             <div>
@@ -112,8 +114,8 @@
                                 <tr class="specifications-items">
                                     <td>
                                         <input type="hidden" asp-for="@Model.ProductSpecifications[@i].Item2.SpecificationId" value="@spec.Id" />
-                                        <input type="radio" asp-for="@Model.ProductSpecifications[@i].Item1" value="true" hidden />
-                                        <input type="radio" asp-for="@Model.ProductSpecifications[@i].Item1" value="false" checked hidden />
+                                        <input type="radio" asp-for="@Model.ProductSpecifications[@i].Item1" value="true" hidden checked/>
+                                        <input type="radio" asp-for="@Model.ProductSpecifications[@i].Item1" value="false" hidden />
                                         <label class="control-label">@spec.Name </label>
                                     </td>
                                     <td>
@@ -204,13 +206,21 @@
                             Add Specification
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownSpecification">
-                            @{
-                                i = 0;
-                            }
-                            @foreach (var spec in Model.Specifications)
+                            @{i=0;}
+                            @foreach (var category in Model.SpecificationCategories)
                             {
-                                <div class="dropdown-item add-item" for="specifications-items" index="@i">@spec.Name <i class="fas fa-plus add-icon"></i></div>
-                                i++;
+                                <div class="dropdown">
+                                    <a class="dropdown-item dropdown-toggle category-dropdown" href="#" role="button" id="categoryDropdown-@category.Id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        @category.Name
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
+                                        @foreach (var Specification in category.Specifications)
+                                        {
+                                            <div class="dropdown-item add-item" index="@i" for="specifications-items">@Specification.Name <i class="fas fa-plus add-icon"></i></div>
+                                            i++;
+                                        }
+                                    </div>
+                                </div>
                             }
                         </div>
                     </div>

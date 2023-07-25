@@ -153,13 +153,24 @@
                         Add Specification
                         </button>
                     <div class="dropdown-menu" aria-labelledby="dropdownSpecification">
-                        @{i=0;}
-                    @foreach(var spec in Model.Specifications){
-                            <div class="dropdown-item add-item" for="specifications-items" index="@i">@spec.Name <i class="fas fa-plus add-icon"></i></div>
-                            i++;
-                        }
-                        </div>
+                            @{i=0;}
+                            @foreach (var category in Model.SpecificationCategories)
+                            {
+                                <div class="dropdown">
+                                    <a class="dropdown-item dropdown-toggle category-dropdown" href="#" role="button" id="categoryDropdown-@category.Id" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        @category.Name
+                                    </a>
+                                    <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
+                                        @foreach (var Specification in category.Specifications)
+                                        {
+                                            <div class="dropdown-item add-item" index="@i" for="specifications-items">@Specification.Name <i class="fas fa-plus add-icon"></i></div>
+                                            i++;
+                                        }
+                                    </div>
+                                </div>
+                            }
                     </div>
+                </div>
             </div>
         </div>
             </div>
