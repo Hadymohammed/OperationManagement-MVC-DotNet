@@ -173,17 +173,16 @@ namespace OperationManagement.Controllers
             var allComps = await _componentService.GetAllAsync(c => c.Photos);
             var allProcess = await _processService.GetAllAsync(p => p.Statuses);
             var allMeags = await _measurementService.GetAllAsync();
+            
             var AllProcessCategories =await _processCategoryService.GetAllAsync(p=>p.Processes);
-            AllProcessCategories=AllProcessCategories.OrderBy(p => p.Id);
             var AllComponentCategories =await _componentCategoryService.GetAllAsync(p=>p.Components);
-            AllComponentCategories = AllComponentCategories.OrderBy(p => p.Id);
             var AllSpecificationCategories = await _specificationCategoryService.GetAllAsync(s=>s.Specifications);
-            AllSpecificationCategories = AllSpecificationCategories.OrderBy(s=>s.Id);
+            
             return View(new CreateProductVM
             {
-                Specifications=allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId).OrderBy(s=>s.CategoryId),
-                Components= allComps.Where(c=>c.EnterpriseId==user.EnterpriseId).OrderBy(p=>p.CategoryId),
-                Processes= allProcess.Where(p=>p.EnterpriseId==user.EnterpriseId).OrderBy(p=>p.CategoryId),
+                Specifications=allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId),
+                Components= allComps.Where(c=>c.EnterpriseId==user.EnterpriseId),
+                Processes= allProcess.Where(p=>p.EnterpriseId==user.EnterpriseId),
                 Measurements = allMeags.Where(m=> m.EnterpriseId==user.EnterpriseId),
                 ProcessCategories=AllProcessCategories.Where(p=>p.EnterpriseId==user.EnterpriseId),
                 ComponentCategories = AllComponentCategories.Where(p=>p.EnterpriseId==user.EnterpriseId),
@@ -292,20 +291,19 @@ namespace OperationManagement.Controllers
             var allComps = await _componentService.GetAllAsync(c => c.Photos);
             var allProcess = await _processService.GetAllAsync(p => p.Statuses);
             var allMeags = await _measurementService.GetAllAsync();
+            
             var AllProcessCategories =await _processCategoryService.GetAllAsync(p=>p.Processes);
-            AllProcessCategories=AllProcessCategories.OrderBy(p => p.Id);
             var AllComponentCategories = await _componentCategoryService.GetAllAsync(p => p.Components);
-            AllComponentCategories = AllComponentCategories.OrderBy(p => p.Id);
             var AllSpecificationCategories = await _specificationCategoryService.GetAllAsync(s=>s.Specifications);
-            AllSpecificationCategories = AllSpecificationCategories.OrderBy(s=>s.Id);
             
             ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e => e.EnterpriseId == user.EnterpriseId), "Id", "Name", vm.Product.CategoryId);
             ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
                     .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber", vm.Product.OrderId);
-            vm.Specifications = allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId).OrderBy(s=>s.CategoryId);
-            vm.Components = allComps.Where(s => s.EnterpriseId == user.EnterpriseId).OrderBy(p => p.CategoryId);
-            vm.Processes = allProcess.Where(s => s.EnterpriseId == user.EnterpriseId).OrderBy(p => p.CategoryId);
+            vm.Specifications = allSpecs.Where(s=>s.EnterpriseId==user.EnterpriseId);
+            vm.Components = allComps.Where(s => s.EnterpriseId == user.EnterpriseId);
+            vm.Processes = allProcess.Where(s => s.EnterpriseId == user.EnterpriseId);
             vm.Measurements = allMeags.Where(s => s.EnterpriseId == user.EnterpriseId);
+           
             vm.ProcessCategories = AllProcessCategories.Where(s => s.EnterpriseId == user.EnterpriseId);
             vm.ComponentCategories = AllComponentCategories.Where(p => p.EnterpriseId == user.EnterpriseId);
             vm.SpecificationCategories = AllSpecificationCategories.Where(s=>s.EnterpriseId==user.EnterpriseId);
@@ -338,13 +336,11 @@ namespace OperationManagement.Controllers
             var AllComponentCategories = await _componentCategoryService.GetAllAsync(p => p.Components);
             var AllSpecificationCategories = await _specificationCategoryService.GetAllAsync(s=>s.Specifications);
             
-            AllComponents = AllComponents.Where(p => p.EnterpriseId == (int)user.EnterpriseId).OrderBy(p => p.CategoryId);
-            AllSpecifications = AllSpecifications.Where(p => p.EnterpriseId == (int)user.EnterpriseId).OrderBy(s=>s.CategoryId);
+            AllComponents = AllComponents.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
+            AllSpecifications = AllSpecifications.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
             AllMeasurements = AllMeasurements.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
-            AllProcess = AllProcess.Where(p => p.EnterpriseId == (int)user.EnterpriseId).OrderBy(p => p.CategoryId);
-            AllProcessCategories=AllProcessCategories.OrderBy(p => p.Id);
-            AllComponentCategories = AllComponentCategories.OrderBy(p => p.Id);
-            AllSpecificationCategories = AllSpecificationCategories.OrderBy(s=>s.Id);
+            AllProcess = AllProcess.Where(p => p.EnterpriseId == (int)user.EnterpriseId);
+           
             var vm = new CreateProductVM()
             {
                 CategoryId = product.CategoryId,
@@ -353,7 +349,7 @@ namespace OperationManagement.Controllers
                 Specifications = AllSpecifications,
                 Processes = AllProcess,
                 Components = AllComponents,
-                ProcessCategories = AllProcessCategories.Where(p => p.EnterpriseId == user.EnterpriseId).OrderBy(p => p.Id),
+                ProcessCategories = AllProcessCategories.Where(p => p.EnterpriseId == user.EnterpriseId),
                 ComponentCategories = AllComponentCategories.Where(p => p.EnterpriseId == user.EnterpriseId),
                 SpecificationCategories = AllSpecificationCategories.Where(s=>s.EnterpriseId==user.EnterpriseId),
                 ProductComponents = new List<TupleVM<bool,ProductComponent>>(),
@@ -361,6 +357,7 @@ namespace OperationManagement.Controllers
                 ProductProcesses=new List<TupleVM<bool,ProductProcess>>(),
                 ProductSpecifications=new List<TupleVM<bool,ProductSpecification>>()
             };
+            #region Product properties
             foreach (var comp in AllComponents)
             {
                 if (product.Components.Any(c => c.ComponentId == comp.Id))
@@ -433,6 +430,7 @@ namespace OperationManagement.Controllers
                 }
 
             }
+            #endregion
             ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e => e.EnterpriseId == user.EnterpriseId), "Id", "Name", product.CategoryId);
             ViewData["OrderId"] = new SelectList(_context.Orders.Include(o=>o.Customer).Where(e => e.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber", product.OrderId);
             return View(vm);
