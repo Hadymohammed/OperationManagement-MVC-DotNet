@@ -42,7 +42,7 @@
                     <input type="submit" value="Create" class="btn btn-primary mt-3" />
                 </div>
                 <div>
-                    <a asp-action="Index">Back to List</a>
+                    <a asp-controller="ProcessCategories" asp-action="Details" asp-route-id="@Model.CategoryId">Back to List</a>
                 </div>
             </div>
         </div>
