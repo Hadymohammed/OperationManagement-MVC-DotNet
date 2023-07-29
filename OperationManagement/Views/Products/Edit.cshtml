@@ -108,7 +108,7 @@
                             var exist = Model.ProductSpecifications[@i].Item1;
                             if(exist)
                             {
-                                <tr class="specifications-items">
+                                <tr class="specifications-items" itemid="@spec.Id">
                                     <td>
                                         <input type="hidden" asp-for="@Model.ProductSpecifications[@i].Item2.SpecificationId" value="@spec.Id" />
                                         <input type="radio" asp-for="@Model.ProductSpecifications[@i].Item1" value="true" hidden checked/>
@@ -151,7 +151,7 @@
                                 </tr>
                             }
                             else{
-                                <tr class="specifications-items hide">
+                                <tr class="specifications-items hide" itemid="@spec.Id">
                                     <td>
                                         <input type="hidden" asp-for="@Model.ProductSpecifications[@i].Item2.SpecificationId" value="@spec.Id" />
                                         <input type="radio" asp-for="@Model.ProductSpecifications[@i].Item1" value="true"  hidden/>
@@ -213,7 +213,7 @@
                                     <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
                                         @foreach (var Specification in category.Specifications)
                                         {
-                                            <div class="dropdown-item add-item" index="@i" for="specifications-items">@Specification.Name <i class="fas fa-plus add-icon"></i></div>
+                                            <div class="dropdown-item add-item" index="@Specification.Id" for="specifications-items">@Specification.Name <i class="fas fa-plus add-icon"></i></div>
                                             i++;
                                         }
                                     </div>
@@ -251,7 +251,7 @@
                             {
                                 var exist = Model.ProductMeasurements[@i].Value != null;
                                 if(exist){
-                                    <tr class="measurements-items">
+                                    <tr class="measurements-items" itemid="@meag.Id">
                                         <td>
                                             <input type="hidden" asp-for="@Model.ProductMeasurements[@i].MeasurementId" value="@meag.Id" />
                                             <label class="control-label">@meag.Name</label>
@@ -273,7 +273,7 @@
                                     </tr>
                                 }
                                 else{
-                                    <tr class="measurements-items hide">
+                                    <tr class="measurements-items hide" itemid="@meag.Id">
                                         <td>
                                             <input type="hidden" asp-for="@Model.ProductMeasurements[@i].MeasurementId" value="@meag.Id" />
                                             <label class="control-label">@meag.Name</label>
@@ -310,7 +310,7 @@
                                 }
                                 @foreach (var meag in Model.Measurements)
                                 {
-                                    <div class="dropdown-item add-item" index="@i" for="measurements-items">@meag.Name <i class="fas fa-plus add-icon"></i></div>
+                                    <div class="dropdown-item add-item" index="@meag.Id" for="measurements-items">@meag.Name <i class="fas fa-plus add-icon"></i></div>
                                     i++;
                                 }
                             </div>
@@ -359,7 +359,7 @@
                         {
                             var exist=Model.ProductProcesses[@i].Item1;
                             if(exist){
-                                 <tr class="processes-items">
+                                 <tr class="processes-items" itemid="@process.Id">
                                 <td>
                                     <div class="form-group">
                                             <input type="radio" asp-for="@Model.ProductProcesses[@i].Item1" value="true" hidden checked />
@@ -399,7 +399,7 @@
                             </tr>
                             }
                             else{
-                            <tr class="processes-items hide">
+                            <tr class="processes-items hide" itemid="@process.Id">
                                 <td>
                                     <div class="form-group">
                                         <input type="radio" asp-for="@Model.ProductProcesses[@i].Item1" value="true" hidden />
@@ -458,7 +458,7 @@
                                 <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
                                     @foreach (var process in category.Processes)
                                     {
-                                        <div class="dropdown-item add-item" index="@i" for="processes-items">@process.Name <i class="fas fa-plus add-icon"></i></div>
+                                        <div class="dropdown-item add-item" index="@process.Id" for="processes-items">@process.Name <i class="fas fa-plus add-icon"></i></div>
                                         i++;
                                     }
                                 </div>
@@ -505,7 +505,7 @@
                                 url = component.Photos.First().PhotoURL;
                             }
                             if(exist){
-                                <tr class="components-items">
+                                <tr class="components-items" itemid="@component.Id">
                                 <td>
                                     <input type="radio" asp-for="@Model.ProductComponents[@i].Item1" value="true" hidden checked />
                                     <input type="radio" asp-for="@Model.ProductComponents[@i].Item1" value="false" hidden />
@@ -541,7 +541,7 @@
                             </tr>
                             }
                             else{
-                            <tr class="components-items hide">
+                            <tr class="components-items hide" itemid="@component.Id">
                                 <td>
                                     <input type="radio" asp-for="@Model.ProductComponents[@i].Item1" value="true" hidden />
                                     <input type="radio" asp-for="@Model.ProductComponents[@i].Item1" value="false" checked hidden />
@@ -599,7 +599,7 @@
                                     <div class="dropdown-menu" aria-labelledby="categoryDropdown-@category.Id">
                                         @foreach (var component in category.Components)
                                         {
-                                            <div class="dropdown-item add-item" index="@i" for="components-items">@component.Name <i class="fas fa-plus add-icon"></i></div>
+                                            <div class="dropdown-item add-item" index="@component.Id" for="components-items">@component.Name <i class="fas fa-plus add-icon"></i></div>
                                             i++;
                                         }
                                     </div>
@@ -629,9 +629,10 @@
                 var index = $(this).attr('index');
                 var items = $(this).attr('for');
                 items = $(`.${items}`);
-                $(items[index]).removeClass('hide');
-                $(items[index]).find('input[type="radio"][value="true"]').prop('checked', true);
-                $(items[index]).find('input[type="radio"][value="false"]').prop('checked', false);
+                var row=items.filter('[itemid="' + index + '"]').first();
+                $(row).removeClass('hide');
+                $(row).find('input[type="radio"][value="true"]').prop('checked', true);
+                $(row).find('input[type="radio"][value="false"]').prop('checked', false);
             });
             $('.category-dropdown').on('click', function (e) {
                 e.stopPropagation();
