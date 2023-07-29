@@ -43,7 +43,7 @@ namespace OperationManagement.Controllers
             if (!string.IsNullOrEmpty(email))
             {
                 var Nemail = _userManager.NormalizeEmail(email);
-                all = all.Where(c => c.NormalizedEmail.Contains(Nemail));
+                all = all.Where(c => c.NormalizedEmail?.Contains(Nemail) ?? false);
                 ViewBag.Email = email;
             }
             if (!string.IsNullOrEmpty(name))
