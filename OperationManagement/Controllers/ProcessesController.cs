@@ -68,11 +68,11 @@ namespace OperationManagement.Controllers
         }
 
         // GET: Processes/Create
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int? CategoryId)
         {
             var user = await _userManager.GetUserAsync(User);
             ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
-   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name",CategoryId);
 
             return View(new Process()
             {
