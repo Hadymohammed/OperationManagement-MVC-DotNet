@@ -46,7 +46,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
             var user = await _userManager.GetUserAsync(User);
-            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id.Value,s=>s.Enterprise);
+            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id.Value,s=>s.Enterprise,s=>s.Specifications);
         
             if (specificationCategory == null)
             {

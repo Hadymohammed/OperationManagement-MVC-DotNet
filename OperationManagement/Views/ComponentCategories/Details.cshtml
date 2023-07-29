@@ -4,14 +4,13 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Component Category Details</h1>
+<hr />
 
 <div>
-    <h4>ComponentCategory</h4>
-    <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            Category Name
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Name)
@@ -22,3 +21,55 @@
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>
+
+<h1>Components</h1>
+
+<p>
+    <a asp-controller="Components" asp-action="Create" asp-route-CategoryId="@Model.Id">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Photo
+            </th>
+            <th>
+                Name
+            </th>
+            <th>
+                Supplier
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Components) {
+            <tr>
+                <td>
+                    @{
+                        var url = Consts.ComponentImgUrl;
+                        if(item.Photos!=null&&item.Photos.Count()!=0){
+                            url = @item.Photos.First().PhotoURL;
+                        }
+                    }
+                    <img style="
+                        width: 50px;
+                        height: auto;
+                        border-radius: 50%;
+                    " src=".@url" />
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Supplier)
+            </td>
+            <td>
+                <a asp-controller="Components" sp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-controller="Components" asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-controller="Components" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -46,7 +46,7 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-            var category = await _categoryService.GetByIdAsync((int)id);
+            var category = await _categoryService.GetByIdAsync((int)id, c => c.Processes);
             var user = await _userManager.GetUserAsync(User);
             if (user.EnterpriseId!=category.EnterpriseId)
             {

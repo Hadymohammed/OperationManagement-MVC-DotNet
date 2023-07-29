@@ -19,14 +19,17 @@ namespace OperationManagement.Controllers
     {
         private readonly AppDBContext _context;
         private readonly IComponentCategoryService _categoryService;
+        private readonly IComponentService _componentService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public ComponentCategoriesController(AppDBContext context,
             IComponentCategoryService componentCategoryService,
+            IComponentService componentService,
             UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _categoryService = componentCategoryService;
+            _componentService = componentService;
             _userManager = userManager;
         }
 
@@ -47,6 +50,9 @@ namespace OperationManagement.Controllers
             }
 
             var componentCategory = await _categoryService.GetByIdAsync((int)id);
+            var allcomponents = await _componentService.GetAllAsync(c=>c.Photos);
+            allcomponents = allcomponents.Where(c => c.CategoryId == componentCategory.Id);
+            componentCategory.Components = allcomponents.ToList();
             if (componentCategory == null)
             {
                 return NotFound();
