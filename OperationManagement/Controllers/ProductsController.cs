@@ -452,7 +452,9 @@ namespace OperationManagement.Controllers
             {
                 return NotFound();
             }
-
+            //delete customer from model state
+            ModelState.Remove("Product.Order.Customer.Phone");
+            ModelState.Remove("Product.Order.Customer.Name");
             if (ModelState.IsValid)
             {
                 try
