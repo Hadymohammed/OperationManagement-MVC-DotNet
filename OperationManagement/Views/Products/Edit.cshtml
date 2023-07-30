@@ -35,6 +35,10 @@
             <div>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <div class="form-group">
+                    <label asp-for="@Model.Product.Order.Customer.Name" class="control-label">Customer</label>
+                    <input asp-for="@Model.Product.Order.Customer.Name" class="form-control" readonly/>
+                </div>
+                <div class="form-group">
                     <label asp-for="@Model.Product.Order.EnterpriseOrderNumber" class="control-label">Order Enterprise Id</label>
                     <input asp-for="@Model.Product.Order.EnterpriseOrderNumber" class="form-control" readonly/>
                 </div>

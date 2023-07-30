@@ -164,11 +164,13 @@ namespace OperationManagement.Controllers
         public async Task<IActionResult> Create(int?orderId)
         {
             var user = await _userManager.GetUserAsync(User);
-            
             ViewData["CategoryId"] = new SelectList(_context.Categories.Where(e=>e.EnterpriseId==user.EnterpriseId), "Id", "Name");
             ViewData["OrderId"] = new SelectList(_context.Orders.Include(o => o.Customer)
                     .Where(o => o.Customer.EnterpriseId == user.EnterpriseId), "Id", "EnterpriseOrderNumber",(orderId!=null ? orderId:null));
-
+            if(orderId!=null){
+                var order = await _orderService.GetByIdAsync((int)orderId,o=>o.Customer);
+                ViewData["CustomerName"] = order.Customer.Name;
+            }
             var allSpecs = await _specificationService.GetAllAsync(s=>s.Category,s => s.Statuses, s => s.Options);
             var allComps = await _componentService.GetAllAsync(c => c.Photos);
             var allProcess = await _processService.GetAllAsync(p => p.Statuses);
@@ -328,6 +330,7 @@ namespace OperationManagement.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
+
             var AllComponents =await _componentService.GetAllAsync(c=>c.Photos);
             var AllSpecifications =await _specificationService.GetAllAsync(s=>s.Category,s=>s.Statuses,s=>s.Options);
             var AllMeasurements =await _measurementService.GetAllAsync();

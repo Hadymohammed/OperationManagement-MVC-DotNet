@@ -31,6 +31,12 @@
         <div class="col-md-12">
             <div>
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @if(ViewData["CustomerName"]!=null){
+                    <div class="form-group">
+                        <label class="control-label">Customer</label>
+                        <input class="form-control" readonly value='@ViewData["CustomerName"]'/>
+                    </div>
+                }
                 <div class="form-group">
                     <label asp-for="@Model.Product.OrderId" class="control-label">Order Enterprise Id</label>
                     <select asp-for="@Model.Product.OrderId" class="form-control" asp-items="ViewBag.OrderId"></select>
