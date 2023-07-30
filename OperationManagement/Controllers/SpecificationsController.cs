@@ -136,7 +136,8 @@ namespace OperationManagement.Controllers
                         Name = Consts.DoneStatus
                     });
                 }
-                return RedirectToAction(nameof(Index));
+                //return redirect to SpecificationCategory/details
+                return RedirectToAction("Details", "SpecificationCategories", new { id = specification.CategoryId });
             }
             specification.Statuses = Statuses.ToList();
             specification.Options = Options.ToList();
@@ -253,7 +254,8 @@ namespace OperationManagement.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                //return redirect to SpecificationCategory/details
+                return RedirectToAction("Details", "SpecificationCategories", new { id = specification.CategoryId });
             }
             specification.Statuses = Statuses.ToList();
             specification.Options = Options.ToList();
@@ -294,17 +296,18 @@ namespace OperationManagement.Controllers
                 return Problem("Entity set 'AppDBContext.Specifications'  is null.");
             }
             var specification = await _specificationService.GetByIdAsync((int)id, s => s.Enterprise, s => s.Statuses, s => s.Options);
-            if (specification != null)
-            {
-                var user = await _userManager.GetUserAsync(User);
-                if (specification.EnterpriseId != user.EnterpriseId)
-                {
-                    return RedirectToAction("AccessDenied", "Account");
-                }
-                await _specificationService.DeleteAsync(specification.Id);
+            if(specification == null){
+                return NotFound();
             }
+            var user = await _userManager.GetUserAsync(User);
+            if (specification.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            await _specificationService.DeleteAsync(specification.Id);
             
-            return RedirectToAction(nameof(Index));
+           //return redirect to SpecificationCategory/details
+            return RedirectToAction("Details", "SpecificationCategories", new { id = specification.CategoryId });
         }
 
         private bool SpecificationExists(int id)

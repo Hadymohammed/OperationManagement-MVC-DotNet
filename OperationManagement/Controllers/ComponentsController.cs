@@ -117,7 +117,8 @@ namespace OperationManagement.Controllers
                         }
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                //redirect to category details
+                return RedirectToAction("Details", "ComponentCategories", new { Id = component.CategoryId });
             }
             ViewData["CategoryId"] = new SelectList(_context.ComponentCategories
             .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
@@ -201,7 +202,8 @@ namespace OperationManagement.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                //redirect to category details
+                return RedirectToAction("Details", "ComponentCategories", new { Id = component.CategoryId });
             }
             ViewData["CategoryId"] = new SelectList(_context.ComponentCategories
                .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
@@ -256,7 +258,8 @@ namespace OperationManagement.Controllers
             }
             await _componentService.DeleteAsync(component.Id);
             
-            return RedirectToAction(nameof(Index));
+            //redirect to category details
+            return RedirectToAction("Details", "ComponentCategories", new { Id = component.CategoryId });
         }
 
         [HttpGet]

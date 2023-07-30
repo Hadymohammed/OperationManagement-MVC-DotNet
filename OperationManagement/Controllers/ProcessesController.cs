@@ -125,7 +125,8 @@ namespace OperationManagement.Controllers
                         Name = Consts.DoneStatus
                     });
                 }
-                return RedirectToAction(nameof(Index));
+                //return redirect to ProcessCategories/details
+                return RedirectToAction("Details", "ProcessCategories", new { id = process.CategoryId });
             }
             process.Statuses = statuses.ToList();
             ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
@@ -224,7 +225,8 @@ namespace OperationManagement.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                //return redirect to ProcessCategories/details
+                return RedirectToAction("Details", "ProcessCategories", new { id = process.CategoryId });
             }
             ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
    .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
@@ -265,16 +267,18 @@ namespace OperationManagement.Controllers
                 return Problem("Entity set 'AppDBContext.Processes'  is null.");
             }
             var process = await _processService.GetByIdAsync(id);
-            if (process != null)
+            if(process==null)
             {
-                var user = await _userManager.GetUserAsync(User);
-                if (process.EnterpriseId != user.EnterpriseId)
-                {
-                    return RedirectToAction("AccessDenied", "Account");
-                }
-                await _processService.DeleteAsync(process.Id);
+                return NotFound();
             }
-            return RedirectToAction(nameof(Index));
+            var user = await _userManager.GetUserAsync(User);
+            if (process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            await _processService.DeleteAsync(process.Id);
+            //return redirect to ProcessCategories/details
+            return RedirectToAction("Details", "ProcessCategories", new { id = process.CategoryId });
         }
 
         private bool ProcessExists(int id)
