@@ -19,14 +19,17 @@ namespace OperationManagement.Controllers
     {
         private readonly AppDBContext _context;
         private readonly ISpecificationCategoryService _specificationCategoryService;
+        private readonly ISpecificationService _specificationService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public SpecificationCategoriesController(AppDBContext context,
             ISpecificationCategoryService specificationCategoryService,
+            ISpecificationService specificationService,
             UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _specificationCategoryService = specificationCategoryService;
+            _specificationService = specificationService;
             _userManager = userManager;
         }
 
@@ -148,7 +151,7 @@ namespace OperationManagement.Controllers
         // GET: SpecificationCategories/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.SpecificationCategories == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -171,18 +174,24 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.SpecificationCategories == null)
-            {
-                return Problem("Entity set 'AppDBContext.SpecificationCategories'  is null.");
-            }
             var user = await _userManager.GetUserAsync(User);
-            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id,s=>s.Enterprise);
+            var specificationCategory = await _specificationCategoryService.GetByIdAsync(id,s=>s.Enterprise,s=>s.Specifications);
             if (specificationCategory != null)
             {
                 if (specificationCategory.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
                 }
+                //Category Can't be deleted if it has specifications used with products
+            foreach (var specification in specificationCategory.Specifications)
+            {
+                var DBspecification = await _specificationService.GetByIdAsync(specification.Id, s => s.Products);
+                if (DBspecification.Products.Count > 0)
+                {
+                    ModelState.AddModelError(string.Empty, "Can't delete this category because it has specifications used with products");
+                    return View(specificationCategory);
+                }
+            }
                 await _specificationCategoryService.DeleteAsync(specificationCategory.Id);
             }
             else

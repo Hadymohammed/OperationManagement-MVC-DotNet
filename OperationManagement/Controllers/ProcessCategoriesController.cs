@@ -19,14 +19,17 @@ namespace OperationManagement.Controllers
     {
         private readonly AppDBContext _context;
         private readonly IProcessCategoryService _categoryService;
+        private readonly IProcessService _processServce;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public ProcessCategoriesController(AppDBContext context,
             IProcessCategoryService processCategoryService,
+            IProcessService processService,
             UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _categoryService = processCategoryService;
+            _processServce = processService;
             _userManager = userManager;
         }
 
@@ -179,17 +182,23 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.ProcessCategories == null)
-            {
-                return Problem("Entity set 'AppDBContext.ProcessCategories'  is null.");
-            }
-            var processCategory = await _categoryService.GetByIdAsync(id);
+            var processCategory = await _categoryService.GetByIdAsync(id,c=>c.Processes);
             if (processCategory != null)
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (user.EnterpriseId != processCategory.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
+                }
+                //Category Can't be deleted if it has processes used in any product
+                foreach (var process in processCategory.Processes)
+                {
+                    var DBprocess=await _processServce.GetByIdAsync(process.Id, p => p.Products);
+                    if (DBprocess.Products.Count > 0)
+                    {
+                        ModelState.AddModelError(string.Empty, "Can't delete this category because it has processes used in some products");
+                        return View(processCategory);
+                    }
                 }
                 await _categoryService.DeleteAsync(processCategory.Id);
             }
