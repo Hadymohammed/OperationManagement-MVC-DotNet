@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OperationManagement.Data;
 using OperationManagement.Data.Services;
 using OperationManagement.Data.Static;
@@ -21,6 +23,7 @@ namespace OperationManagement.Controllers
         private readonly IComponentCategoryService _categoryService;
         private readonly IComponentService _componentService;
         private readonly UserManager<ApplicationUser> _userManager;
+        
 
         public ComponentCategoriesController(AppDBContext context,
             IComponentCategoryService componentCategoryService,
@@ -183,13 +186,23 @@ namespace OperationManagement.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var componentCategory = await _categoryService.GetByIdAsync(id);
+            var componentCategory = await _categoryService.GetByIdAsync(id,c=>c.Components);
             if (componentCategory != null)
             {
                 var user = await _userManager.GetUserAsync(User);
                 if (componentCategory.EnterpriseId != user.EnterpriseId)
                 {
                     return RedirectToAction("AccessDenied", "Account");
+                }
+                //Can't delete category if it has components used in products
+                foreach (var component in componentCategory.Components)
+                {
+                    var DBcomponent = await _componentService.GetByIdAsync(component.Id, c => c.Products);
+                    if (DBcomponent.Products.Count > 0)
+                    {
+                        ModelState.AddModelError(string.Empty, "Can't delete category if it has components used in products");
+                        return View(componentCategory);
+                    }
                 }
                 await _categoryService.DeleteAsync(componentCategory.Id);
             }

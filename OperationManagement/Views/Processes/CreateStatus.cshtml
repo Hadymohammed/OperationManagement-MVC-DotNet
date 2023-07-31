@@ -1,0 +1,32 @@
+@model OperationManagement.Models.ProcessStatus
+
+@{
+    ViewData["Title"] = "Create Process Status";
+}
+
+<h1>Create @Model.Process.Name Status</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateStatus">
+            <input hidden asp-for="ProcessId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Add" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.ProcessId">Back</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

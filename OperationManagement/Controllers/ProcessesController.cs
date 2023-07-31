@@ -165,20 +165,12 @@ namespace OperationManagement.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EnterpriseId,CategoryId")] Process process, ProcessStatus[] statuses)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,EnterpriseId,CategoryId")] Process process)
         {
             var user = await _userManager.GetUserAsync(User);
             if (id != process.Id)
             {
                 return NotFound();
-            }
-            if (statuses == null)
-            {
-                ModelState.AddModelError(String.Empty, "Status Can't be empty.");
-            }
-            else if (statuses.Count() == 0)
-            {
-                ModelState.AddModelError(String.Empty, "Status Can't be empty.");
             }
             if (ModelState.IsValid)
             {
@@ -189,30 +181,6 @@ namespace OperationManagement.Controllers
                         return RedirectToAction("AccessDenied", "Account");
                     }
                     await _processService.UpdateAsync(process.Id, process);
-                    process.Statuses = _processStatusService.GetByProcessId(process.Id);
-                    process.Statuses.Clear();
-                    bool DoneStatusFlag=false;
-                    foreach (var status in statuses)
-                    {
-                        await _processStatusService.AddAsync(new ProcessStatus()
-                        {
-                            ProcessId = process.Id,
-                            Name = status.Name,
-                        });
-                        if (status.Name == Consts.DoneStatus)
-                        {
-                            DoneStatusFlag = true;
-                        }
-                    }
-                    if (!DoneStatusFlag)
-                    {
-                        await _processStatusService.AddAsync(new ProcessStatus()
-                        {
-                            ProcessId = process.Id,
-                            Name = Consts.DoneStatus
-                        });
-                    }
-                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -230,8 +198,6 @@ namespace OperationManagement.Controllers
             }
             ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
    .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
-
-            process.Statuses = statuses.ToList();
             return View(process);
         }
 
@@ -243,7 +209,7 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
 
-            var process = await _processService.GetByIdAsync((int)id, p => p.Enterprise, p => p.Statuses);
+            var process = await _processService.GetByIdAsync((int)id, p => p.Enterprise, p => p.Statuses,p=>p.Products);
             if (process == null)
             {
                 return NotFound();
@@ -253,7 +219,6 @@ namespace OperationManagement.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
-
             return View(process);
         }
 
@@ -266,7 +231,7 @@ namespace OperationManagement.Controllers
             {
                 return Problem("Entity set 'AppDBContext.Processes'  is null.");
             }
-            var process = await _processService.GetByIdAsync(id);
+            var process = await _processService.GetByIdAsync(id,p=>p.Products);
             if(process==null)
             {
                 return NotFound();
@@ -276,11 +241,151 @@ namespace OperationManagement.Controllers
             {
                 return RedirectToAction("AccessDenied", "Account");
             }
+            //process can't be deleted if it has products
+            if (process.Products.Count > 0)
+            {
+                ModelState.AddModelError(String.Empty, "Process can't be deleted if it has products.");
+                return View(process);
+            }
             await _processService.DeleteAsync(process.Id);
             //return redirect to ProcessCategories/details
             return RedirectToAction("Details", "ProcessCategories", new { id = process.CategoryId });
         }
+        // GET: Processes/CreateStatus
+        public async Task<IActionResult> CreateStatus(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
+            var process = await _processService.GetByIdAsync((int)id);
+            if (process == null)
+            {
+                return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            return View(new ProcessStatus()
+            {
+                ProcessId = process.Id,
+                Process = process
+            });
+        }
+        // POST: Processes/CreateStatus
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateStatus([Bind("Name,ProcessId")] ProcessStatus status)
+        {
+            if (ModelState.IsValid)
+            {
+                await _processStatusService.AddAsync(status);
+                //return redirect to ProcessCategories/details
+                return RedirectToAction("Edit", new { id = status.ProcessId });
+            }
+            status.Process = await _processService.GetByIdAsync(status.ProcessId);
+            return View(status);
+        }
+        // GET: Processes/EditStatus/5
+        public async Task<IActionResult> EditStatus(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var status = await _processStatusService.GetByIdAsync((int)id, s => s.Process);
+            if (status == null)
+            {
+                return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (status.Process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            //Done status can't be edited
+            if (status.Name == Consts.DoneStatus)
+            {
+                ModelState.AddModelError(String.Empty, "Done status can't be edited.");
+                var process = await _processService.GetByIdAsync(status.ProcessId, p => p.Enterprise, p => p.Statuses, p => p.Category);
+                return View("Edit", process);
+            }
+            return View(status);
+        }
+        // POST: Processes/EditStatus/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditStatus(int id, [Bind("Id,Name,ProcessId")] ProcessStatus status)
+        {
+            if (id != status.Id)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    await _processStatusService.UpdateAsync(status.Id, status);
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ProcessExists(status.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                //return redirect to ProcessCategories/details
+                return RedirectToAction("Edit", new { id = status.ProcessId });
+            }
+            status.Process = await _processService.GetByIdAsync(status.ProcessId);
+            return View(status);
+        }
+        
+        //Delete Status
+        public async Task<IActionResult> DeleteStatus(int id)
+        {
+            var status = await _processStatusService.GetByIdAsync(id,s=>s.Process,s=>s.Products);
+            
+            if (status == null)
+            {
+                return NotFound();
+            }
+            var user = await _userManager.GetUserAsync(User);
+            if (status.Process.EnterpriseId != user.EnterpriseId)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            ViewData["CategoryId"] = new SelectList(_context.ProcessCategories
+   .Where(o => o.EnterpriseId == user.EnterpriseId), "Id", "Name");
+             //Done status can't be deleted
+            if (status.Name == Consts.DoneStatus)
+            {
+                ModelState.AddModelError(String.Empty, "Done status can't be deleted.");
+                var process = await _processService.GetByIdAsync(status.ProcessId, p => p.Enterprise, p => p.Statuses, p => p.Category);
+                return View("Edit", process);
+            }
+            //status can't be deleted if it has products
+            if (status.Products.Count > 0)
+            {
+                ModelState.AddModelError(String.Empty, "Status can't be deleted if it has products.");
+                var process = await _processService.GetByIdAsync(status.ProcessId, p => p.Enterprise, p => p.Statuses, p => p.Category);
+                
+                return View("Edit",process);
+            }
+           
+            await _processStatusService.DeleteAsync(status.Id);
+            //return redirect to ProcessCategories/details
+            return RedirectToAction("Edit", new { id = status.ProcessId });
+        }
         private bool ProcessExists(int id)
         {
           return (_context.Processes?.Any(e => e.Id == id)).GetValueOrDefault();
