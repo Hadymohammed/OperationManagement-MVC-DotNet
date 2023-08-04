@@ -41,7 +41,7 @@ namespace OperationManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(vm.Email);   
+                var user = await _userManager.FindByEmailAsync(vm.Email);
                 if (user == null)
                 {
                     ModelState.AddModelError("Email", "This email not registered on our system.");
@@ -117,7 +117,7 @@ namespace OperationManagement.Controllers
                 return View(vm);
             }
             var user = await _userManager.FindByEmailAsync(vm.Email);
-            if(user == null)
+            if (user == null)
             {
                 ModelState.AddModelError("Email", "This email not registered on our system.");
                 return View(vm.Email);
@@ -156,10 +156,10 @@ namespace OperationManagement.Controllers
                 return NotFound();
             var staff = await _userManager.FindByEmailAsync(email);
 
-            return RedirectToAction("AddPassword",new AddPasswordVM()
+            return RedirectToAction("AddPassword", new AddPasswordVM()
             {
-                FirstName=staff.FirstName,
-                StaffId=staff.Id
+                FirstName = staff.FirstName,
+                StaffId = staff.Id
             });
 
         }
@@ -227,7 +227,7 @@ namespace OperationManagement.Controllers
                     FirstName = request.FirstName,
                     LastName = request.LastName,
                     Email = request.Email,
-                    UserName=request.Email,
+                    UserName = request.Email,
                     PasswordHash = RandomPassword.GenerateRandomPassword(12),
                     EmailConfirmed = true,
                     ProfilePictureURL = Consts.profileImgUrl,
@@ -235,7 +235,8 @@ namespace OperationManagement.Controllers
                     EnterpriseId = enterprise.Id
                 };
                 await _userManager.CreateAsync(staff);
-                await _userManager.AddToRoleAsync(staff,UserRoles.User);
+                await _userManager.AddToRoleAsync(staff, UserRoles.User);
+                EmailHelper.NotifyNewEnterprise(staff.FirstName, enterprise.Name);
                 return RedirectToAction("JoinSuccess");
             }
             catch (Exception err)
@@ -261,16 +262,16 @@ namespace OperationManagement.Controllers
                 return NotFound();
             }
             var UserIdStr = JWTHelper.ValidateToken(token);
-            var staff=await _userManager.FindByIdAsync(UserIdStr);
+            var staff = await _userManager.FindByIdAsync(UserIdStr);
             SessionHelper.saveObject(HttpContext, SessionHelper.TokenKey, new Token()
             {
-                Id=TID,
-                token=token
+                Id = TID,
+                token = token
             });
             return View(new AddPasswordVM()
             {
-                FirstName=staff.FirstName,
-                StaffId=staff.Id
+                FirstName = staff.FirstName,
+                StaffId = staff.Id
             });
         }
         [HttpPost]
@@ -285,14 +286,14 @@ namespace OperationManagement.Controllers
             }
             var token = SessionHelper.getObject<Token>(HttpContext, SessionHelper.TokenKey);
             var tokenDB = _context.Tokens.Where(t => t.Id == token.Id).FirstOrDefault();
-            if(tokenDB == null)
+            if (tokenDB == null)
             {
                 ModelState.AddModelError("Password", "Your link is not valid please contact us if this the first time you use it.");
                 return View(vm);
             }
             _context.Tokens.Remove(tokenDB);
             _context.SaveChanges();
-            staff.PasswordHash=_userManager.PasswordHasher.HashPassword(staff, vm.Password);
+            staff.PasswordHash = _userManager.PasswordHasher.HashPassword(staff, vm.Password);
             staff.Registered = true;
             await _userManager.UpdateAsync(staff);
             return RedirectToAction("Login");
