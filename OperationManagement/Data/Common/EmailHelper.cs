@@ -8,6 +8,7 @@ namespace OperationManagement.Data.Common
         private const string SenderEmail = "operatobusiness@gmail.com";
         private const string SenderName = "Operato";
         private const string SenderPassword = "jqypqhbhbnlruzld";
+        private const string AdminEmail = "engabdelhadymohamed@gmail.com";
         static private bool SendEmail(string ReciverEmail, string messege, string subject, string ReciverName)
         {
             try
@@ -28,7 +29,8 @@ namespace OperationManagement.Data.Common
                 using (var message = new MailMessage(fromAddress, toAddress)
                 {
                     Subject = subject,
-                    Body = body
+                    Body = body,
+                    IsBodyHtml = true,
                 })
                 {
                     smtp.Send(message);
@@ -61,10 +63,10 @@ namespace OperationManagement.Data.Common
             string reciverName = $"{EnterpriseName} Manager";
             return SendEmail(email, Messege, subject, reciverName);
         }
-        static public bool SendEnterpriseAccept(string email, string Url, string EnterpriseName,string?messege)
+        static public bool SendEnterpriseAccept(string email, string Url, string EnterpriseName, string? messege)
         {
-            string messegeToSend = (messege != null ? messege : $"Congratulations {EnterpriseName} Manager , your request has been accepted.<br/>");
-            string body = $"{messege}Here is your invitation link to be a staff member at {EnterpriseName} , do not share it with anyone  {Url} . ";
+            string messegeToSend = messege ?? $"Congratulations {EnterpriseName} Manager , your request has been accepted.<br/>";
+            string body = $"{messegeToSend}Here is your invitation link to be a staff member at {EnterpriseName} , do not share it with anyone  {Url} . ";
             const string subject = "Enterprise accepted!";
             const string reciverName = "New Staff";
             return SendEmail(email, body, subject, reciverName);
@@ -75,6 +77,14 @@ namespace OperationManagement.Data.Common
             const string subject = "Your OTP";
             const string reciverName = "New User";
             return SendEmail(email, body, subject, reciverName);
+        }
+        static public bool NotifyNewEnterprise(string SenderName, string EnterpriseName)
+        {
+            string body = $"{EnterpriseName} has been created by {SenderName} and waiting for your approval. ";
+            const string subject = "New Enterprise";
+            const string reciverName = "Admin";
+            const string reciverEmail = AdminEmail;
+            return SendEmail(reciverEmail, body, subject, reciverName);
         }
     }
 }
