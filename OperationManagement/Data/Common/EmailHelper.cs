@@ -29,7 +29,8 @@ namespace OperationManagement.Data.Common
                 using (var message = new MailMessage(fromAddress, toAddress)
                 {
                     Subject = subject,
-                    Body = body
+                    Body = body,
+                    IsBodyHtml = true,
                 })
                 {
                     smtp.Send(message);
@@ -64,8 +65,8 @@ namespace OperationManagement.Data.Common
         }
         static public bool SendEnterpriseAccept(string email, string Url, string EnterpriseName, string? messege)
         {
-            string messegeToSend = (messege != null ? messege : $"Congratulations {EnterpriseName} Manager , your request has been accepted.<br/>");
-            string body = $"{messege}Here is your invitation link to be a staff member at {EnterpriseName} , do not share it with anyone  {Url} . ";
+            string messegeToSend = messege ?? $"Congratulations {EnterpriseName} Manager , your request has been accepted.<br/>";
+            string body = $"{messegeToSend}Here is your invitation link to be a staff member at {EnterpriseName} , do not share it with anyone  {Url} . ";
             const string subject = "Enterprise accepted!";
             const string reciverName = "New Staff";
             return SendEmail(email, body, subject, reciverName);
