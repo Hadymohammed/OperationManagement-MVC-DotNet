@@ -6,7 +6,7 @@ using System.Net.Mail;
 
 namespace OperationManagement.Data.Services
 {
-    public class OrderService:EntityBaseRepository<Order>,IOrderService
+    public class OrderService : EntityBaseRepository<Order>, IOrderService
     {
         private readonly AppDBContext _context;
         private readonly IProductService _productService;
@@ -25,29 +25,29 @@ namespace OperationManagement.Data.Services
         }
         public Order GetCompleteOrder(int orderId)
         {
-           return _context.Orders
-                .Where(o => o.Id == orderId)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Category)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Components)
-                            .ThenInclude(c => c.Component)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Measurements)
-                            .ThenInclude(m => m.Measurement)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Processes)
-                            .ThenInclude(pr => pr.Process)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Specifications)
-                            .ThenInclude(s => s.Specification)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Specifications)
-                            .ThenInclude(s => s.Option)
-                    .Include(o => o.Products)
-                        .ThenInclude(p => p.Specifications)
-                            .ThenInclude(s => s.Status)
-                    .FirstOrDefault();
+            return _context.Orders
+                 .Where(o => o.Id == orderId)
+                     .Include(o => o.Products)
+                         .ThenInclude(p => p.Category)
+                     .Include(o => o.Products)
+                         .ThenInclude(p => p.Components)
+                             .ThenInclude(c => c.Component)
+                     .Include(o => o.Products)
+                         .ThenInclude(p => p.Measurements)
+                             .ThenInclude(m => m.Measurement)
+                     .Include(o => o.Products)
+                         .ThenInclude(p => p.Processes)
+                             .ThenInclude(pr => pr.Process)
+                     .Include(o => o.Products)
+                         .ThenInclude(p => p.Specifications)
+                             .ThenInclude(s => s.Specification)
+                     .Include(o => o.Products)
+                         .ThenInclude(p => p.Specifications)
+                             .ThenInclude(s => s.Option)
+                     .Include(o => o.Products)
+                         .ThenInclude(p => p.Specifications)
+                             .ThenInclude(s => s.Status)
+                     .FirstOrDefault();
         }
         public async Task<int> UpdateProgress(int orderId)
         {
@@ -73,19 +73,18 @@ namespace OperationManagement.Data.Services
             await UpdateAsync(order.Id, order);
             return (int)order.Progress;
         }
-    
         public async Task<bool> DeleteCompleteOrder(int orderId)
         {
-            var order = await GetByIdAsync(orderId, o=>o.Products,o=>o.Attachments);
+            var order = await GetByIdAsync(orderId, o => o.Products, o => o.Attachments);
             try
             {
                 var products = order.Products.ToList();
-                foreach(var product in products)
+                foreach (var product in products)
                 {
                     await _productService.DeleteCompleteProduct(product.Id);
                 }
                 var attachements = order.Attachments.ToList();
-                foreach(var attachment in attachements)
+                foreach (var attachment in attachements)
                 {
                     if (FilesManagement.DeleteFile(attachment.FileURL))
                     {
@@ -95,10 +94,42 @@ namespace OperationManagement.Data.Services
                 await DeleteAsync(order.Id);
                 return true;
             }
-            catch(Exception err)
+            catch (Exception err)
             {
                 return false;
             }
+        }
+        //Get all orders by CustomerId
+        public List<Order> GetOrdersByCustomerId(int customerId)
+        {
+            return _context.Orders
+                .Where(o => o.CustomerId == customerId)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Category)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Components)
+                            .ThenInclude(c => c.Component)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Measurements)
+                            .ThenInclude(m => m.Measurement)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Processes)
+                            .ThenInclude(pr => pr.Process)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Processes)
+                            .ThenInclude(s => s.Status)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Specifications)
+                            .ThenInclude(s => s.Specification)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Specifications)
+                            .ThenInclude(s => s.Option)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Specifications)
+                            .ThenInclude(s => s.Status)
+                    .Include(o => o.Products)
+                        .ThenInclude(p => p.Category)
+                    .ToList();
         }
     }
 }
