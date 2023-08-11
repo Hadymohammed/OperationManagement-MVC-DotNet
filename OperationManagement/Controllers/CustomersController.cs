@@ -489,7 +489,7 @@ namespace OperationManagement.Controllers
                         row.CreateCell(column).SetCellValue(measurement.Measurement?.Name);
                         row.GetCell(column++).CellStyle = borderStyle;
 
-                        row.CreateCell(column).SetCellValue(measurement.Value.ToString());
+                        row.CreateCell(column).SetCellValue(measurement.Value.ToString() + " " + measurement.Unit.ToString());
                         row.GetCell(column++).CellStyle = borderStyle;
                     }
                     #endregion
