@@ -90,6 +90,7 @@
 <div class="text-center">
     <a asp-action="Create" asp-controller="Orders" asp-route-CustomerId="@Model?.Id">Add Order</a> |
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="ExportExcel" asp-route-id="@Model?.Id">Export to Excel</a> |
     <a asp-action="Index">Back to List</a>
 </div>
 <h4>Orders</h4>
