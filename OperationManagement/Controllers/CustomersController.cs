@@ -269,7 +269,7 @@ namespace OperationManagement.Controllers
         //export to excel
         public async Task<IActionResult> ExportExcel(int id)
         {
-            var customer = await _customerService.GetByIdAsync(id);
+            var customer = await _customerService.GetByIdAsync(id, c => c.Enterprise);
             if (customer == null)
             {
                 return NotFound();
@@ -281,7 +281,14 @@ namespace OperationManagement.Controllers
             }
             customer.Orders = _orderService.GetOrdersByCustomerId(customer.Id);
             IWorkbook workbook = new XSSFWorkbook();
-            ISheet sheet = workbook.CreateSheet("Customer Full Report");
+            ISheet sheet = workbook.CreateSheet("Main Info");
+            // print setup
+            sheet.PrintSetup.PaperSize = (short)PaperSize.A4;
+            sheet.PrintSetup.Landscape = true;
+            sheet.PrintSetup.FitWidth = 1;
+            sheet.PrintSetup.FitHeight = 0;
+
+
             // Create a cell style with borders
             ICellStyle borderStyle = workbook.CreateCellStyle();
             borderStyle.BorderTop = BorderStyle.Thin;
@@ -292,45 +299,81 @@ namespace OperationManagement.Controllers
             //write customer info 
             int rowCounter = 0;
             int column = 0;
+            //write enterprise info
             IRow row = sheet.CreateRow(rowCounter++);
-            #region Customer Info
-            row.CreateCell(0).SetCellValue("Customer Info");
+            row.CreateCell(0).SetCellValue("Enterprise Info");
             row = sheet.CreateRow(rowCounter++);
-            //add cell style
-            row.CreateCell(column++).SetCellValue(nameof(customer.Name));
-            row.CreateCell(column++).SetCellValue(customer.Name);
 
-            row.CreateCell(column++).SetCellValue(nameof(customer.Phone));
-            row.CreateCell(column++).SetCellValue(customer.Phone);
+            row.CreateCell(0).SetCellValue("Enterprise " + nameof(customer.Enterprise.Name));
+            row.CreateCell(1).SetCellValue(customer.Enterprise.Name);
 
-            row.CreateCell(column++).SetCellValue(nameof(customer.Email));
-            row.CreateCell(column++).SetCellValue(customer.Email);
+            row = sheet.CreateRow(rowCounter++);
+            row.CreateCell(0).SetCellValue("Export Date");
+            row.CreateCell(1).SetCellValue(DateTime.Now.ToString("dd/MM/yyyy"));
 
-            row.CreateCell(column++).SetCellValue(nameof(customer.NationalId));
-            row.CreateCell(column++).SetCellValue(customer.NationalId);
+
+
+            #region Customer Info
+            row = sheet.CreateRow(rowCounter++);
+            row.CreateCell(0).SetCellValue("Customer Info");
+
+            row = sheet.CreateRow(rowCounter++);
+            row.CreateCell(0).SetCellValue(nameof(customer.Name));
+            row.CreateCell(1).SetCellValue(customer.Name);
+
+            row = sheet.CreateRow(rowCounter++);
+            row.CreateCell(0).SetCellValue(nameof(customer.Phone));
+            row.CreateCell(1).SetCellValue(customer.Phone);
+
+            row = sheet.CreateRow(rowCounter++);
+            row.CreateCell(0).SetCellValue(nameof(customer.Email));
+            row.CreateCell(1).SetCellValue(customer.Email);
+
+            row = sheet.CreateRow(rowCounter++);
+            row.CreateCell(0).SetCellValue(nameof(customer.NationalId));
+            row.CreateCell(1).SetCellValue(customer.NationalId);
             #endregion
 
-            row = sheet.CreateRow(rowCounter++);
-            row.CreateCell(0).SetCellValue("Orders");
-
+            sheet.AutoSizeColumn(0);
+            sheet.AutoSizeColumn(1);
             foreach (var order in customer.Orders)
             {
+                //order code
+                var orderCode = order.EnterpriseOrderNumber.ToString();
+                //max sheet name is 31 char
+                orderCode = orderCode.Length > 20 ? orderCode.Substring(0, 20) : orderCode;
+                //sheet for each order
+                sheet = workbook.CreateSheet($"Order {orderCode}");
+                // print setup
+                sheet.PrintSetup.PaperSize = (short)PaperSize.A4;
+                sheet.PrintSetup.Landscape = true;
+                sheet.PrintSetup.FitWidth = 1;
+                sheet.PrintSetup.FitHeight = 0;
+
+                rowCounter = 0;
                 column = 0;
                 //Order Info
                 #region Order Info
                 row = sheet.CreateRow(rowCounter++);
 
-                row.CreateCell(column++).SetCellValue(nameof(order.EnterpriseOrderNumber));
-                row.CreateCell(column++).SetCellValue(order.EnterpriseOrderNumber);
+                row.CreateCell(0).SetCellValue(nameof(order.EnterpriseOrderNumber));
+                row.CreateCell(1).SetCellValue(order.EnterpriseOrderNumber);
 
-                row.CreateCell(column++).SetCellValue(nameof(order.Address));
-                row.CreateCell(column++).SetCellValue(order.Address);
+                row = sheet.CreateRow(rowCounter++);
+                row.CreateCell(0).SetCellValue(nameof(order.Address));
+                row.CreateCell(1).SetCellValue(order.Address);
 
-                row.CreateCell(column++).SetCellValue(nameof(order.ContractDate));
-                row.CreateCell(column++).SetCellValue(order.ContractDate.ToString());
+                row = sheet.CreateRow(rowCounter++);
+                row.CreateCell(0).SetCellValue(nameof(order.ContractDate));
+                row.CreateCell(1).SetCellValue(order.ContractDate.ToShortDateString());
 
-                row.CreateCell(column++).SetCellValue(nameof(order.DeliveryLocation));
-                row.CreateCell(column++).SetCellValue(order.DeliveryLocation?.Name);
+                row = sheet.CreateRow(rowCounter++);
+                row.CreateCell(0).SetCellValue(nameof(order.DeliveryLocation));
+                row.CreateCell(1).SetCellValue(order.DeliveryLocation?.Name);
+
+                //add blank row
+                row = sheet.CreateRow(rowCounter++);
+
                 #endregion
                 row = sheet.CreateRow(rowCounter++);
                 row.CreateCell(0).SetCellValue("Products");
@@ -340,20 +383,24 @@ namespace OperationManagement.Controllers
                     //Product Info
                     #region Product Info
                     row = sheet.CreateRow(rowCounter++);
-                    row.CreateCell(column++).SetCellValue(nameof(product.Name));
-                    row.CreateCell(column++).SetCellValue(product.Name);
+                    row.CreateCell(0).SetCellValue("Product " + nameof(product.Name));
+                    row.CreateCell(1).SetCellValue(product.Name);
 
-                    row.CreateCell(column++).SetCellValue(nameof(product.Category));
-                    row.CreateCell(column++).SetCellValue(product.Category?.Name);
+                    row = sheet.CreateRow(rowCounter++);
+                    row.CreateCell(0).SetCellValue(nameof(product.Category));
+                    row.CreateCell(1).SetCellValue(product.Category?.Name);
 
-                    row.CreateCell(column++).SetCellValue(nameof(product.Quantity));
-                    row.CreateCell(column++).SetCellValue(product.Quantity.ToString());
+                    row = sheet.CreateRow(rowCounter++);
+                    row.CreateCell(0).SetCellValue(nameof(product.Quantity));
+                    row.CreateCell(1).SetCellValue(product.Quantity.ToString());
 
-                    row.CreateCell(column++).SetCellValue(nameof(product.Price));
-                    row.CreateCell(column++).SetCellValue(product.Price.ToString());
+                    row = sheet.CreateRow(rowCounter++);
+                    row.CreateCell(0).SetCellValue(nameof(product.Price));
+                    row.CreateCell(1).SetCellValue(product.Price.ToString());
 
-                    row.CreateCell(column++).SetCellValue(nameof(product.Progress));
-                    row.CreateCell(column++).SetCellValue(product.Progress.ToString());
+                    row = sheet.CreateRow(rowCounter++);
+                    row.CreateCell(0).SetCellValue(nameof(product.Progress));
+                    row.CreateCell(1).SetCellValue(product.Progress.ToString() + "%");
                     #endregion
 
                     //Product Specifications
@@ -415,10 +462,10 @@ namespace OperationManagement.Controllers
                         row.CreateCell(column).SetCellValue(process.Status?.Name);
                         row.GetCell(column++).CellStyle = borderStyle;
 
-                        row.CreateCell(column).SetCellValue(process.StartDate?.ToString());
+                        row.CreateCell(column).SetCellValue(process.StartDate?.ToShortDateString());
                         row.GetCell(column++).CellStyle = borderStyle;
 
-                        row.CreateCell(column).SetCellValue(process.EndDate?.ToString());
+                        row.CreateCell(column).SetCellValue(process.EndDate?.Date.ToShortDateString());
                         row.GetCell(column++).CellStyle = borderStyle;
                     }
                     #endregion
@@ -470,6 +517,12 @@ namespace OperationManagement.Controllers
                     }
                     #endregion
                     row = sheet.CreateRow(rowCounter++);
+                    //make column width fit content automatically
+                    for (int i = 0; i < 10; i++)
+                    {
+                        sheet.AutoSizeColumn(i);
+                    }
+
                 }
             }
             using (var stream = new MemoryStream())
